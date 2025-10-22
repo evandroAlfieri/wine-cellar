@@ -11,12 +11,20 @@ export function useSession() {
 
   const checkSession = async () => {
     try {
-      // Try to fetch data - if we get 401, we're not authenticated
-      const { error } = await supabase.from('country').select('id').limit(1);
+      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
+      const url = `${projectUrl}/functions/v1/winecellar-api?path=session.check`;
       
-      // If no error or error is not auth-related, we might be authenticated
-      // The edge function will validate the session cookie
-      setIsAuthenticated(!error || error.code !== 'PGRST301');
+      const res = await fetch(url, {
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      const data = await res.json();
+      setIsAuthenticated(data.authenticated || false);
     } catch (error) {
       setIsAuthenticated(false);
     } finally {
@@ -63,10 +71,11 @@ export function useSession() {
         method: 'POST',
         credentials: 'include',
       });
-
-      setIsAuthenticated(false);
     } catch (error) {
       console.error('Logout error:', error);
+    } finally {
+      // Always set to false, even if fetch fails
+      setIsAuthenticated(false);
     }
   };
 

@@ -59,6 +59,12 @@ serve(async (req) => {
       );
     }
 
+    // Session check handler
+    if (path === "session.check") {
+      const authorized = cookie.includes(`session=${sessionSecret}`);
+      return jsonResponse({ authenticated: authorized });
+    }
+
     // Check authorization for all other routes
     const authorized = cookie.includes(`session=${sessionSecret}`);
     if (!authorized) {
@@ -148,7 +154,7 @@ function jsonResponse(data: any, status = 200) {
 async function listCountries(supabase: any) {
   const { data, error } = await supabase.from('country').select('*').order('name');
   if (error) return jsonResponse({ error: error.message }, 500);
-  return jsonResponse(data);
+  return jsonResponse({ countries: data });
 }
 
 async function createCountry(supabase: any, req: Request) {
@@ -179,7 +185,7 @@ async function listProducers(supabase: any) {
     .select('*, country(*)')
     .order('name');
   if (error) return jsonResponse({ error: error.message }, 500);
-  return jsonResponse(data);
+  return jsonResponse({ producers: data });
 }
 
 async function createProducer(supabase: any, req: Request) {
@@ -219,7 +225,7 @@ async function listWines(supabase: any) {
     .select('*, producer(*, country(*))')
     .order('name');
   if (error) return jsonResponse({ error: error.message }, 500);
-  return jsonResponse(data);
+  return jsonResponse({ wines: data });
 }
 
 async function createWine(supabase: any, req: Request) {
@@ -259,7 +265,7 @@ async function listBottles(supabase: any) {
     .select('*, wine(*, producer(*, country(*)))')
     .order('quantity', { ascending: false });
   if (error) return jsonResponse({ error: error.message }, 500);
-  return jsonResponse(data);
+  return jsonResponse({ bottles: data });
 }
 
 async function createBottle(supabase: any, req: Request) {
@@ -303,7 +309,7 @@ async function consumeBottle(supabase: any, req: Request) {
 async function getStatsSummary(supabase: any) {
   const { data, error } = await supabase.rpc('stats_summary');
   if (error) return jsonResponse({ error: error.message }, 500);
-  return jsonResponse(data);
+  return jsonResponse({ stats: data });
 }
 
 // Export CSV
