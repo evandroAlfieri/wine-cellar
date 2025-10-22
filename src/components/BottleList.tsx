@@ -119,57 +119,76 @@ export function BottleList() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredBottles.map((bottle) => (
-                <TableRow key={bottle.id}>
-                  <TableCell className="font-medium">{bottle.wine.name}</TableCell>
-                  <TableCell>{bottle.wine.producer.name}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm">
-                      {bottle.wine.producer.country && (
-                        <>
-                          <MapPin className="w-3 h-3" />
-                          <span>{bottle.wine.producer.country.name}</span>
-                          {bottle.wine.producer.region && (
-                            <span className="text-muted-foreground">• {bottle.wine.producer.region}</span>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={colourMap[bottle.wine.colour] || colourMap.other} variant="outline">
-                      {bottle.wine.colour}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{bottle.vintage || '-'}</TableCell>
-                  <TableCell>{bottle.size}ml</TableCell>
-                  <TableCell>{bottle.quantity}</TableCell>
-                  <TableCell className="text-right font-semibold">
-                    €{(bottle.price / 100).toFixed(2)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex gap-1 justify-end">
-                      <EditBottleDialog bottle={bottle} />
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => consumeBottle.mutate(bottle.id)}
-                        disabled={bottle.quantity === 0 || consumeBottle.isPending}
-                      >
-                        <Wine className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setDeleteBottleId(bottle.id)}
-                        disabled={deleteBottle.isPending}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filteredBottles.map((bottle) => {
+                const isOutOfStock = bottle.quantity === 0;
+                return (
+                  <TableRow 
+                    key={bottle.id}
+                    className={isOutOfStock ? 'opacity-50' : ''}
+                  >
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        {bottle.wine.name}
+                        {isOutOfStock && (
+                          <Badge variant="outline" className="bg-muted text-muted-foreground">
+                            Out of Stock
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{bottle.wine.producer.name}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1 text-sm">
+                        {bottle.wine.producer.country && (
+                          <>
+                            <MapPin className="w-3 h-3" />
+                            <span>{bottle.wine.producer.country.name}</span>
+                            {bottle.wine.producer.region && (
+                              <span className="text-muted-foreground">• {bottle.wine.producer.region}</span>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={colourMap[bottle.wine.colour] || colourMap.other} variant="outline">
+                        {bottle.wine.colour}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{bottle.vintage || '-'}</TableCell>
+                    <TableCell>{bottle.size}ml</TableCell>
+                    <TableCell>
+                      <span className={isOutOfStock ? 'text-muted-foreground' : ''}>
+                        {bottle.quantity}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      €{(bottle.price / 100).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex gap-1 justify-end">
+                        <EditBottleDialog bottle={bottle} />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => consumeBottle.mutate(bottle.id)}
+                          disabled={isOutOfStock || consumeBottle.isPending}
+                        >
+                          <Wine className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setDeleteBottleId(bottle.id)}
+                          disabled={deleteBottle.isPending}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
