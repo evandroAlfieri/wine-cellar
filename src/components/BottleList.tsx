@@ -126,16 +126,7 @@ export function BottleList() {
                     key={bottle.id}
                     className={isOutOfStock ? 'opacity-50' : ''}
                   >
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        {bottle.wine.name}
-                        {isOutOfStock && (
-                          <Badge variant="outline" className="bg-muted text-muted-foreground">
-                            Out of Stock
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
+                    <TableCell className="font-medium">{bottle.wine.name}</TableCell>
                     <TableCell>{bottle.wine.producer.name}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm">
@@ -157,11 +148,7 @@ export function BottleList() {
                     </TableCell>
                     <TableCell>{bottle.vintage || '-'}</TableCell>
                     <TableCell>{bottle.size}ml</TableCell>
-                    <TableCell>
-                      <span className={isOutOfStock ? 'text-muted-foreground' : ''}>
-                        {bottle.quantity}
-                      </span>
-                    </TableCell>
+                    <TableCell>{bottle.quantity}</TableCell>
                     <TableCell className="text-right font-semibold">
                       €{(bottle.price / 100).toFixed(2)}
                     </TableCell>
