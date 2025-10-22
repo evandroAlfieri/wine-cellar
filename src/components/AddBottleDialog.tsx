@@ -79,21 +79,18 @@ export function AddBottleDialog() {
   const selectedCountryId = form.watch('country_id');
   const selectedProducerId = form.watch('producer_id');
 
-  const filteredProducers = producers?.filter(p => p.country_id === selectedCountryId);
   const filteredWines = wines?.filter(w => w.producer_id === selectedProducerId);
 
-  useEffect(() => {
-    if (selectedCountryId) {
-      form.setValue('producer_id', '');
-      form.setValue('wine_id', '');
-    }
-  }, [selectedCountryId]);
-
+  // Auto-populate country when producer is selected
   useEffect(() => {
     if (selectedProducerId) {
+      const selectedProducer = producers?.find(p => p.id === selectedProducerId);
+      if (selectedProducer?.country_id) {
+        form.setValue('country_id', selectedProducer.country_id);
+      }
       form.setValue('wine_id', '');
     }
-  }, [selectedProducerId]);
+  }, [selectedProducerId, producers]);
 
   const handleAddCountry = async () => {
     if (newCountry.trim()) {
@@ -104,10 +101,10 @@ export function AddBottleDialog() {
   };
 
   const handleAddProducer = async () => {
-    if (newProducer.trim() && selectedCountryId) {
+    if (newProducer.trim()) {
       const result = await createProducer.mutateAsync({
         name: newProducer.trim(),
-        country_id: selectedCountryId,
+        country_id: selectedCountryId || undefined,
         region: newProducerRegion.trim() || undefined,
       });
       form.setValue('producer_id', result.producer.id);
@@ -159,6 +156,58 @@ export function AddBottleDialog() {
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Producer Selection */}
+            <FormField
+              control={form.control}
+              name="producer_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Producer</FormLabel>
+                  <div className="flex gap-2">
+                    <Select 
+                      onValueChange={field.onChange} 
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select producer" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {producers?.map(p => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.name} {p.region && `(${p.region})`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Producer name"
+                        value={newProducer}
+                        onChange={(e) => setNewProducer(e.target.value)}
+                        className="w-32"
+                      />
+                      <Input
+                        placeholder="Region"
+                        value={newProducerRegion}
+                        onChange={(e) => setNewProducerRegion(e.target.value)}
+                        className="w-32"
+                      />
+                      <Button 
+                        type="button" 
+                        size="sm" 
+                        onClick={handleAddProducer}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* Country Selection */}
             <FormField
               control={form.control}
@@ -187,62 +236,6 @@ export function AddBottleDialog() {
                         className="w-40"
                       />
                       <Button type="button" size="sm" onClick={handleAddCountry}>
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Producer Selection */}
-            <FormField
-              control={form.control}
-              name="producer_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Producer</FormLabel>
-                  <div className="flex gap-2">
-                    <Select 
-                      onValueChange={field.onChange} 
-                      value={field.value}
-                      disabled={!selectedCountryId}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select producer" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {filteredProducers?.map(p => (
-                          <SelectItem key={p.id} value={p.id}>
-                            {p.name} {p.region && `(${p.region})`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Producer name"
-                        value={newProducer}
-                        onChange={(e) => setNewProducer(e.target.value)}
-                        disabled={!selectedCountryId}
-                        className="w-32"
-                      />
-                      <Input
-                        placeholder="Region"
-                        value={newProducerRegion}
-                        onChange={(e) => setNewProducerRegion(e.target.value)}
-                        disabled={!selectedCountryId}
-                        className="w-32"
-                      />
-                      <Button 
-                        type="button" 
-                        size="sm" 
-                        onClick={handleAddProducer}
-                        disabled={!selectedCountryId}
-                      >
                         <Plus className="w-4 h-4" />
                       </Button>
                     </div>
