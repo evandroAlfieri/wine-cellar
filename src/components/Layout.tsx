@@ -1,6 +1,7 @@
 import { Wine, LogOut, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useSession } from '@/hooks/useSession';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { AddBottleDialog } from '@/components/AddBottleDialog';
 import { ManageDataDialog } from '@/components/ManageDataDialog';
 import { toast } from '@/hooks/use-toast';
@@ -10,7 +11,13 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { logout } = useSession();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
   const handleExportCSV = async () => {
     try {
@@ -60,9 +67,9 @@ export function Layout({ children }: LayoutProps) {
                 <Download className="w-4 h-4 mr-2" />
                 Export CSV
               </Button>
-              <Button variant="outline" size="sm" onClick={logout}>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                Sign Out
               </Button>
             </div>
           </div>

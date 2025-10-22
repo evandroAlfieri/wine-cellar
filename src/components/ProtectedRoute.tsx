@@ -1,12 +1,12 @@
-import { useSession } from '@/hooks/useSession';
-import { PasswordGate } from './PasswordGate';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useSession();
+  const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -16,8 +16,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  if (!isAuthenticated) {
-    return <PasswordGate />;
+  if (!user) {
+    return <Navigate to="/auth" replace />;
   }
 
   return <>{children}</>;
