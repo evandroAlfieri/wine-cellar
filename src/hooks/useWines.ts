@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
 import { WineColour } from '@/lib/schemas';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Wine {
   id: string;
@@ -13,19 +14,15 @@ export function useWines(producerId?: string) {
   return useQuery({
     queryKey: ['wines', producerId],
     queryFn: async () => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=wines.list`;
-      
-      const res = await fetch(url, { credentials: 'include' });
-      if (!res.ok) throw new Error('Failed to fetch wines');
-      
-      const data = await res.json();
-      const wines = data.wines as Wine[];
+      let query = supabase.from('wine').select('*').order('name');
       
       if (producerId) {
-        return wines.filter(w => w.producer_id === producerId);
+        query = query.eq('producer_id', producerId);
       }
-      return wines;
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as Wine[];
     },
   });
 }
@@ -35,18 +32,14 @@ export function useCreateWine() {
   
   return useMutation({
     mutationFn: async (wine: { name: string; colour: WineColour; producer_id: string }) => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=wines.create`;
+      const { data, error } = await supabase
+        .from('wine')
+        .insert(wine)
+        .select()
+        .single();
       
-      const res = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(wine),
-      });
-      
-      if (!res.ok) throw new Error('Failed to create wine');
-      return res.json();
+      if (error) throw error;
+      return { wine: data };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wines'] });
@@ -63,18 +56,12 @@ export function useDeleteWine() {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=wines.delete`;
+      const { error } = await supabase
+        .from('wine')
+        .delete()
+        .eq('id', id);
       
-      const res = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
-      });
-      
-      if (!res.ok) throw new Error('Failed to delete wine');
-      return res.json();
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wines'] });

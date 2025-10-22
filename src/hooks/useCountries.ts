@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Country {
   id: string;
@@ -10,14 +11,13 @@ export function useCountries() {
   return useQuery({
     queryKey: ['countries'],
     queryFn: async () => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=countries.list`;
+      const { data, error } = await supabase
+        .from('country')
+        .select('*')
+        .order('name');
       
-      const res = await fetch(url, { credentials: 'include' });
-      if (!res.ok) throw new Error('Failed to fetch countries');
-      
-      const data = await res.json();
-      return data.countries as Country[];
+      if (error) throw error;
+      return data as Country[];
     },
   });
 }
@@ -27,18 +27,14 @@ export function useCreateCountry() {
   
   return useMutation({
     mutationFn: async (name: string) => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=countries.create`;
+      const { data, error } = await supabase
+        .from('country')
+        .insert({ name })
+        .select()
+        .single();
       
-      const res = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
-      });
-      
-      if (!res.ok) throw new Error('Failed to create country');
-      return res.json();
+      if (error) throw error;
+      return { country: data };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['countries'] });
@@ -55,18 +51,12 @@ export function useDeleteCountry() {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=countries.delete`;
+      const { error } = await supabase
+        .from('country')
+        .delete()
+        .eq('id', id);
       
-      const res = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
-      });
-      
-      if (!res.ok) throw new Error('Failed to delete country');
-      return res.json();
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['countries'] });

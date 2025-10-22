@@ -1,23 +1,27 @@
 import { useQuery } from '@tanstack/react-query';
 import { BottleWithDetails } from '@/lib/types';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useBottles() {
   return useQuery({
     queryKey: ['bottles'],
     queryFn: async () => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=bottles.list`;
-      
-      const res = await fetch(url, {
-        credentials: 'include',
-      });
+      const { data, error } = await supabase
+        .from('bottle')
+        .select(`
+          *,
+          wine:wine_id (
+            *,
+            producer:producer_id (
+              *,
+              country:country_id (*)
+            )
+          )
+        `)
+        .order('id');
 
-      if (!res.ok) {
-        throw new Error('Failed to fetch bottles');
-      }
-
-      const data = await res.json();
-      return data.bottles as BottleWithDetails[];
+      if (error) throw error;
+      return data as BottleWithDetails[];
     },
   });
 }

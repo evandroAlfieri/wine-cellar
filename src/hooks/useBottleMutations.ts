@@ -1,24 +1,28 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
 import { CreateBottle } from '@/lib/schemas';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useCreateBottle() {
   const queryClient = useQueryClient();
   
   return useMutation({
     mutationFn: async (bottle: CreateBottle) => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=bottles.create`;
+      const { data, error } = await supabase
+        .from('bottle')
+        .insert({
+          wine_id: bottle.wine_id,
+          vintage: bottle.vintage ?? null,
+          size: bottle.size,
+          price: bottle.price,
+          quantity: bottle.quantity ?? 1,
+          tags: bottle.tags ?? null,
+        })
+        .select()
+        .single();
       
-      const res = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bottle),
-      });
-      
-      if (!res.ok) throw new Error('Failed to create bottle');
-      return res.json();
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bottles'] });
@@ -36,18 +40,15 @@ export function useUpdateBottle() {
   
   return useMutation({
     mutationFn: async ({ id, ...updates }: { id: string } & Partial<CreateBottle>) => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=bottles.update`;
+      const { data, error } = await supabase
+        .from('bottle')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
       
-      const res = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, ...updates }),
-      });
-      
-      if (!res.ok) throw new Error('Failed to update bottle');
-      return res.json();
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bottles'] });
@@ -65,18 +66,12 @@ export function useDeleteBottle() {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=bottles.delete`;
+      const { error } = await supabase
+        .from('bottle')
+        .delete()
+        .eq('id', id);
       
-      const res = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
-      });
-      
-      if (!res.ok) throw new Error('Failed to delete bottle');
-      return res.json();
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bottles'] });
@@ -94,18 +89,11 @@ export function useConsumeBottle() {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=bottles.consume`;
-      
-      const res = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
+      const { error } = await supabase.rpc('decrement_bottle_qty', {
+        bottle_id: id,
       });
       
-      if (!res.ok) throw new Error('Failed to consume bottle');
-      return res.json();
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bottles'] });

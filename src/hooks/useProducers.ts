@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Producer {
   id: string;
@@ -12,14 +13,13 @@ export function useProducers() {
   return useQuery({
     queryKey: ['producers'],
     queryFn: async () => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=producers.list`;
+      const { data, error } = await supabase
+        .from('producer')
+        .select('*')
+        .order('name');
       
-      const res = await fetch(url, { credentials: 'include' });
-      if (!res.ok) throw new Error('Failed to fetch producers');
-      
-      const data = await res.json();
-      return data.producers as Producer[];
+      if (error) throw error;
+      return data as Producer[];
     },
   });
 }
@@ -29,18 +29,14 @@ export function useCreateProducer() {
   
   return useMutation({
     mutationFn: async (producer: { name: string; country_id?: string; region?: string }) => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=producers.create`;
+      const { data, error } = await supabase
+        .from('producer')
+        .insert(producer)
+        .select()
+        .single();
       
-      const res = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(producer),
-      });
-      
-      if (!res.ok) throw new Error('Failed to create producer');
-      return res.json();
+      if (error) throw error;
+      return { producer: data };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['producers'] });
@@ -57,18 +53,12 @@ export function useDeleteProducer() {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=producers.delete`;
+      const { error } = await supabase
+        .from('producer')
+        .delete()
+        .eq('id', id);
       
-      const res = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
-      });
-      
-      if (!res.ok) throw new Error('Failed to delete producer');
-      return res.json();
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['producers'] });

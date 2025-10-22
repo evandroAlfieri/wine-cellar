@@ -130,14 +130,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      decrement_bottle_qty: {
-        Args: { bottle_id: string }
-        Returns: undefined
-      }
-      stats_summary: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      decrement_bottle_qty: { Args: { bottle_id: string }; Returns: undefined }
+      stats_summary: { Args: never; Returns: Json }
     }
     Enums: {
       wine_colour: "red" | "white" | "rosé" | "sparkling" | "other"

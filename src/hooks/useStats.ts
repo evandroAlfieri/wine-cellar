@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Stats {
   total_bottles: number;
@@ -9,19 +10,10 @@ export function useStats() {
   return useQuery({
     queryKey: ['stats'],
     queryFn: async () => {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=stats.summary`;
+      const { data, error } = await supabase.rpc('stats_summary');
       
-      const res = await fetch(url, {
-        credentials: 'include',
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to fetch stats');
-      }
-
-      const data = await res.json();
-      return data.stats as Stats;
+      if (error) throw error;
+      return data as unknown as Stats;
     },
   });
 }
