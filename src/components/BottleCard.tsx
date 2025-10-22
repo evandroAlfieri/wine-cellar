@@ -1,12 +1,28 @@
-import { Wine, MapPin, Calendar } from 'lucide-react';
+import { useState } from 'react';
+import { Wine, MapPin, Calendar, Trash2 } from 'lucide-react';
 import { BottleWithDetails } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useConsumeBottle, useDeleteBottle } from '@/hooks/useBottleMutations';
 
 interface BottleCardProps {
   bottle: BottleWithDetails;
 }
 
 export function BottleCard({ bottle }: BottleCardProps) {
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const consumeBottle = useConsumeBottle();
+  const deleteBottle = useDeleteBottle();
   const price = (bottle.price / 100).toFixed(2);
   
   const colourMap: Record<string, string> = {
@@ -18,7 +34,8 @@ export function BottleCard({ bottle }: BottleCardProps) {
   };
 
   return (
-    <div className="bg-card rounded-lg border p-4 hover:shadow-lg transition-all hover:border-primary/50">
+    <>
+      <div className="bg-card rounded-lg border p-4 hover:shadow-lg transition-all hover:border-primary/50">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <h3 className="font-semibold text-lg mb-1">{bottle.wine.name}</h3>
@@ -66,6 +83,49 @@ export function BottleCard({ bottle }: BottleCardProps) {
           ))}
         </div>
       )}
+
+      <div className="flex gap-2 mt-4 pt-4 border-t">
+        <Button
+          size="sm"
+          onClick={() => consumeBottle.mutate(bottle.id)}
+          disabled={bottle.quantity === 0 || consumeBottle.isPending}
+          className="flex-1"
+        >
+          <Wine className="w-4 h-4 mr-2" />
+          Consume
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setShowDeleteAlert(true)}
+          disabled={deleteBottle.isPending}
+        >
+          <Trash2 className="w-4 h-4 text-destructive" />
+        </Button>
+      </div>
     </div>
+
+    <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Bottle?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently delete "{bottle.wine.name}" from your cellar.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              deleteBottle.mutate(bottle.id);
+              setShowDeleteAlert(false);
+            }}
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </>
   );
 }

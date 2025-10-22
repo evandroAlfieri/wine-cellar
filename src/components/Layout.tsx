@@ -1,6 +1,9 @@
-import { Wine, LogOut, BarChart3, Plus } from 'lucide-react';
+import { Wine, LogOut, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSession } from '@/hooks/useSession';
+import { AddBottleDialog } from '@/components/AddBottleDialog';
+import { ManageDataDialog } from '@/components/ManageDataDialog';
+import { toast } from '@/hooks/use-toast';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -8,6 +11,31 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const { logout } = useSession();
+
+  const handleExportCSV = async () => {
+    try {
+      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
+      const url = `${projectUrl}/functions/v1/winecellar-api?path=export.csv`;
+      
+      const res = await fetch(url, { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to export');
+      
+      const csv = await res.text();
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `wine-cellar-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+      
+      toast({ title: 'CSV exported successfully' });
+    } catch (error) {
+      toast({ title: 'Failed to export CSV', variant: 'destructive' });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -26,6 +54,12 @@ export function Layout({ children }: LayoutProps) {
             </div>
 
             <div className="flex items-center gap-2">
+              <AddBottleDialog />
+              <ManageDataDialog />
+              <Button variant="outline" size="sm" onClick={handleExportCSV}>
+                <Download className="w-4 h-4 mr-2" />
+                Export CSV
+              </Button>
               <Button variant="outline" size="sm" onClick={logout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
