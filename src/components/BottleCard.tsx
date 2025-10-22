@@ -71,7 +71,7 @@ export function BottleCard({ bottle }: BottleCardProps) {
             {bottle.size}ml • Qty: {bottle.quantity}
           </span>
         </div>
-        <span className="font-semibold text-primary">${price}</span>
+        <span className="font-semibold text-primary">€{price}</span>
       </div>
 
       {bottle.tags && bottle.tags.length > 0 && (

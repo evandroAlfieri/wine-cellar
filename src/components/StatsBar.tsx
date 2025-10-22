@@ -38,7 +38,7 @@ export function StatsBar() {
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Total Value</p>
-            <p className="text-2xl font-bold">${totalValue.toFixed(2)}</p>
+            <p className="text-2xl font-bold">€{totalValue.toFixed(2)}</p>
           </div>
         </div>
       </div>
