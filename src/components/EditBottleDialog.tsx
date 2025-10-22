@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Pencil, Plus } from 'lucide-react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -27,10 +27,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useCountries, useCreateCountry } from '@/hooks/useCountries';
 import { useProducers, useCreateProducer } from '@/hooks/useProducers';
 import { useWines, useCreateWine } from '@/hooks/useWines';
-import { useUpdateBottle } from '@/hooks/useBottleMutations';
+import { useUpdateBottle, useDeleteBottle } from '@/hooks/useBottleMutations';
 import { WineColourEnum } from '@/lib/schemas';
 import { BottleWithDetails } from '@/lib/types';
 
@@ -53,6 +63,7 @@ interface EditBottleDialogProps {
 
 export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
   const [open, setOpen] = useState(false);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [newCountry, setNewCountry] = useState('');
   const [newProducer, setNewProducer] = useState('');
   const [newProducerRegion, setNewProducerRegion] = useState('');
@@ -66,6 +77,7 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
   const createProducer = useCreateProducer();
   const createWine = useCreateWine();
   const updateBottle = useUpdateBottle();
+  const deleteBottle = useDeleteBottle();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -412,15 +424,48 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
               )}
             />
 
-            <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-                Cancel
+            <div className="flex justify-between items-center gap-2 pt-4 border-t">
+              <Button 
+                type="button" 
+                variant="destructive" 
+                onClick={() => setShowDeleteAlert(true)}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Bottle
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">Save Changes</Button>
+              </div>
             </div>
           </form>
         </Form>
       </DialogContent>
+
+      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Bottle?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{bottle.wine.name}" from your cellar.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                deleteBottle.mutate(bottle.id);
+                setShowDeleteAlert(false);
+                setOpen(false);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

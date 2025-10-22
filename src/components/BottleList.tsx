@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useBottles } from '@/hooks/useBottles';
 import { Filters } from './Filters';
-import { Wine, Trash2, MapPin } from 'lucide-react';
-import { BottleWithDetails } from '@/lib/types';
+import { Wine, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EditBottleDialog } from '@/components/EditBottleDialog';
@@ -14,25 +13,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { useConsumeBottle, useDeleteBottle } from '@/hooks/useBottleMutations';
+import { useConsumeBottle } from '@/hooks/useBottleMutations';
 
 export function BottleList() {
   const { data: bottles, isLoading } = useBottles();
   const [searchQuery, setSearchQuery] = useState('');
   const [colourFilter, setColourFilter] = useState('all');
-  const [deleteBottleId, setDeleteBottleId] = useState<string | null>(null);
   const consumeBottle = useConsumeBottle();
-  const deleteBottle = useDeleteBottle();
 
   const filteredBottles = useMemo(() => {
     if (!bottles) return [];
@@ -58,8 +45,6 @@ export function BottleList() {
     sparkling: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
     other: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20',
   };
-
-  const bottleToDelete = bottles?.find(b => b.id === deleteBottleId);
 
   if (isLoading) {
     return (
@@ -163,14 +148,6 @@ export function BottleList() {
                         >
                           <Wine className="w-4 h-4" />
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setDeleteBottleId(bottle.id)}
-                          disabled={deleteBottle.isPending}
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -180,30 +157,6 @@ export function BottleList() {
           </Table>
         </div>
       )}
-
-      <AlertDialog open={!!deleteBottleId} onOpenChange={(open) => !open && setDeleteBottleId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Bottle?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete "{bottleToDelete?.wine.name}" from your cellar.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (deleteBottleId) {
-                  deleteBottle.mutate(deleteBottleId);
-                  setDeleteBottleId(null);
-                }
-              }}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
