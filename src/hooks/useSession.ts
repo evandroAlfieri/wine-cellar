@@ -11,17 +11,25 @@ export function useSession() {
 
   const checkSession = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('winecellar-api', {
-        body: {},
-        method: 'GET',
+      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const url = `${projectUrl}/functions/v1/winecellar-api?path=session.check`;
+      
+      const res = await fetch(url, {
+        credentials: 'include',
+        headers: {
+          'apikey': anonKey,
+          'Authorization': `Bearer ${anonKey}`,
+        },
       });
 
-      if (error) {
+      if (!res.ok) {
         setIsAuthenticated(false);
         return;
       }
 
-      setIsAuthenticated(data?.authenticated || false);
+      const data = await res.json();
+      setIsAuthenticated(data.authenticated || false);
     } catch (error) {
       setIsAuthenticated(false);
     } finally {
@@ -31,13 +39,25 @@ export function useSession() {
 
   const login = async (password: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('winecellar-api', {
-        body: { password, path: 'session.login' },
+      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const url = `${projectUrl}/functions/v1/winecellar-api?path=session.login`;
+      
+      const res = await fetch(url, {
         method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': anonKey,
+          'Authorization': `Bearer ${anonKey}`,
+        },
+        body: JSON.stringify({ password }),
       });
 
-      if (error || data?.error) {
-        throw new Error(data?.error || error?.message || 'Login failed');
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Login failed');
       }
 
       setIsAuthenticated(true);
@@ -52,9 +72,17 @@ export function useSession() {
 
   const logout = async () => {
     try {
-      await supabase.functions.invoke('winecellar-api', {
-        body: { path: 'session.logout' },
+      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const url = `${projectUrl}/functions/v1/winecellar-api?path=session.logout`;
+      
+      await fetch(url, {
         method: 'POST',
+        credentials: 'include',
+        headers: {
+          'apikey': anonKey,
+          'Authorization': `Bearer ${anonKey}`,
+        },
       });
     } catch (error) {
       console.error('Logout error:', error);
