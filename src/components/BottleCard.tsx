@@ -1,0 +1,71 @@
+import { Wine, MapPin, Calendar } from 'lucide-react';
+import { BottleWithDetails } from '@/lib/types';
+import { Badge } from '@/components/ui/badge';
+
+interface BottleCardProps {
+  bottle: BottleWithDetails;
+}
+
+export function BottleCard({ bottle }: BottleCardProps) {
+  const price = (bottle.price / 100).toFixed(2);
+  
+  const colourMap: Record<string, string> = {
+    red: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
+    white: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20',
+    rosé: 'bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-500/20',
+    sparkling: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
+    other: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20',
+  };
+
+  return (
+    <div className="bg-card rounded-lg border p-4 hover:shadow-lg transition-all hover:border-primary/50">
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1">
+          <h3 className="font-semibold text-lg mb-1">{bottle.wine.name}</h3>
+          <p className="text-sm text-muted-foreground">{bottle.wine.producer.name}</p>
+        </div>
+        <Wine className="w-5 h-5 text-primary flex-shrink-0 ml-2" />
+      </div>
+
+      <div className="space-y-2 mb-3">
+        {bottle.wine.producer.country && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPin className="w-4 h-4" />
+            <span>{bottle.wine.producer.country.name}</span>
+            {bottle.wine.producer.region && (
+              <span className="text-muted-foreground/70">• {bottle.wine.producer.region}</span>
+            )}
+          </div>
+        )}
+        {bottle.vintage && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Calendar className="w-4 h-4" />
+            <span>{bottle.vintage}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between pt-3 border-t">
+        <div className="flex items-center gap-2">
+          <Badge className={colourMap[bottle.wine.colour] || colourMap.other}>
+            {bottle.wine.colour}
+          </Badge>
+          <span className="text-sm text-muted-foreground">
+            {bottle.size}ml • Qty: {bottle.quantity}
+          </span>
+        </div>
+        <span className="font-semibold text-primary">${price}</span>
+      </div>
+
+      {bottle.tags && bottle.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-3">
+          {bottle.tags.map((tag) => (
+            <Badge key={tag} variant="outline" className="text-xs">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
