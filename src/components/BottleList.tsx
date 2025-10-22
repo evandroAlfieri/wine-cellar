@@ -5,6 +5,7 @@ import { Wine, Trash2, MapPin } from 'lucide-react';
 import { BottleWithDetails } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { EditBottleDialog } from '@/components/EditBottleDialog';
 import {
   Table,
   TableBody,
@@ -148,6 +149,7 @@ export function BottleList() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex gap-1 justify-end">
+                      <EditBottleDialog bottle={bottle} />
                       <Button
                         size="sm"
                         variant="outline"
