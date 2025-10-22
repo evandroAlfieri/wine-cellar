@@ -39,7 +39,7 @@ const formSchema = z.object({
   wine_id: z.string().min(1, 'Wine is required'),
   vintage: z.coerce.number().int().min(1900).max(new Date().getFullYear() + 5).nullable(),
   size: z.coerce.number().int().min(1, 'Size must be positive'),
-  price: z.coerce.number().int().min(0, 'Price must be non-negative'),
+  price: z.coerce.number().min(0, 'Price must be non-negative'),
   quantity: z.coerce.number().int().min(1, 'Quantity must be positive').default(1),
   tags: z.string().optional(),
 });
@@ -135,7 +135,7 @@ export function AddBottleDialog() {
       wine_id: values.wine_id,
       vintage: values.vintage,
       size: values.size,
-      price: values.price,
+      price: Math.round(values.price * 100), // Convert euros to cents
       quantity: values.quantity,
       tags: tags?.length ? tags : undefined,
     });
@@ -359,9 +359,14 @@ export function AddBottleDialog() {
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price (cents)</FormLabel>
+                    <FormLabel>Price (€)</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} />
+                      <Input 
+                        type="number" 
+                        step="0.01"
+                        placeholder="e.g., 40.50"
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
