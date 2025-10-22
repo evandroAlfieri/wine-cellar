@@ -22,14 +22,22 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
     const url = new URL(req.url);
-    const path = url.searchParams.get("path");
     const cookie = req.headers.get("cookie") || "";
+    
+    // Get path from query params or request body
+    let path = url.searchParams.get("path");
+    let bodyData: any = {};
+    
+    if (req.method === 'POST') {
+      bodyData = await req.json();
+      path = bodyData.path || path;
+    }
 
     console.log(`[winecellar-api] Request path: ${path}`);
 
     // Session login handler
     if (path === "session.login") {
-      const { password } = await req.json();
+      const password = bodyData.password;
       
       if (password !== appPassword) {
         return new Response(

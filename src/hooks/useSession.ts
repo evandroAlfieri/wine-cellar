@@ -11,20 +11,17 @@ export function useSession() {
 
   const checkSession = async () => {
     try {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=session.check`;
-      
-      const res = await fetch(url, {
-        credentials: 'include',
+      const { data, error } = await supabase.functions.invoke('winecellar-api', {
+        body: {},
+        method: 'GET',
       });
 
-      if (!res.ok) {
+      if (error) {
         setIsAuthenticated(false);
         return;
       }
 
-      const data = await res.json();
-      setIsAuthenticated(data.authenticated || false);
+      setIsAuthenticated(data?.authenticated || false);
     } catch (error) {
       setIsAuthenticated(false);
     } finally {
@@ -34,22 +31,13 @@ export function useSession() {
 
   const login = async (password: string) => {
     try {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=session.login`;
-      
-      const res = await fetch(url, {
+      const { data, error } = await supabase.functions.invoke('winecellar-api', {
+        body: { password, path: 'session.login' },
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password }),
-        credentials: 'include',
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Login failed');
+      if (error || data?.error) {
+        throw new Error(data?.error || error?.message || 'Login failed');
       }
 
       setIsAuthenticated(true);
@@ -64,17 +52,13 @@ export function useSession() {
 
   const logout = async () => {
     try {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=session.logout`;
-      
-      await fetch(url, {
+      await supabase.functions.invoke('winecellar-api', {
+        body: { path: 'session.logout' },
         method: 'POST',
-        credentials: 'include',
       });
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      // Always set to false, even if fetch fails
       setIsAuthenticated(false);
     }
   };
