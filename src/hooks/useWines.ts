@@ -52,6 +52,33 @@ export function useCreateWine() {
   });
 }
 
+export function useUpdateWine() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<{ name: string; colour: WineColour; producer_id: string; varietal_id: string | null }>) => {
+      const { data, error } = await supabase
+        .from('wine')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wines'] });
+      queryClient.invalidateQueries({ queryKey: ['bottles'] });
+      queryClient.invalidateQueries({ queryKey: ['stats'] });
+      queryClient.invalidateQueries({ queryKey: ['varietal-breakdown'] });
+    },
+    onError: () => {
+      toast({ title: 'Failed to update wine', variant: 'destructive' });
+    },
+  });
+}
+
 export function useDeleteWine() {
   const queryClient = useQueryClient();
   

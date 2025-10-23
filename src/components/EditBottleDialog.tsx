@@ -53,7 +53,7 @@ import {
 import { useCountries, useCreateCountry } from '@/hooks/useCountries';
 import { useRegions, useCreateRegion } from '@/hooks/useRegions';
 import { useProducers, useCreateProducer } from '@/hooks/useProducers';
-import { useWines, useCreateWine } from '@/hooks/useWines';
+import { useWines, useCreateWine, useUpdateWine } from '@/hooks/useWines';
 import { useVarietals, useCreateVarietal } from '@/hooks/useVarietals';
 import { useUpdateBottle, useDeleteBottle } from '@/hooks/useBottleMutations';
 import { WineColourEnum } from '@/lib/schemas';
@@ -104,6 +104,7 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
   const createProducer = useCreateProducer();
   const createVarietal = useCreateVarietal();
   const createWine = useCreateWine();
+  const updateWine = useUpdateWine();
   const updateBottle = useUpdateBottle();
   const deleteBottle = useDeleteBottle();
 
@@ -195,6 +196,14 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
 
   const onSubmit = async (values: FormValues) => {
     const tags = values.tags?.split(',').map(t => t.trim()).filter(Boolean);
+    
+    // Update wine's varietal if it changed
+    if (values.varietal_id !== (bottle.wine.varietal?.id || '')) {
+      await updateWine.mutateAsync({
+        id: values.wine_id,
+        varietal_id: values.varietal_id || null,
+      });
+    }
     
     await updateBottle.mutateAsync({
       id: bottle.id,
