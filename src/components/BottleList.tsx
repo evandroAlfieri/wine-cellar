@@ -94,6 +94,7 @@ export function BottleList() {
               <TableRow>
                 <TableHead>Wine</TableHead>
                 <TableHead>Producer</TableHead>
+                <TableHead>Varietal</TableHead>
                 <TableHead>Country/Region</TableHead>
                 <TableHead>Colour</TableHead>
                 <TableHead>Vintage</TableHead>
@@ -113,6 +114,9 @@ export function BottleList() {
                   >
                     <TableCell className="font-medium">{bottle.wine.name}</TableCell>
                     <TableCell>{bottle.wine.producer.name}</TableCell>
+                    <TableCell className="text-sm italic text-muted-foreground">
+                      {bottle.wine.varietal?.name || '-'}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm">
                         {bottle.wine.producer.country && (
