@@ -123,13 +123,28 @@ export function StatsBar() {
       
       {/* Total Value */}
       <div className="bg-card rounded-lg border p-4 hover:shadow-md transition-shadow">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-4">
           <div className="p-2 rounded-lg bg-accent/10">
             <Euro className="w-5 h-5 text-accent" />
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Total Value</p>
             <p className="text-2xl font-bold">€{totalValue.toFixed(2)}</p>
+          </div>
+        </div>
+        
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">Average per bottle</span>
+            <span className="font-semibold">€{(stats?.avg_price || 0).toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">Lowest price</span>
+            <span className="font-semibold text-green-600">€{(stats?.min_price || 0).toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">Highest price</span>
+            <span className="font-semibold text-amber-600">€{(stats?.max_price || 0).toFixed(2)}</span>
           </div>
         </div>
       </div>

@@ -4,6 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 interface Stats {
   total_bottles: number;
   total_value: number;
+  avg_price: number;
+  min_price: number;
+  max_price: number;
 }
 
 interface ColorBreakdown {
@@ -15,10 +18,26 @@ export function useStats() {
   return useQuery({
     queryKey: ['stats'],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('stats_summary');
+      const { data: bottles, error } = await supabase
+        .from('bottle')
+        .select('price, quantity');
       
       if (error) throw error;
-      return data as unknown as Stats;
+      
+      const total_bottles = bottles.reduce((sum, b) => sum + (b.quantity || 0), 0);
+      const total_value = bottles.reduce((sum, b) => sum + (b.price * (b.quantity || 0)), 0);
+      const prices = bottles.map(b => b.price);
+      const avg_price = prices.length > 0 ? prices.reduce((sum, p) => sum + p, 0) / prices.length : 0;
+      const min_price = prices.length > 0 ? Math.min(...prices) : 0;
+      const max_price = prices.length > 0 ? Math.max(...prices) : 0;
+      
+      return {
+        total_bottles,
+        total_value,
+        avg_price,
+        min_price,
+        max_price,
+      } as Stats;
     },
   });
 }
