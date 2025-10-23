@@ -49,3 +49,54 @@ export function useColorBreakdown() {
     },
   });
 }
+
+export function useCountryBreakdown() {
+  return useQuery({
+    queryKey: ['country-breakdown'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bottle')
+        .select('wine:wine_id(producer:producer_id(country:country_id(name))), quantity');
+      
+      if (error) throw error;
+      
+      // Aggregate bottles by country
+      const breakdown = data.reduce((acc: Record<string, number>, item: any) => {
+        const country = item.wine?.producer?.country?.name || 'Unknown';
+        const quantity = item.quantity || 0;
+        acc[country] = (acc[country] || 0) + quantity;
+        return acc;
+      }, {});
+      
+      return Object.entries(breakdown)
+        .map(([name, count]) => ({ name, count: count as number }))
+        .sort((a, b) => b.count - a.count);
+    },
+  });
+}
+
+export function useVarietalBreakdown() {
+  return useQuery({
+    queryKey: ['varietal-breakdown'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bottle')
+        .select('wine:wine_id(name), quantity');
+      
+      if (error) throw error;
+      
+      // Aggregate bottles by wine name
+      const breakdown = data.reduce((acc: Record<string, number>, item: any) => {
+        const name = item.wine?.name || 'Unknown';
+        const quantity = item.quantity || 0;
+        acc[name] = (acc[name] || 0) + quantity;
+        return acc;
+      }, {});
+      
+      return Object.entries(breakdown)
+        .map(([name, count]) => ({ name, count: count as number }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10); // Top 10 varietals
+    },
+  });
+}
