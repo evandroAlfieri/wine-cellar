@@ -168,7 +168,7 @@ export function AddBottleDialog() {
       wine_id: values.wine_id,
       vintage: values.vintage,
       size: values.size,
-      price: Math.round(values.price * 100),
+      price: values.price,
       quantity: values.quantity,
       tags: tags?.length ? tags : undefined,
     });

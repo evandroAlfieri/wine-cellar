@@ -23,7 +23,7 @@ export function BottleCard({ bottle }: BottleCardProps) {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const consumeBottle = useConsumeBottle();
   const deleteBottle = useDeleteBottle();
-  const price = (bottle.price / 100).toFixed(2);
+  const price = bottle.price.toFixed(2);
   
   const colourMap: Record<string, string> = {
     red: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',

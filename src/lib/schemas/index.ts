@@ -60,7 +60,7 @@ export const BottleSchema = z.object({
   wine_id: z.string().uuid(),
   vintage: z.number().int().min(1900).max(new Date().getFullYear() + 5).nullable(),
   size: z.number().int().min(1, "Size must be positive"),
-  price: z.number().int().min(0, "Price must be non-negative"),
+  price: z.number().min(0, "Price must be non-negative"),
   quantity: z.number().int().min(0, "Quantity must be non-negative"),
   tags: z.array(z.string()).nullable(),
 });
@@ -69,7 +69,7 @@ export const CreateBottleSchema = z.object({
   wine_id: z.string().uuid(),
   vintage: z.number().int().min(1900).max(new Date().getFullYear() + 5).nullable(),
   size: z.number().int().min(1, "Size must be positive"),
-  price: z.number().int().min(0, "Price must be non-negative"),
+  price: z.number().min(0, "Price must be non-negative"),
   quantity: z.number().int().min(0, "Quantity must be non-negative").default(1),
   tags: z.array(z.string()).optional(),
 });

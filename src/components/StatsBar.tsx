@@ -16,7 +16,7 @@ export function StatsBar() {
     );
   }
 
-  const totalValue = (stats?.total_value_cents || 0) / 100;
+  const totalValue = stats?.total_value || 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">

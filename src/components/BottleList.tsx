@@ -135,7 +135,7 @@ export function BottleList() {
                     <TableCell>{bottle.size}ml</TableCell>
                     <TableCell>{bottle.quantity}</TableCell>
                     <TableCell className="text-right font-semibold">
-                      €{(bottle.price / 100).toFixed(2)}
+                      €{bottle.price.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex gap-1 justify-end">

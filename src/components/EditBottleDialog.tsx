@@ -110,7 +110,7 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
       wine_id: bottle.wine.id,
       vintage: bottle.vintage,
       size: bottle.size,
-      price: bottle.price / 100,
+      price: bottle.price,
       quantity: bottle.quantity,
       tags: bottle.tags?.join(', ') || '',
     },
@@ -192,7 +192,7 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
       wine_id: values.wine_id,
       vintage: values.vintage,
       size: values.size,
-      price: Math.round(values.price * 100),
+      price: values.price,
       quantity: values.quantity,
       tags: tags?.length ? tags : undefined,
     });

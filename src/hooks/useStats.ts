@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface Stats {
   total_bottles: number;
-  total_value_cents: number;
+  total_value: number;
 }
 
 export function useStats() {
