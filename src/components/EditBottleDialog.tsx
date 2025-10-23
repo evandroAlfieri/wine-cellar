@@ -335,7 +335,19 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
                 name="wine_id"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Wine</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Wine</FormLabel>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditWineOpen(true)}
+                        disabled={!field.value}
+                      >
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Edit Wine Details
+                      </Button>
+                    </div>
                     <div className="flex gap-2 items-start w-full">
                       <Popover open={wineOpen} onOpenChange={setWineOpen}>
                         <PopoverTrigger asChild>
