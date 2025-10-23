@@ -96,7 +96,7 @@ export function useRegionBreakdown() {
       return Object.entries(breakdown)
         .map(([name, count]) => ({ name, count: count as number }))
         .sort((a, b) => b.count - a.count)
-        .slice(0, 5); // Top 5 regions
+        .slice(0, 10); // Top 10 regions
     },
   });
 }

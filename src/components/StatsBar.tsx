@@ -168,7 +168,7 @@ export function StatsBar() {
           </TabsContent>
           
           <TabsContent value="regions" className="mt-0">
-            <p className="text-xs text-muted-foreground mb-3">Top 5 Regions</p>
+            <p className="text-xs text-muted-foreground mb-3">Top 10 Regions</p>
             {regionBreakdown && regionBreakdown.length > 0 && (
               <div className="space-y-2">
                 {regionBreakdown.map((item, index) => (
