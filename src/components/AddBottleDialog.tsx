@@ -44,6 +44,7 @@ import { useCountries, useCreateCountry } from '@/hooks/useCountries';
 import { useRegions, useCreateRegion } from '@/hooks/useRegions';
 import { useProducers, useCreateProducer } from '@/hooks/useProducers';
 import { useWines, useCreateWine } from '@/hooks/useWines';
+import { useVarietals, useCreateVarietal } from '@/hooks/useVarietals';
 import { useCreateBottle } from '@/hooks/useBottleMutations';
 import { WineColourEnum } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
@@ -52,6 +53,7 @@ const formSchema = z.object({
   country_id: z.string().min(1, 'Country is required'),
   region_id: z.string().optional(),
   producer_id: z.string().min(1, 'Producer is required'),
+  varietal_id: z.string().optional(),
   wine_id: z.string().min(1, 'Wine is required'),
   vintage: z.coerce.number().int().min(1900).max(new Date().getFullYear() + 5).nullable(),
   size: z.coerce.number().int().min(1, 'Size must be positive'),
@@ -67,20 +69,24 @@ export function AddBottleDialog() {
   const [countryOpen, setCountryOpen] = useState(false);
   const [regionOpen, setRegionOpen] = useState(false);
   const [producerOpen, setProducerOpen] = useState(false);
+  const [varietalOpen, setVarietalOpen] = useState(false);
   const [wineOpen, setWineOpen] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
   const [regionSearch, setRegionSearch] = useState('');
   const [producerSearch, setProducerSearch] = useState('');
+  const [varietalSearch, setVarietalSearch] = useState('');
   const [wineSearch, setWineSearch] = useState('');
   const [newWineColour, setNewWineColour] = useState<z.infer<typeof WineColourEnum>>('red');
   
   const { data: countries } = useCountries();
   const { data: allRegions } = useRegions();
   const { data: producers } = useProducers();
+  const { data: varietals } = useVarietals();
   const { data: wines } = useWines();
   const createCountry = useCreateCountry();
   const createRegion = useCreateRegion();
   const createProducer = useCreateProducer();
+  const createVarietal = useCreateVarietal();
   const createWine = useCreateWine();
   const createBottle = useCreateBottle();
 
@@ -90,6 +96,7 @@ export function AddBottleDialog() {
       country_id: '',
       region_id: '',
       producer_id: '',
+      varietal_id: '',
       wine_id: '',
       vintage: null,
       size: 750,
@@ -102,6 +109,7 @@ export function AddBottleDialog() {
   const selectedCountryId = form.watch('country_id');
   const selectedRegionId = form.watch('region_id');
   const selectedProducerId = form.watch('producer_id');
+  const selectedVarietalId = form.watch('varietal_id');
 
   const filteredRegions = allRegions?.filter(r => r.country_id === selectedCountryId);
   const filteredWines = wines?.filter(w => w.producer_id === selectedProducerId);
@@ -149,12 +157,20 @@ export function AddBottleDialog() {
     setProducerOpen(false);
   };
 
+  const handleCreateVarietal = async (name: string) => {
+    const result = await createVarietal.mutateAsync(name);
+    form.setValue('varietal_id', result.varietal.id);
+    setVarietalSearch('');
+    setVarietalOpen(false);
+  };
+
   const handleCreateWine = async (name: string) => {
     if (!selectedProducerId) return;
     const result = await createWine.mutateAsync({
       name,
       colour: newWineColour,
       producer_id: selectedProducerId,
+      varietal_id: selectedVarietalId || null,
     });
     form.setValue('wine_id', result.wine.id);
     setWineSearch('');
@@ -398,6 +414,78 @@ export function AddBottleDialog() {
                                   )}
                                 />
                                 {p.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Varietal Selection */}
+            <FormField
+              control={form.control}
+              name="varietal_id"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Varietal (optional)</FormLabel>
+                  <Popover open={varietalOpen} onOpenChange={setVarietalOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? varietals?.find((v) => v.id === field.value)?.name
+                            : "Select or add varietal"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Search or type new varietal..." 
+                          value={varietalSearch}
+                          onValueChange={setVarietalSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            <Button
+                              variant="ghost"
+                              className="w-full"
+                              onClick={() => handleCreateVarietal(varietalSearch)}
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Create "{varietalSearch}"
+                            </Button>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {varietals?.map((v) => (
+                              <CommandItem
+                                key={v.id}
+                                value={v.name}
+                                onSelect={() => {
+                                  field.onChange(v.id);
+                                  setVarietalOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    v.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {v.name}
                               </CommandItem>
                             ))}
                           </CommandGroup>

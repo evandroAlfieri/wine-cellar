@@ -4,6 +4,16 @@ import { z } from "zod";
 export const WineColourEnum = z.enum(["red", "white", "rosé", "sparkling", "other"]);
 export type WineColour = z.infer<typeof WineColourEnum>;
 
+// Varietal schemas
+export const VarietalSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1, "Varietal name is required").max(100),
+});
+
+export const CreateVarietalSchema = z.object({
+  name: z.string().min(1, "Varietal name is required").max(100).trim(),
+});
+
 // Country schemas
 export const CountrySchema = z.object({
   id: z.string().uuid(),
@@ -46,12 +56,14 @@ export const WineSchema = z.object({
   name: z.string().min(1, "Wine name is required"),
   colour: WineColourEnum,
   producer_id: z.string().uuid(),
+  varietal_id: z.string().uuid().nullable(),
 });
 
 export const CreateWineSchema = z.object({
   name: z.string().min(1, "Wine name is required").trim(),
   colour: WineColourEnum,
   producer_id: z.string().uuid(),
+  varietal_id: z.string().uuid().nullable(),
 });
 
 // Bottle schemas
@@ -80,6 +92,8 @@ export type Region = z.infer<typeof RegionSchema>;
 export type CreateRegion = z.infer<typeof CreateRegionSchema>;
 export type Producer = z.infer<typeof ProducerSchema>;
 export type CreateProducer = z.infer<typeof CreateProducerSchema>;
+export type Varietal = z.infer<typeof VarietalSchema>;
+export type CreateVarietal = z.infer<typeof CreateVarietalSchema>;
 export type Wine = z.infer<typeof WineSchema>;
 export type CreateWine = z.infer<typeof CreateWineSchema>;
 export type Bottle = z.infer<typeof BottleSchema>;

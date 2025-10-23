@@ -15,7 +15,8 @@ export function useBottles() {
             producer:producer_id (
               *,
               country:country_id (*)
-            )
+            ),
+            varietal:varietal_id (*)
           )
         `)
         .order('id');

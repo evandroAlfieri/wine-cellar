@@ -129,24 +129,42 @@ export type Database = {
           },
         ]
       }
+      varietal: {
+        Row: {
+          id: string
+          name: string
+        }
+        Insert: {
+          id?: string
+          name: string
+        }
+        Update: {
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       wine: {
         Row: {
           colour: Database["public"]["Enums"]["wine_colour"]
           id: string
           name: string
           producer_id: string | null
+          varietal_id: string | null
         }
         Insert: {
           colour: Database["public"]["Enums"]["wine_colour"]
           id?: string
           name: string
           producer_id?: string | null
+          varietal_id?: string | null
         }
         Update: {
           colour?: Database["public"]["Enums"]["wine_colour"]
           id?: string
           name?: string
           producer_id?: string | null
+          varietal_id?: string | null
         }
         Relationships: [
           {
@@ -154,6 +172,13 @@ export type Database = {
             columns: ["producer_id"]
             isOneToOne: false
             referencedRelation: "producer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wine_varietal_id_fkey"
+            columns: ["varietal_id"]
+            isOneToOne: false
+            referencedRelation: "varietal"
             referencedColumns: ["id"]
           },
         ]

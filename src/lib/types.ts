@@ -5,6 +5,7 @@ export type DbRegion = Database["public"]["Tables"]["region"]["Row"];
 export type DbProducer = Database["public"]["Tables"]["producer"]["Row"];
 export type DbWine = Database["public"]["Tables"]["wine"]["Row"];
 export type DbBottle = Database["public"]["Tables"]["bottle"]["Row"];
+export type DbVarietal = Database["public"]["Tables"]["varietal"]["Row"];
 
 export interface BottleWithDetails extends DbBottle {
   wine: DbWine & {
@@ -12,5 +13,6 @@ export interface BottleWithDetails extends DbBottle {
       country: DbCountry | null;
       region: DbRegion | null;
     };
+    varietal: DbVarietal | null;
   };
 }

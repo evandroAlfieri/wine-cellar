@@ -8,6 +8,7 @@ interface Wine {
   name: string;
   colour: WineColour;
   producer_id: string;
+  varietal_id: string | null;
 }
 
 export function useWines(producerId?: string) {
@@ -31,7 +32,7 @@ export function useCreateWine() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (wine: { name: string; colour: WineColour; producer_id: string }) => {
+    mutationFn: async (wine: { name: string; colour: WineColour; producer_id: string; varietal_id: string | null }) => {
       const { data, error } = await supabase
         .from('wine')
         .insert(wine)

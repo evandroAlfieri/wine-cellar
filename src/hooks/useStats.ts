@@ -81,13 +81,13 @@ export function useVarietalBreakdown() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('bottle')
-        .select('wine:wine_id(name), quantity');
+        .select('wine:wine_id(varietal:varietal_id(name)), quantity');
       
       if (error) throw error;
       
-      // Aggregate bottles by wine name
+      // Aggregate bottles by varietal name
       const breakdown = data.reduce((acc: Record<string, number>, item: any) => {
-        const name = item.wine?.name || 'Unknown';
+        const name = item.wine?.varietal?.name || 'Unknown';
         const quantity = item.quantity || 0;
         acc[name] = (acc[name] || 0) + quantity;
         return acc;
