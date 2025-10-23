@@ -1,6 +1,6 @@
 import { BarChart3, Euro, Globe, Wine } from 'lucide-react';
 import { useStats, useColorBreakdown, useCountryBreakdown, useVarietalBreakdown } from '@/hooks/useStats';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const COLOR_MAP: Record<string, string> = {
   red: 'hsl(0, 70%, 50%)',
@@ -8,6 +8,20 @@ const COLOR_MAP: Record<string, string> = {
   rosé: 'hsl(330, 70%, 70%)',
   sparkling: 'hsl(200, 80%, 60%)',
   other: 'hsl(270, 50%, 50%)',
+};
+
+const COUNTRY_FLAGS: Record<string, string> = {
+  'Italy': '🇮🇹',
+  'France': '🇫🇷',
+  'Germany': '🇩🇪',
+  'Portugal': '🇵🇹',
+  'Slovenia': '🇸🇮',
+  'Spain': '🇪🇸',
+  'Austria': '🇦🇹',
+  'United States': '🇺🇸',
+  'Australia': '🇦🇺',
+  'Argentina': '🇦🇷',
+  'Chile': '🇨🇱',
 };
 
 export function StatsBar() {
@@ -55,10 +69,6 @@ export function StatsBar() {
     );
   };
 
-  const countryChartData = countryBreakdown?.slice(0, 5).map(item => ({
-    name: item.name,
-    value: item.count,
-  })) || [];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -129,36 +139,22 @@ export function StatsBar() {
             <Globe className="w-5 h-5 text-blue-500" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Top Countries</p>
+            <p className="text-sm text-muted-foreground">Countries</p>
             <p className="text-lg font-semibold">{countryBreakdown?.length || 0} countries</p>
           </div>
         </div>
         
-        {countryChartData.length > 0 && (
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={countryChartData} layout="horizontal">
-                <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                <XAxis 
-                  type="category" 
-                  dataKey="name" 
-                  tick={{ fontSize: 12 }}
-                  interval={0}
-                  angle={-45}
-                  textAnchor="end"
-                  height={60}
-                />
-                <YAxis type="number" tick={{ fontSize: 12 }} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+        {countryBreakdown && countryBreakdown.length > 0 && (
+          <div className="space-y-2">
+            {countryBreakdown.slice(0, 8).map((item, index) => (
+              <div key={index} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{COUNTRY_FLAGS[item.name] || '🏳️'}</span>
+                  <span className="text-sm font-medium">{item.name}</span>
+                </div>
+                <span className="font-semibold text-primary">{item.count}</span>
+              </div>
+            ))}
           </div>
         )}
       </div>
