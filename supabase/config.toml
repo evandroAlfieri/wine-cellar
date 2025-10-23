@@ -2,3 +2,6 @@ project_id = "uknnnivjbdhkewajcpvj"
 
 [functions.winecellar-api]
 verify_jwt = false
+
+[functions.bulk-import]
+verify_jwt = false
