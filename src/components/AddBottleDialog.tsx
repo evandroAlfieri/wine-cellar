@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus } from 'lucide-react';
+import { Check, ChevronsUpDown, Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,19 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -32,6 +45,7 @@ import { useProducers, useCreateProducer } from '@/hooks/useProducers';
 import { useWines, useCreateWine } from '@/hooks/useWines';
 import { useCreateBottle } from '@/hooks/useBottleMutations';
 import { WineColourEnum } from '@/lib/schemas';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   country_id: z.string().min(1, 'Country is required'),
@@ -48,10 +62,13 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function AddBottleDialog() {
   const [open, setOpen] = useState(false);
-  const [newCountry, setNewCountry] = useState('');
-  const [newProducer, setNewProducer] = useState('');
+  const [producerOpen, setProducerOpen] = useState(false);
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [wineOpen, setWineOpen] = useState(false);
+  const [producerSearch, setProducerSearch] = useState('');
+  const [countrySearch, setCountrySearch] = useState('');
+  const [wineSearch, setWineSearch] = useState('');
   const [newProducerRegion, setNewProducerRegion] = useState('');
-  const [newWine, setNewWine] = useState('');
   const [newWineColour, setNewWineColour] = useState<z.infer<typeof WineColourEnum>>('red');
   
   const { data: countries } = useCountries();
@@ -92,37 +109,34 @@ export function AddBottleDialog() {
     }
   }, [selectedProducerId, producers]);
 
-  const handleAddCountry = async () => {
-    if (newCountry.trim()) {
-      const result = await createCountry.mutateAsync(newCountry.trim());
-      form.setValue('country_id', result.country.id);
-      setNewCountry('');
-    }
+  const handleCreateProducer = async (name: string) => {
+    const result = await createProducer.mutateAsync({
+      name,
+      country_id: selectedCountryId || undefined,
+      region: newProducerRegion.trim() || undefined,
+    });
+    form.setValue('producer_id', result.producer.id);
+    setProducerSearch('');
+    setProducerOpen(false);
   };
 
-  const handleAddProducer = async () => {
-    if (newProducer.trim()) {
-      const result = await createProducer.mutateAsync({
-        name: newProducer.trim(),
-        country_id: selectedCountryId || undefined,
-        region: newProducerRegion.trim() || undefined,
-      });
-      form.setValue('producer_id', result.producer.id);
-      setNewProducer('');
-      setNewProducerRegion('');
-    }
+  const handleCreateCountry = async (name: string) => {
+    const result = await createCountry.mutateAsync(name);
+    form.setValue('country_id', result.country.id);
+    setCountrySearch('');
+    setCountryOpen(false);
   };
 
-  const handleAddWine = async () => {
-    if (newWine.trim() && selectedProducerId) {
-      const result = await createWine.mutateAsync({
-        name: newWine.trim(),
-        colour: newWineColour,
-        producer_id: selectedProducerId,
-      });
-      form.setValue('wine_id', result.wine.id);
-      setNewWine('');
-    }
+  const handleCreateWine = async (name: string) => {
+    if (!selectedProducerId) return;
+    const result = await createWine.mutateAsync({
+      name,
+      colour: newWineColour,
+      producer_id: selectedProducerId,
+    });
+    form.setValue('wine_id', result.wine.id);
+    setWineSearch('');
+    setWineOpen(false);
   };
 
   const onSubmit = async (values: FormValues) => {
@@ -161,47 +175,75 @@ export function AddBottleDialog() {
               control={form.control}
               name="producer_id"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Producer</FormLabel>
-                  <div className="flex gap-2">
-                    <Select 
-                      onValueChange={field.onChange} 
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select producer" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {producers?.map(p => (
-                          <SelectItem key={p.id} value={p.id}>
-                            {p.name} {p.region && `(${p.region})`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Producer name"
-                        value={newProducer}
-                        onChange={(e) => setNewProducer(e.target.value)}
-                        className="w-32"
-                      />
-                      <Input
-                        placeholder="Region"
-                        value={newProducerRegion}
-                        onChange={(e) => setNewProducerRegion(e.target.value)}
-                        className="w-32"
-                      />
-                      <Button 
-                        type="button" 
-                        size="sm" 
-                        onClick={handleAddProducer}
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
+                  <div className="flex gap-2 items-start">
+                    <Popover open={producerOpen} onOpenChange={setProducerOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "flex-1 justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? producers?.find((p) => p.id === field.value)?.name
+                              : "Select or add producer"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[400px] p-0">
+                        <Command>
+                          <CommandInput 
+                            placeholder="Search or type new producer..." 
+                            value={producerSearch}
+                            onValueChange={setProducerSearch}
+                          />
+                          <CommandList>
+                            <CommandEmpty>
+                              <Button
+                                variant="ghost"
+                                className="w-full"
+                                onClick={() => handleCreateProducer(producerSearch)}
+                              >
+                                <Plus className="mr-2 h-4 w-4" />
+                                Create "{producerSearch}"
+                              </Button>
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {producers?.map((p) => (
+                                <CommandItem
+                                  key={p.id}
+                                  value={p.name}
+                                  onSelect={() => {
+                                    field.onChange(p.id);
+                                    setProducerOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      p.id === field.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {p.name} {p.region && `(${p.region})`}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <Input
+                      placeholder="Region (optional)"
+                      value={newProducerRegion}
+                      onChange={(e) => setNewProducerRegion(e.target.value)}
+                      className="w-40"
+                    />
                   </div>
                   <FormMessage />
                 </FormItem>
@@ -213,33 +255,68 @@ export function AddBottleDialog() {
               control={form.control}
               name="country_id"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Country</FormLabel>
-                  <div className="flex gap-2">
-                    <Select onValueChange={field.onChange} value={field.value}>
+                  <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+                    <PopoverTrigger asChild>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select country" />
-                        </SelectTrigger>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? countries?.find((c) => c.id === field.value)?.name
+                            : "Select or add country"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
                       </FormControl>
-                      <SelectContent>
-                        {countries?.map(c => (
-                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="New country"
-                        value={newCountry}
-                        onChange={(e) => setNewCountry(e.target.value)}
-                        className="w-40"
-                      />
-                      <Button type="button" size="sm" onClick={handleAddCountry}>
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Search or type new country..." 
+                          value={countrySearch}
+                          onValueChange={setCountrySearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            <Button
+                              variant="ghost"
+                              className="w-full"
+                              onClick={() => handleCreateCountry(countrySearch)}
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Create "{countrySearch}"
+                            </Button>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {countries?.map((c) => (
+                              <CommandItem
+                                key={c.id}
+                                value={c.name}
+                                onSelect={() => {
+                                  field.onChange(c.id);
+                                  setCountryOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    c.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {c.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
@@ -250,60 +327,86 @@ export function AddBottleDialog() {
               control={form.control}
               name="wine_id"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Wine</FormLabel>
-                  <div className="flex gap-2">
-                    <Select 
-                      onValueChange={field.onChange} 
-                      value={field.value}
+                  <div className="flex gap-2 items-start">
+                    <Popover open={wineOpen} onOpenChange={setWineOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            disabled={!selectedProducerId}
+                            className={cn(
+                              "flex-1 justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? filteredWines?.find((w) => w.id === field.value)?.name
+                              : "Select or add wine"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[400px] p-0">
+                        <Command>
+                          <CommandInput 
+                            placeholder="Search or type new wine..." 
+                            value={wineSearch}
+                            onValueChange={setWineSearch}
+                          />
+                          <CommandList>
+                            <CommandEmpty>
+                              <Button
+                                variant="ghost"
+                                className="w-full"
+                                onClick={() => handleCreateWine(wineSearch)}
+                              >
+                                <Plus className="mr-2 h-4 w-4" />
+                                Create "{wineSearch}"
+                              </Button>
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {filteredWines?.map((w) => (
+                                <CommandItem
+                                  key={w.id}
+                                  value={w.name}
+                                  onSelect={() => {
+                                    field.onChange(w.id);
+                                    setWineOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      w.id === field.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {w.name} ({w.colour})
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <Select
+                      value={newWineColour}
+                      onValueChange={(v) => setNewWineColour(v as z.infer<typeof WineColourEnum>)}
                       disabled={!selectedProducerId}
                     >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select wine" />
-                        </SelectTrigger>
-                      </FormControl>
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
-                        {filteredWines?.map(w => (
-                          <SelectItem key={w.id} value={w.id}>
-                            {w.name} ({w.colour})
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="red">Red</SelectItem>
+                        <SelectItem value="white">White</SelectItem>
+                        <SelectItem value="rosé">Rosé</SelectItem>
+                        <SelectItem value="sparkling">Sparkling</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Wine name"
-                        value={newWine}
-                        onChange={(e) => setNewWine(e.target.value)}
-                        disabled={!selectedProducerId}
-                        className="w-32"
-                      />
-                      <Select
-                        value={newWineColour}
-                        onValueChange={(v) => setNewWineColour(v as z.infer<typeof WineColourEnum>)}
-                        disabled={!selectedProducerId}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="red">Red</SelectItem>
-                          <SelectItem value="white">White</SelectItem>
-                          <SelectItem value="rosé">Rosé</SelectItem>
-                          <SelectItem value="sparkling">Sparkling</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Button 
-                        type="button" 
-                        size="sm" 
-                        onClick={handleAddWine}
-                        disabled={!selectedProducerId}
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                    </div>
                   </div>
                   <FormMessage />
                 </FormItem>
