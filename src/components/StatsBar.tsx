@@ -51,23 +51,29 @@ export function StatsBar() {
     fill: COLOR_MAP[item.colour] || COLOR_MAP.other,
   })) || [];
 
-  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }: any) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
+  const CenterLabel = ({ viewBox, totalBottles }: any) => {
+    const { cx, cy } = viewBox;
     return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor={x > cx ? 'start' : 'end'} 
-        dominantBaseline="central"
-        className="font-semibold text-sm"
-      >
-        {value}
-      </text>
+      <g>
+        <text 
+          x={cx} 
+          y={cy - 10} 
+          textAnchor="middle" 
+          dominantBaseline="middle"
+          className="fill-foreground font-bold text-4xl"
+        >
+          {totalBottles}
+        </text>
+        <text 
+          x={cx} 
+          y={cy + 20} 
+          textAnchor="middle" 
+          dominantBaseline="middle"
+          className="fill-muted-foreground text-sm"
+        >
+          Total Bottles
+        </text>
+      </g>
     );
   };
 
@@ -76,31 +82,26 @@ export function StatsBar() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       {/* Total Bottles with Color Breakdown */}
       <div className="bg-card rounded-lg border p-4 hover:shadow-md transition-shadow">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <BarChart3 className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Total Bottles</p>
-            <p className="text-2xl font-bold">{stats?.total_bottles || 0}</p>
-          </div>
-        </div>
-        
         {chartData.length > 0 && (
-          <div className="h-48">
+          <div className="h-64 relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  label={CustomLabel}
-                  outerRadius={60}
+                  innerRadius={70}
+                  outerRadius={90}
                   dataKey="value"
+                  paddingAngle={2}
+                  label={<CenterLabel totalBottles={stats?.total_bottles || 0} />}
                 >
                   {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.fill}
+                      className="hover:opacity-80 transition-opacity cursor-pointer"
+                    />
                   ))}
                 </Pie>
                 <Tooltip 
@@ -109,11 +110,13 @@ export function StatsBar() {
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px',
                   }}
+                  formatter={(value, name) => [value, name]}
                 />
                 <Legend 
                   verticalAlign="bottom" 
                   height={36}
                   formatter={(value, entry: any) => `${value}: ${entry.payload.value}`}
+                  iconType="circle"
                 />
               </PieChart>
             </ResponsiveContainer>
