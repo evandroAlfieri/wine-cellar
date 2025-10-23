@@ -51,31 +51,6 @@ export function StatsBar() {
     fill: COLOR_MAP[item.colour] || COLOR_MAP.other,
   })) || [];
 
-  const CenterLabel = ({ viewBox, totalBottles }: any) => {
-    const { cx, cy } = viewBox;
-    return (
-      <g>
-        <text 
-          x={cx} 
-          y={cy - 10} 
-          textAnchor="middle" 
-          dominantBaseline="middle"
-          className="fill-foreground font-bold text-4xl"
-        >
-          {totalBottles}
-        </text>
-        <text 
-          x={cx} 
-          y={cy + 20} 
-          textAnchor="middle" 
-          dominantBaseline="middle"
-          className="fill-muted-foreground text-sm"
-        >
-          Total Bottles
-        </text>
-      </g>
-    );
-  };
 
 
   return (
@@ -94,7 +69,6 @@ export function StatsBar() {
                   outerRadius={90}
                   dataKey="value"
                   paddingAngle={2}
-                  label={<CenterLabel totalBottles={stats?.total_bottles || 0} />}
                 >
                   {chartData.map((entry, index) => (
                     <Cell 
@@ -120,6 +94,11 @@ export function StatsBar() {
                 />
               </PieChart>
             </ResponsiveContainer>
+            {/* Center label overlay */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none" style={{ top: '-18px' }}>
+              <div className="text-4xl font-bold text-foreground">{stats?.total_bottles || 0}</div>
+              <div className="text-sm text-muted-foreground mt-1">Total Bottles</div>
+            </div>
           </div>
         )}
       </div>
