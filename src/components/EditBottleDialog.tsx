@@ -68,8 +68,6 @@ const formSchema = z.object({
   producer_id: z.string().min(1, 'Producer is required'),
   varietal_ids: z.array(z.string()).optional(),
   wine_id: z.string().min(1, 'Wine is required'),
-  wine_name: z.string().min(1, 'Wine name is required'),
-  wine_colour: WineColourEnum,
   vintage: z.coerce.number().int().min(1900).max(new Date().getFullYear() + 5).nullable(),
   size: z.coerce.number().int().min(1, 'Size must be positive'),
   price: z.coerce.number().min(0, 'Price must be non-negative'),
@@ -122,8 +120,6 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
       producer_id: bottle.wine.producer.id,
       varietal_ids: bottle.wine.wine_varietal?.map(wv => wv.varietal.id) || [],
       wine_id: bottle.wine.id,
-      wine_name: bottle.wine.name,
-      wine_colour: bottle.wine.colour,
       vintage: bottle.vintage,
       size: bottle.size,
       price: bottle.price,
@@ -215,19 +211,6 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
 
   const onSubmit = async (values: FormValues) => {
     const tags = values.tags?.split(',').map(t => t.trim()).filter(Boolean);
-    
-    // Update wine name or color if changed
-    const wineChanged = 
-      values.wine_name !== bottle.wine.name ||
-      values.wine_colour !== bottle.wine.colour;
-    
-    if (wineChanged) {
-      await updateWine.mutateAsync({
-        id: values.wine_id,
-        name: values.wine_name,
-        colour: values.wine_colour,
-      });
-    }
     
     // Update wine's varietals if they changed
     const currentVarietalIds = bottle.wine.wine_varietal?.map(wv => wv.varietal.id) || [];
@@ -431,50 +414,6 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
                         </SelectContent>
                       </Select>
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Wine Name - Editable */}
-              <FormField
-                control={form.control}
-                name="wine_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Wine Name (affects all bottles of this wine)</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter wine name" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Wine Colour - Editable */}
-              <FormField
-                control={form.control}
-                name="wine_colour"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Wine Colour (affects all bottles of this wine)</FormLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="red">Red</SelectItem>
-                        <SelectItem value="white">White</SelectItem>
-                        <SelectItem value="rosé">Rosé</SelectItem>
-                        <SelectItem value="sparkling">Sparkling</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
