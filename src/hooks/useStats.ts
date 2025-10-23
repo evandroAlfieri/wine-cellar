@@ -81,17 +81,28 @@ export function useVarietalBreakdown() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('bottle')
-        .select('wine:wine_id(varietal:varietal_id(name)), quantity');
+        .select('wine:wine_id(wine_varietal(varietal:varietal_id(name))), quantity');
       
       if (error) throw error;
       
       // Aggregate bottles by varietal name
-      const breakdown = data.reduce((acc: Record<string, number>, item: any) => {
-        const name = item.wine?.varietal?.name || 'Unknown';
+      // Each bottle can contribute to MULTIPLE varietals now (blends)
+      const breakdown: Record<string, number> = {};
+      
+      data.forEach((item: any) => {
         const quantity = item.quantity || 0;
-        acc[name] = (acc[name] || 0) + quantity;
-        return acc;
-      }, {});
+        const wineVarietals = item.wine?.wine_varietal || [];
+        
+        if (wineVarietals.length === 0) {
+          breakdown['Unknown'] = (breakdown['Unknown'] || 0) + quantity;
+        } else {
+          // Count each varietal in the blend
+          wineVarietals.forEach((wv: any) => {
+            const name = wv.varietal?.name || 'Unknown';
+            breakdown[name] = (breakdown[name] || 0) + quantity;
+          });
+        }
+      });
       
       return Object.entries(breakdown)
         .map(([name, count]) => ({ name, count: count as number }))

@@ -13,6 +13,8 @@ export interface BottleWithDetails extends DbBottle {
       country: DbCountry | null;
       region: DbRegion | null;
     };
-    varietal: DbVarietal | null;
+    wine_varietal: Array<{
+      varietal: DbVarietal;
+    }>;
   };
 }

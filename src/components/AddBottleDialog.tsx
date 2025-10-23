@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
   Form,
@@ -46,6 +47,7 @@ import { useProducers, useCreateProducer } from '@/hooks/useProducers';
 import { useWines, useCreateWine } from '@/hooks/useWines';
 import { useVarietals, useCreateVarietal } from '@/hooks/useVarietals';
 import { useCreateBottle } from '@/hooks/useBottleMutations';
+import { useCreateWineVarietal } from '@/hooks/useWineVarietals';
 import { WineColourEnum } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
@@ -53,7 +55,7 @@ const formSchema = z.object({
   country_id: z.string().min(1, 'Country is required'),
   region_id: z.string().optional(),
   producer_id: z.string().min(1, 'Producer is required'),
-  varietal_id: z.string().optional(),
+  varietal_ids: z.array(z.string()).optional(),
   wine_id: z.string().min(1, 'Wine is required'),
   vintage: z.coerce.number().int().min(1900).max(new Date().getFullYear() + 5).nullable(),
   size: z.coerce.number().int().min(1, 'Size must be positive'),
@@ -89,6 +91,7 @@ export function AddBottleDialog() {
   const createVarietal = useCreateVarietal();
   const createWine = useCreateWine();
   const createBottle = useCreateBottle();
+  const createWineVarietal = useCreateWineVarietal();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -96,7 +99,7 @@ export function AddBottleDialog() {
       country_id: '',
       region_id: '',
       producer_id: '',
-      varietal_id: '',
+      varietal_ids: [],
       wine_id: '',
       vintage: null,
       size: 750,
@@ -109,7 +112,7 @@ export function AddBottleDialog() {
   const selectedCountryId = form.watch('country_id');
   const selectedRegionId = form.watch('region_id');
   const selectedProducerId = form.watch('producer_id');
-  const selectedVarietalId = form.watch('varietal_id');
+  const selectedVarietalIds = form.watch('varietal_ids');
 
   const filteredRegions = allRegions?.filter(r => r.country_id === selectedCountryId);
   const filteredWines = wines?.filter(w => w.producer_id === selectedProducerId);
@@ -159,7 +162,8 @@ export function AddBottleDialog() {
 
   const handleCreateVarietal = async (name: string) => {
     const result = await createVarietal.mutateAsync(name);
-    form.setValue('varietal_id', result.varietal.id);
+    const currentVarietalIds = form.getValues('varietal_ids') || [];
+    form.setValue('varietal_ids', [...currentVarietalIds, result.varietal.id]);
     setVarietalSearch('');
     setVarietalOpen(false);
   };
@@ -170,8 +174,18 @@ export function AddBottleDialog() {
       name,
       colour: newWineColour,
       producer_id: selectedProducerId,
-      varietal_id: selectedVarietalId || null,
     });
+    
+    // Link varietals to the new wine
+    if (selectedVarietalIds && selectedVarietalIds.length > 0) {
+      for (const varietalId of selectedVarietalIds) {
+        await createWineVarietal.mutateAsync({
+          wine_id: result.wine.id,
+          varietal_id: varietalId,
+        });
+      }
+    }
+    
     form.setValue('wine_id', result.wine.id);
     setWineSearch('');
     setWineOpen(false);
@@ -517,27 +531,42 @@ export function AddBottleDialog() {
               )}
             />
 
-            {/* Varietal Selection */}
+            {/* Varietal Selection - Multi-select */}
             <FormField
               control={form.control}
-              name="varietal_id"
+              name="varietal_ids"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Varietal (optional)</FormLabel>
+                  <FormLabel>Varietals (optional)</FormLabel>
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {field.value && field.value.length > 0 && field.value.map(varietalId => {
+                      const varietal = varietals?.find(v => v.id === varietalId);
+                      return varietal ? (
+                        <Badge key={varietalId} variant="secondary" className="text-sm">
+                          {varietal.name}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newValue = field.value?.filter(id => id !== varietalId) || [];
+                              field.onChange(newValue);
+                            }}
+                            className="ml-1 hover:text-destructive"
+                          >
+                            ×
+                          </button>
+                        </Badge>
+                      ) : null;
+                    })}
+                  </div>
                   <Popover open={varietalOpen} onOpenChange={setVarietalOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
                           variant="outline"
                           role="combobox"
-                          className={cn(
-                            "justify-between",
-                            !field.value && "text-muted-foreground"
-                          )}
+                          className="justify-between"
                         >
-                          {field.value
-                            ? varietals?.find((v) => v.id === field.value)?.name
-                            : "Select or add varietal"}
+                          Add varietal
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>
@@ -561,24 +590,31 @@ export function AddBottleDialog() {
                             </Button>
                           </CommandEmpty>
                           <CommandGroup>
-                            {varietals?.map((v) => (
-                              <CommandItem
-                                key={v.id}
-                                value={v.name}
-                                onSelect={() => {
-                                  field.onChange(v.id);
-                                  setVarietalOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    v.id === field.value ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {v.name}
-                              </CommandItem>
-                            ))}
+                            {varietals?.map((v) => {
+                              const isSelected = field.value?.includes(v.id);
+                              return (
+                                <CommandItem
+                                  key={v.id}
+                                  value={v.name}
+                                  onSelect={() => {
+                                    const currentValue = field.value || [];
+                                    if (isSelected) {
+                                      field.onChange(currentValue.filter(id => id !== v.id));
+                                    } else {
+                                      field.onChange([...currentValue, v.id]);
+                                    }
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      isSelected ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {v.name}
+                                </CommandItem>
+                              );
+                            })}
                           </CommandGroup>
                         </CommandList>
                       </Command>

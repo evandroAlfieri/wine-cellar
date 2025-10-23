@@ -115,7 +115,9 @@ export function BottleList() {
                     <TableCell className="font-medium">{bottle.wine.name}</TableCell>
                     <TableCell>{bottle.wine.producer.name}</TableCell>
                     <TableCell className="text-sm italic text-muted-foreground">
-                      {bottle.wine.varietal?.name || '-'}
+                      {bottle.wine.wine_varietal && bottle.wine.wine_varietal.length > 0
+                        ? bottle.wine.wine_varietal.map(wv => wv.varietal.name).join(', ')
+                        : '-'}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-sm">
