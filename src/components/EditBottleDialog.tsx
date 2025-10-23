@@ -54,13 +54,14 @@ import {
 import { useCountries, useCreateCountry } from '@/hooks/useCountries';
 import { useRegions, useCreateRegion } from '@/hooks/useRegions';
 import { useProducers, useCreateProducer } from '@/hooks/useProducers';
-import { useWines, useCreateWine, useUpdateWine } from '@/hooks/useWines';
+import { useWines, useCreateWine } from '@/hooks/useWines';
 import { useVarietals, useCreateVarietal } from '@/hooks/useVarietals';
 import { useUpdateBottle, useDeleteBottle } from '@/hooks/useBottleMutations';
 import { useBulkUpdateWineVarietals, useCreateWineVarietal } from '@/hooks/useWineVarietals';
 import { WineColourEnum } from '@/lib/schemas';
 import { BottleWithDetails } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { EditWineDialog } from './EditWineDialog';
 
 const formSchema = z.object({
   country_id: z.string().min(1, 'Country is required'),
@@ -68,8 +69,6 @@ const formSchema = z.object({
   producer_id: z.string().min(1, 'Producer is required'),
   varietal_ids: z.array(z.string()).optional(),
   wine_id: z.string().min(1, 'Wine is required'),
-  wine_name: z.string().min(1, 'Wine name is required'),
-  wine_colour: WineColourEnum,
   vintage: z.coerce.number().int().min(1900).max(new Date().getFullYear() + 5).nullable(),
   size: z.coerce.number().int().min(1, 'Size must be positive'),
   price: z.coerce.number().min(0, 'Price must be non-negative'),
@@ -86,6 +85,7 @@ interface EditBottleDialogProps {
 export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
   const [open, setOpen] = useState(false);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [editWineOpen, setEditWineOpen] = useState(false);
   const [countryOpen, setCountryOpen] = useState(false);
   const [regionOpen, setRegionOpen] = useState(false);
   const [producerOpen, setProducerOpen] = useState(false);
@@ -108,7 +108,6 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
   const createProducer = useCreateProducer();
   const createVarietal = useCreateVarietal();
   const createWine = useCreateWine();
-  const updateWine = useUpdateWine();
   const updateBottle = useUpdateBottle();
   const deleteBottle = useDeleteBottle();
   const bulkUpdateWineVarietals = useBulkUpdateWineVarietals();
@@ -122,8 +121,6 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
       producer_id: bottle.wine.producer.id,
       varietal_ids: bottle.wine.wine_varietal?.map(wv => wv.varietal.id) || [],
       wine_id: bottle.wine.id,
-      wine_name: bottle.wine.name,
-      wine_colour: bottle.wine.colour,
       vintage: bottle.vintage,
       size: bottle.size,
       price: bottle.price,
@@ -215,15 +212,6 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
 
   const onSubmit = async (values: FormValues) => {
     const tags = values.tags?.split(',').map(t => t.trim()).filter(Boolean);
-    
-    // Update wine name or color if changed
-    if (values.wine_name !== bottle.wine.name || values.wine_colour !== bottle.wine.colour) {
-      await updateWine.mutateAsync({
-        id: values.wine_id,
-        name: values.wine_name,
-        colour: values.wine_colour,
-      });
-    }
     
     // Update wine's varietals if they changed
     const currentVarietalIds = bottle.wine.wine_varietal?.map(wv => wv.varietal.id) || [];
@@ -341,14 +329,14 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
                 )}
               />
 
-              {/* Wine Selection - can switch to different wine or edit name/color below */}
+              {/* Wine Selection */}
               <FormField
                 control={form.control}
                 name="wine_id"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Wine (or switch to different wine)</FormLabel>
-                    <div className="flex gap-2 items-start">
+                    <FormLabel>Wine</FormLabel>
+                    <div className="flex gap-2 items-start w-full">
                       <Popover open={wineOpen} onOpenChange={setWineOpen}>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -393,8 +381,6 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
                                     value={w.name}
                                     onSelect={() => {
                                       field.onChange(w.id);
-                                      form.setValue('wine_name', w.name);
-                                      form.setValue('wine_colour', w.colour);
                                       setWineOpen(false);
                                     }}
                                   >
@@ -429,47 +415,6 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
                         </SelectContent>
                       </Select>
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Editable Wine Name */}
-              <FormField
-                control={form.control}
-                name="wine_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Wine Name ⚠️ Changes affect all bottles of this wine</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Enter wine name" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Editable Wine Colour */}
-              <FormField
-                control={form.control}
-                name="wine_colour"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Wine Colour ⚠️ Changes affect all bottles of this wine</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="red">Red</SelectItem>
-                        <SelectItem value="white">White</SelectItem>
-                        <SelectItem value="rosé">Rosé</SelectItem>
-                        <SelectItem value="sparkling">Sparkling</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -822,6 +767,12 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
           </Form>
         </DialogContent>
       </Dialog>
+
+      <EditWineDialog
+        open={editWineOpen}
+        onOpenChange={setEditWineOpen}
+        wine={bottle.wine}
+      />
 
       <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
         <AlertDialogContent>
