@@ -75,6 +75,32 @@ export function useCountryBreakdown() {
   });
 }
 
+export function useRegionBreakdown() {
+  return useQuery({
+    queryKey: ['region-breakdown'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bottle')
+        .select('wine:wine_id(producer:producer_id(region:region_id(name))), quantity');
+      
+      if (error) throw error;
+      
+      // Aggregate bottles by region
+      const breakdown = data.reduce((acc: Record<string, number>, item: any) => {
+        const region = item.wine?.producer?.region?.name || 'Unknown';
+        const quantity = item.quantity || 0;
+        acc[region] = (acc[region] || 0) + quantity;
+        return acc;
+      }, {});
+      
+      return Object.entries(breakdown)
+        .map(([name, count]) => ({ name, count: count as number }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5); // Top 5 regions
+    },
+  });
+}
+
 export function useVarietalBreakdown() {
   return useQuery({
     queryKey: ['varietal-breakdown'],

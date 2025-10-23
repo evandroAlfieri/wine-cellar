@@ -1,5 +1,6 @@
-import { BarChart3, Euro, Globe, Wine } from 'lucide-react';
-import { useStats, useColorBreakdown, useCountryBreakdown, useVarietalBreakdown } from '@/hooks/useStats';
+import { BarChart3, Euro, Globe, Wine, MapPin } from 'lucide-react';
+import { useStats, useColorBreakdown, useCountryBreakdown, useRegionBreakdown, useVarietalBreakdown } from '@/hooks/useStats';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const COLOR_MAP: Record<string, string> = {
@@ -28,9 +29,10 @@ export function StatsBar() {
   const { data: stats, isLoading: statsLoading } = useStats();
   const { data: colorBreakdown, isLoading: breakdownLoading } = useColorBreakdown();
   const { data: countryBreakdown, isLoading: countryLoading } = useCountryBreakdown();
+  const { data: regionBreakdown, isLoading: regionLoading } = useRegionBreakdown();
   const { data: varietalBreakdown, isLoading: varietalLoading } = useVarietalBreakdown();
 
-  if (statsLoading || breakdownLoading || countryLoading || varietalLoading) {
+  if (statsLoading || breakdownLoading || countryLoading || regionLoading || varietalLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {[1, 2, 3, 4].map((i) => (
@@ -132,31 +134,55 @@ export function StatsBar() {
         </div>
       </div>
 
-      {/* Countries Breakdown */}
+      {/* Countries & Regions Combined */}
       <div className="bg-card rounded-lg border p-4 hover:shadow-md transition-shadow">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-blue-500/10">
-            <Globe className="w-5 h-5 text-blue-500" />
+        <Tabs defaultValue="countries" className="w-full">
+          <div className="flex items-center justify-between mb-3">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="countries" className="text-xs">
+                <Globe className="w-3 h-3 mr-1" />
+                Countries
+              </TabsTrigger>
+              <TabsTrigger value="regions" className="text-xs">
+                <MapPin className="w-3 h-3 mr-1" />
+                Regions
+              </TabsTrigger>
+            </TabsList>
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Countries</p>
-            <p className="text-lg font-semibold">{countryBreakdown?.length || 0} countries</p>
-          </div>
-        </div>
-        
-        {countryBreakdown && countryBreakdown.length > 0 && (
-          <div className="space-y-2">
-            {countryBreakdown.slice(0, 8).map((item, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{COUNTRY_FLAGS[item.name] || '🏳️'}</span>
-                  <span className="text-sm font-medium">{item.name}</span>
-                </div>
-                <span className="font-semibold text-primary">{item.count}</span>
+          
+          <TabsContent value="countries" className="mt-0">
+            <p className="text-xs text-muted-foreground mb-3">Top 5 Countries</p>
+            {countryBreakdown && countryBreakdown.length > 0 && (
+              <div className="space-y-2">
+                {countryBreakdown.slice(0, 5).map((item, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{COUNTRY_FLAGS[item.name] || '🏳️'}</span>
+                      <span className="text-sm font-medium">{item.name}</span>
+                    </div>
+                    <span className="font-semibold text-primary">{item.count}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+            )}
+          </TabsContent>
+          
+          <TabsContent value="regions" className="mt-0">
+            <p className="text-xs text-muted-foreground mb-3">Top 5 Regions</p>
+            {regionBreakdown && regionBreakdown.length > 0 && (
+              <div className="space-y-2">
+                {regionBreakdown.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between">
+                    <span className="text-sm font-medium truncate flex-1 mr-2" title={item.name}>
+                      {item.name}
+                    </span>
+                    <span className="font-semibold text-primary">{item.count}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Top Varietals */}
