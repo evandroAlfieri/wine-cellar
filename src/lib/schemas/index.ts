@@ -14,18 +14,30 @@ export const CreateCountrySchema = z.object({
   name: z.string().min(1, "Country name is required").max(100).trim(),
 });
 
+// Region schemas
+export const RegionSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1, "Region name is required").max(100),
+  country_id: z.string().uuid(),
+});
+
+export const CreateRegionSchema = z.object({
+  name: z.string().min(1, "Region name is required").max(100).trim(),
+  country_id: z.string().uuid(),
+});
+
 // Producer schemas
 export const ProducerSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1, "Producer name is required"),
   country_id: z.string().uuid().nullable(),
-  region: z.string().nullable(),
+  region_id: z.string().uuid().nullable(),
 });
 
 export const CreateProducerSchema = z.object({
   name: z.string().min(1, "Producer name is required").trim(),
   country_id: z.string().uuid().nullable(),
-  region: z.string().max(200).trim().optional(),
+  region_id: z.string().uuid().nullable(),
 });
 
 // Wine schemas
@@ -64,6 +76,8 @@ export const CreateBottleSchema = z.object({
 
 export type Country = z.infer<typeof CountrySchema>;
 export type CreateCountry = z.infer<typeof CreateCountrySchema>;
+export type Region = z.infer<typeof RegionSchema>;
+export type CreateRegion = z.infer<typeof CreateRegionSchema>;
 export type Producer = z.infer<typeof ProducerSchema>;
 export type CreateProducer = z.infer<typeof CreateProducerSchema>;
 export type Wine = z.infer<typeof WineSchema>;

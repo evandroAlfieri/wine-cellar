@@ -6,7 +6,7 @@ interface Producer {
   id: string;
   name: string;
   country_id: string | null;
-  region: string | null;
+  region_id: string | null;
 }
 
 export function useProducers() {
@@ -28,7 +28,7 @@ export function useCreateProducer() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (producer: { name: string; country_id?: string; region?: string }) => {
+    mutationFn: async (producer: { name: string; country_id?: string; region_id?: string }) => {
       const { data, error } = await supabase
         .from('producer')
         .insert(producer)

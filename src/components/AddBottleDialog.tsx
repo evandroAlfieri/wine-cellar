@@ -41,6 +41,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useCountries, useCreateCountry } from '@/hooks/useCountries';
+import { useRegions, useCreateRegion } from '@/hooks/useRegions';
 import { useProducers, useCreateProducer } from '@/hooks/useProducers';
 import { useWines, useCreateWine } from '@/hooks/useWines';
 import { useCreateBottle } from '@/hooks/useBottleMutations';
@@ -49,6 +50,7 @@ import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   country_id: z.string().min(1, 'Country is required'),
+  region_id: z.string().optional(),
   producer_id: z.string().min(1, 'Producer is required'),
   wine_id: z.string().min(1, 'Wine is required'),
   vintage: z.coerce.number().int().min(1900).max(new Date().getFullYear() + 5).nullable(),
@@ -62,19 +64,22 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function AddBottleDialog() {
   const [open, setOpen] = useState(false);
-  const [producerOpen, setProducerOpen] = useState(false);
   const [countryOpen, setCountryOpen] = useState(false);
+  const [regionOpen, setRegionOpen] = useState(false);
+  const [producerOpen, setProducerOpen] = useState(false);
   const [wineOpen, setWineOpen] = useState(false);
-  const [producerSearch, setProducerSearch] = useState('');
   const [countrySearch, setCountrySearch] = useState('');
+  const [regionSearch, setRegionSearch] = useState('');
+  const [producerSearch, setProducerSearch] = useState('');
   const [wineSearch, setWineSearch] = useState('');
-  const [newProducerRegion, setNewProducerRegion] = useState('');
   const [newWineColour, setNewWineColour] = useState<z.infer<typeof WineColourEnum>>('red');
   
   const { data: countries } = useCountries();
+  const { data: allRegions } = useRegions();
   const { data: producers } = useProducers();
   const { data: wines } = useWines();
   const createCountry = useCreateCountry();
+  const createRegion = useCreateRegion();
   const createProducer = useCreateProducer();
   const createWine = useCreateWine();
   const createBottle = useCreateBottle();
@@ -83,6 +88,7 @@ export function AddBottleDialog() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       country_id: '',
+      region_id: '',
       producer_id: '',
       wine_id: '',
       vintage: null,
@@ -94,37 +100,53 @@ export function AddBottleDialog() {
   });
 
   const selectedCountryId = form.watch('country_id');
+  const selectedRegionId = form.watch('region_id');
   const selectedProducerId = form.watch('producer_id');
 
+  const filteredRegions = allRegions?.filter(r => r.country_id === selectedCountryId);
   const filteredWines = wines?.filter(w => w.producer_id === selectedProducerId);
 
-  // Auto-populate country when producer is selected
+  // Auto-populate country and region when producer is selected
   useEffect(() => {
     if (selectedProducerId) {
       const selectedProducer = producers?.find(p => p.id === selectedProducerId);
       if (selectedProducer?.country_id) {
         form.setValue('country_id', selectedProducer.country_id);
       }
+      if (selectedProducer?.region_id) {
+        form.setValue('region_id', selectedProducer.region_id);
+      }
       form.setValue('wine_id', '');
     }
   }, [selectedProducerId, producers]);
-
-  const handleCreateProducer = async (name: string) => {
-    const result = await createProducer.mutateAsync({
-      name,
-      country_id: selectedCountryId || undefined,
-      region: newProducerRegion.trim() || undefined,
-    });
-    form.setValue('producer_id', result.producer.id);
-    setProducerSearch('');
-    setProducerOpen(false);
-  };
 
   const handleCreateCountry = async (name: string) => {
     const result = await createCountry.mutateAsync(name);
     form.setValue('country_id', result.country.id);
     setCountrySearch('');
     setCountryOpen(false);
+  };
+
+  const handleCreateRegion = async (name: string) => {
+    if (!selectedCountryId) return;
+    const result = await createRegion.mutateAsync({
+      name,
+      country_id: selectedCountryId,
+    });
+    form.setValue('region_id', result.region.id);
+    setRegionSearch('');
+    setRegionOpen(false);
+  };
+
+  const handleCreateProducer = async (name: string) => {
+    const result = await createProducer.mutateAsync({
+      name,
+      country_id: selectedCountryId || undefined,
+      region_id: selectedRegionId || undefined,
+    });
+    form.setValue('producer_id', result.producer.id);
+    setProducerSearch('');
+    setProducerOpen(false);
   };
 
   const handleCreateWine = async (name: string) => {
@@ -146,7 +168,7 @@ export function AddBottleDialog() {
       wine_id: values.wine_id,
       vintage: values.vintage,
       size: values.size,
-      price: Math.round(values.price * 100), // Convert euros to cents
+      price: Math.round(values.price * 100),
       quantity: values.quantity,
       tags: tags?.length ? tags : undefined,
     });
@@ -170,86 +192,6 @@ export function AddBottleDialog() {
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Producer Selection */}
-            <FormField
-              control={form.control}
-              name="producer_id"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Producer</FormLabel>
-                  <div className="flex gap-2 items-start">
-                    <Popover open={producerOpen} onOpenChange={setProducerOpen}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                              "flex-1 justify-between",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value
-                              ? producers?.find((p) => p.id === field.value)?.name
-                              : "Select or add producer"}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[400px] p-0">
-                        <Command>
-                          <CommandInput 
-                            placeholder="Search or type new producer..." 
-                            value={producerSearch}
-                            onValueChange={setProducerSearch}
-                          />
-                          <CommandList>
-                            <CommandEmpty>
-                              <Button
-                                variant="ghost"
-                                className="w-full"
-                                onClick={() => handleCreateProducer(producerSearch)}
-                              >
-                                <Plus className="mr-2 h-4 w-4" />
-                                Create "{producerSearch}"
-                              </Button>
-                            </CommandEmpty>
-                            <CommandGroup>
-                              {producers?.map((p) => (
-                                <CommandItem
-                                  key={p.id}
-                                  value={p.name}
-                                  onSelect={() => {
-                                    field.onChange(p.id);
-                                    setProducerOpen(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      p.id === field.value ? "opacity-100" : "opacity-0"
-                                    )}
-                                  />
-                                  {p.name} {p.region && `(${p.region})`}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <Input
-                      placeholder="Region (optional)"
-                      value={newProducerRegion}
-                      onChange={(e) => setNewProducerRegion(e.target.value)}
-                      className="w-40"
-                    />
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Country Selection */}
             <FormField
               control={form.control}
@@ -310,6 +252,152 @@ export function AddBottleDialog() {
                                   )}
                                 />
                                 {c.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Region Selection */}
+            <FormField
+              control={form.control}
+              name="region_id"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Region (optional)</FormLabel>
+                  <Popover open={regionOpen} onOpenChange={setRegionOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          disabled={!selectedCountryId}
+                          className={cn(
+                            "justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? filteredRegions?.find((r) => r.id === field.value)?.name
+                            : "Select or add region"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Search or type new region..." 
+                          value={regionSearch}
+                          onValueChange={setRegionSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            <Button
+                              variant="ghost"
+                              className="w-full"
+                              onClick={() => handleCreateRegion(regionSearch)}
+                              disabled={!selectedCountryId}
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Create "{regionSearch}"
+                            </Button>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {filteredRegions?.map((r) => (
+                              <CommandItem
+                                key={r.id}
+                                value={r.name}
+                                onSelect={() => {
+                                  field.onChange(r.id);
+                                  setRegionOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    r.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {r.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Producer Selection */}
+            <FormField
+              control={form.control}
+              name="producer_id"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Producer</FormLabel>
+                  <Popover open={producerOpen} onOpenChange={setProducerOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? producers?.find((p) => p.id === field.value)?.name
+                            : "Select or add producer"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Search or type new producer..." 
+                          value={producerSearch}
+                          onValueChange={setProducerSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            <Button
+                              variant="ghost"
+                              className="w-full"
+                              onClick={() => handleCreateProducer(producerSearch)}
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Create "{producerSearch}"
+                            </Button>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {producers?.map((p) => (
+                              <CommandItem
+                                key={p.id}
+                                value={p.name}
+                                onSelect={() => {
+                                  field.onChange(p.id);
+                                  setProducerOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    p.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {p.name}
                               </CommandItem>
                             ))}
                           </CommandGroup>
@@ -498,7 +586,7 @@ export function AddBottleDialog() {
               )}
             />
 
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex justify-end gap-2 pt-4 border-t">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>

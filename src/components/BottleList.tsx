@@ -120,7 +120,7 @@ export function BottleList() {
                             <MapPin className="w-3 h-3" />
                             <span>{bottle.wine.producer.country.name}</span>
                             {bottle.wine.producer.region && (
-                              <span className="text-muted-foreground">• {bottle.wine.producer.region}</span>
+                              <span className="text-muted-foreground">• {bottle.wine.producer.region.name}</span>
                             )}
                           </>
                         )}

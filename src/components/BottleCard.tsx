@@ -50,7 +50,7 @@ export function BottleCard({ bottle }: BottleCardProps) {
             <MapPin className="w-4 h-4" />
             <span>{bottle.wine.producer.country.name}</span>
             {bottle.wine.producer.region && (
-              <span className="text-muted-foreground/70">• {bottle.wine.producer.region}</span>
+              <span className="text-muted-foreground/70">• {bottle.wine.producer.region.name}</span>
             )}
           </div>
         )}

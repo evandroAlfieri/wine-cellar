@@ -72,23 +72,56 @@ export type Database = {
           country_id: string | null
           id: string
           name: string
-          region: string | null
+          region_id: string | null
         }
         Insert: {
           country_id?: string | null
           id?: string
           name: string
-          region?: string | null
+          region_id?: string | null
         }
         Update: {
           country_id?: string | null
           id?: string
           name?: string
-          region?: string | null
+          region_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "producer_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: false
+            referencedRelation: "country"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "producer_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "region"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      region: {
+        Row: {
+          country_id: string
+          id: string
+          name: string
+        }
+        Insert: {
+          country_id: string
+          id?: string
+          name: string
+        }
+        Update: {
+          country_id?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "region_country_id_fkey"
             columns: ["country_id"]
             isOneToOne: false
             referencedRelation: "country"

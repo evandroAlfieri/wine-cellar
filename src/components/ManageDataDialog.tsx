@@ -20,18 +20,21 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useCountries, useDeleteCountry } from '@/hooks/useCountries';
+import { useRegions, useDeleteRegion } from '@/hooks/useRegions';
 import { useProducers, useDeleteProducer } from '@/hooks/useProducers';
 import { useWines, useDeleteWine } from '@/hooks/useWines';
 
 export function ManageDataDialog() {
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleteType, setDeleteType] = useState<'country' | 'producer' | 'wine' | null>(null);
+  const [deleteType, setDeleteType] = useState<'country' | 'region' | 'producer' | 'wine' | null>(null);
   
   const { data: countries } = useCountries();
+  const { data: regions } = useRegions();
   const { data: producers } = useProducers();
   const { data: wines } = useWines();
   const deleteCountry = useDeleteCountry();
+  const deleteRegion = useDeleteRegion();
   const deleteProducer = useDeleteProducer();
   const deleteWine = useDeleteWine();
 
@@ -39,6 +42,7 @@ export function ManageDataDialog() {
     if (!deleteId || !deleteType) return;
     
     if (deleteType === 'country') await deleteCountry.mutateAsync(deleteId);
+    if (deleteType === 'region') await deleteRegion.mutateAsync(deleteId);
     if (deleteType === 'producer') await deleteProducer.mutateAsync(deleteId);
     if (deleteType === 'wine') await deleteWine.mutateAsync(deleteId);
     
@@ -61,8 +65,9 @@ export function ManageDataDialog() {
           </DialogHeader>
           
           <Tabs defaultValue="countries">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="countries">Countries</TabsTrigger>
+              <TabsTrigger value="regions">Regions</TabsTrigger>
               <TabsTrigger value="producers">Producers</TabsTrigger>
               <TabsTrigger value="wines">Wines</TabsTrigger>
             </TabsList>
@@ -87,28 +92,60 @@ export function ManageDataDialog() {
                 <p className="text-center text-muted-foreground py-8">No countries yet</p>
               )}
             </TabsContent>
+
+            <TabsContent value="regions" className="space-y-2">
+              {regions?.map(region => {
+                const country = countries?.find(c => c.id === region.country_id);
+                return (
+                  <div key={region.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <div className="font-medium">{region.name}</div>
+                      {country && (
+                        <div className="text-sm text-muted-foreground">{country.name}</div>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setDeleteId(region.id);
+                        setDeleteType('region');
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                );
+              })}
+              {!regions?.length && (
+                <p className="text-center text-muted-foreground py-8">No regions yet</p>
+              )}
+            </TabsContent>
             
             <TabsContent value="producers" className="space-y-2">
-              {producers?.map(producer => (
-                <div key={producer.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <div className="font-medium">{producer.name}</div>
-                    {producer.region && (
-                      <div className="text-sm text-muted-foreground">{producer.region}</div>
-                    )}
+              {producers?.map(producer => {
+                const region = regions?.find(r => r.id === producer.region_id);
+                return (
+                  <div key={producer.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <div className="font-medium">{producer.name}</div>
+                      {region && (
+                        <div className="text-sm text-muted-foreground">{region.name}</div>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setDeleteId(producer.id);
+                        setDeleteType('producer');
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setDeleteId(producer.id);
-                      setDeleteType('producer');
-                    }}
-                  >
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
               {!producers?.length && (
                 <p className="text-center text-muted-foreground py-8">No producers yet</p>
               )}
