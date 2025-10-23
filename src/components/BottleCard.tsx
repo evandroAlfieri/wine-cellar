@@ -40,6 +40,9 @@ export function BottleCard({ bottle }: BottleCardProps) {
         <div className="flex-1">
           <h3 className="font-semibold text-lg mb-1">{bottle.wine.name}</h3>
           <p className="text-sm text-muted-foreground">{bottle.wine.producer.name}</p>
+          {bottle.wine.varietal && (
+            <p className="text-sm text-muted-foreground/70 italic">{bottle.wine.varietal.name}</p>
+          )}
         </div>
         <Wine className="w-5 h-5 text-primary flex-shrink-0 ml-2" />
       </div>
