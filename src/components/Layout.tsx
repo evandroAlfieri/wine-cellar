@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { AddBottleDialog } from '@/components/AddBottleDialog';
-import { ManageDataDialog } from '@/components/ManageDataDialog';
 import { toast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -79,7 +78,6 @@ export function Layout({ children }: LayoutProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <AddBottleDialog />
-                    <ManageDataDialog />
                     <DropdownMenuItem onClick={handleExportCSV}>
                       <Download className="w-4 h-4 mr-2" />
                       Export CSV
@@ -95,7 +93,6 @@ export function Layout({ children }: LayoutProps) {
             ) : (
               <div className="flex items-center gap-2">
                 <AddBottleDialog />
-                <ManageDataDialog />
                 <Button variant="outline" size="sm" onClick={handleExportCSV}>
                   <Download className="w-4 h-4 mr-2" />
                   Export CSV
