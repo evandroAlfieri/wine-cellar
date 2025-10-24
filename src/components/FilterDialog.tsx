@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { SlidersHorizontal, X } from 'lucide-react';
+import { SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCountries } from '@/hooks/useCountries';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +23,8 @@ import { Label } from '@/components/ui/label';
 interface FilterDialogProps {
   colourFilter: string[];
   onColourFilterChange: (colours: string[]) => void;
+  countryFilter: string[];
+  onCountryFilterChange: (countries: string[]) => void;
   showConsumed: boolean;
   onShowConsumedChange: (show: boolean) => void;
   activeFilterCount: number;
@@ -38,12 +41,15 @@ const colours = [
 export function FilterDialog({
   colourFilter,
   onColourFilterChange,
+  countryFilter,
+  onCountryFilterChange,
   showConsumed,
   onShowConsumedChange,
   activeFilterCount,
 }: FilterDialogProps) {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
+  const { data: countries } = useCountries();
 
   const handleColourToggle = (colour: string) => {
     if (colourFilter.includes(colour)) {
@@ -53,8 +59,17 @@ export function FilterDialog({
     }
   };
 
+  const handleCountryToggle = (countryId: string) => {
+    if (countryFilter.includes(countryId)) {
+      onCountryFilterChange(countryFilter.filter((c) => c !== countryId));
+    } else {
+      onCountryFilterChange([...countryFilter, countryId]);
+    }
+  };
+
   const handleClearAll = () => {
     onColourFilterChange([]);
+    onCountryFilterChange([]);
     onShowConsumedChange(false);
   };
 
@@ -72,6 +87,24 @@ export function FilterDialog({
               />
               <Label htmlFor={colour.value} className="cursor-pointer">
                 {colour.label}
+              </Label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">Country</h3>
+        <div className="space-y-2 max-h-48 overflow-y-auto">
+          {countries?.map((country) => (
+            <div key={country.id} className="flex items-center space-x-2">
+              <Checkbox
+                id={`country-${country.id}`}
+                checked={countryFilter.includes(country.id)}
+                onCheckedChange={() => handleCountryToggle(country.id)}
+              />
+              <Label htmlFor={`country-${country.id}`} className="cursor-pointer">
+                {country.name}
               </Label>
             </div>
           ))}

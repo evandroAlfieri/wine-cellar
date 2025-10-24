@@ -21,6 +21,7 @@ export function BottleList() {
   const { data: bottles, isLoading } = useBottles();
   const [searchQuery, setSearchQuery] = useState('');
   const [colourFilter, setColourFilter] = useState<string[]>([]);
+  const [countryFilter, setCountryFilter] = useState<string[]>([]);
   const [showConsumed, setShowConsumed] = useState(false);
   const consumeBottle = useConsumeBottle();
   const isMobile = useIsMobile();
@@ -41,12 +42,16 @@ export function BottleList() {
       const matchesColour =
         colourFilter.length === 0 || colourFilter.includes(bottle.wine.colour);
 
+      const matchesCountry =
+        countryFilter.length === 0 || 
+        (bottle.wine.producer.country && countryFilter.includes(bottle.wine.producer.country.id));
+
       const matchesConsumed = 
         !showConsumed || bottle.quantity === 0;
 
-      return matchesSearch && matchesColour && matchesConsumed;
+      return matchesSearch && matchesColour && matchesCountry && matchesConsumed;
     });
-  }, [bottles, searchQuery, colourFilter, showConsumed]);
+  }, [bottles, searchQuery, colourFilter, countryFilter, showConsumed]);
 
   const colourMap: Record<string, string> = {
     red: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
@@ -64,6 +69,8 @@ export function BottleList() {
         onSearchChange={setSearchQuery}
         colourFilter={colourFilter}
         onColourFilterChange={setColourFilter}
+        countryFilter={countryFilter}
+        onCountryFilterChange={setCountryFilter}
         showConsumed={showConsumed}
         onShowConsumedChange={setShowConsumed}
       />
@@ -91,6 +98,8 @@ export function BottleList() {
         onSearchChange={setSearchQuery}
         colourFilter={colourFilter}
         onColourFilterChange={setColourFilter}
+        countryFilter={countryFilter}
+        onCountryFilterChange={setCountryFilter}
         showConsumed={showConsumed}
         onShowConsumedChange={setShowConsumed}
       />

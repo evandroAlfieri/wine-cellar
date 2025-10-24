@@ -19,7 +19,7 @@ export function useBottles() {
             )
           )
         `)
-        .order('quantity', { ascending: true })
+        .order('quantity', { ascending: false })
         .order('created_at', { ascending: false });
       
       if (error) throw error;

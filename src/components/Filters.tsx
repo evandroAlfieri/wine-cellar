@@ -7,6 +7,8 @@ interface FiltersProps {
   onSearchChange: (value: string) => void;
   colourFilter: string[];
   onColourFilterChange: (colours: string[]) => void;
+  countryFilter: string[];
+  onCountryFilterChange: (countries: string[]) => void;
   showConsumed: boolean;
   onShowConsumedChange: (show: boolean) => void;
 }
@@ -16,10 +18,12 @@ export function Filters({
   onSearchChange,
   colourFilter,
   onColourFilterChange,
+  countryFilter,
+  onCountryFilterChange,
   showConsumed,
   onShowConsumedChange,
 }: FiltersProps) {
-  const activeFilterCount = colourFilter.length + (showConsumed ? 1 : 0);
+  const activeFilterCount = colourFilter.length + countryFilter.length + (showConsumed ? 1 : 0);
 
   return (
     <div className="bg-card rounded-lg border p-4 mb-6">
@@ -36,6 +40,8 @@ export function Filters({
         <FilterDialog
           colourFilter={colourFilter}
           onColourFilterChange={onColourFilterChange}
+          countryFilter={countryFilter}
+          onCountryFilterChange={onCountryFilterChange}
           showConsumed={showConsumed}
           onShowConsumedChange={onShowConsumedChange}
           activeFilterCount={activeFilterCount}
