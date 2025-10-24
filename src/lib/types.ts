@@ -6,8 +6,21 @@ export type DbProducer = Database["public"]["Tables"]["producer"]["Row"];
 export type DbWine = Database["public"]["Tables"]["wine"]["Row"];
 export type DbBottle = Database["public"]["Tables"]["bottle"]["Row"];
 export type DbVarietal = Database["public"]["Tables"]["varietal"]["Row"];
+export type DbWishlistItem = Database["public"]["Tables"]["wishlist"]["Row"];
 
 export interface BottleWithDetails extends DbBottle {
+  wine: DbWine & {
+    producer: DbProducer & {
+      country: DbCountry | null;
+      region: DbRegion | null;
+    };
+    wine_varietal: Array<{
+      varietal: DbVarietal;
+    }>;
+  };
+}
+
+export interface WishlistItemWithDetails extends DbWishlistItem {
   wine: DbWine & {
     producer: DbProducer & {
       country: DbCountry | null;

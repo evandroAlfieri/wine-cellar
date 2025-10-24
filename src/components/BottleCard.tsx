@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Wine, MapPin, Calendar, Trash2 } from 'lucide-react';
+import { Wine, MapPin, Calendar, Trash2, Heart } from 'lucide-react';
 import { BottleWithDetails } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useConsumeBottle, useDeleteBottle } from '@/hooks/useBottleMutations';
+import { useMoveToWishlist } from '@/hooks/useWishlistMutations';
 
 interface BottleCardProps {
   bottle: BottleWithDetails;
@@ -21,8 +22,10 @@ interface BottleCardProps {
 
 export function BottleCard({ bottle }: BottleCardProps) {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [showMoveAlert, setShowMoveAlert] = useState(false);
   const consumeBottle = useConsumeBottle();
   const deleteBottle = useDeleteBottle();
+  const moveToWishlist = useMoveToWishlist();
   const price = bottle.price.toFixed(2);
   
   const colourMap: Record<string, string> = {
@@ -99,6 +102,16 @@ export function BottleCard({ bottle }: BottleCardProps) {
           <Wine className="w-4 h-4 mr-2" />
           Consume
         </Button>
+        {bottle.quantity === 0 && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setShowMoveAlert(true)}
+            disabled={moveToWishlist.isPending}
+          >
+            <Heart className="w-4 h-4" />
+          </Button>
+        )}
         <Button
           size="sm"
           variant="outline"
@@ -127,6 +140,28 @@ export function BottleCard({ bottle }: BottleCardProps) {
             }}
           >
             Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    <AlertDialog open={showMoveAlert} onOpenChange={setShowMoveAlert}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Move to Wishlist?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Move "{bottle.wine.name}" to your wishlist? This will remove it from your collection and add it to wines you want to buy.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              moveToWishlist.mutate({ bottleId: bottle.id });
+              setShowMoveAlert(false);
+            }}
+          >
+            Move to Wishlist
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

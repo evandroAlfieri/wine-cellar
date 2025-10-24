@@ -86,6 +86,22 @@ export const CreateBottleSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
+// Wishlist schemas
+export const WishlistSchema = z.object({
+  id: z.string().uuid(),
+  wine_id: z.string().uuid(),
+  estimated_price: z.number().min(0, "Price must be non-negative"),
+  tags: z.array(z.string()).nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+
+export const CreateWishlistSchema = z.object({
+  wine_id: z.string().uuid(),
+  estimated_price: z.number().min(0, "Price must be non-negative").default(0),
+  tags: z.array(z.string()).optional(),
+});
+
 export type Country = z.infer<typeof CountrySchema>;
 export type CreateCountry = z.infer<typeof CreateCountrySchema>;
 export type Region = z.infer<typeof RegionSchema>;
@@ -98,3 +114,5 @@ export type Wine = z.infer<typeof WineSchema>;
 export type CreateWine = z.infer<typeof CreateWineSchema>;
 export type Bottle = z.infer<typeof BottleSchema>;
 export type CreateBottle = z.infer<typeof CreateBottleSchema>;
+export type Wishlist = z.infer<typeof WishlistSchema>;
+export type CreateWishlist = z.infer<typeof CreateWishlistSchema>;

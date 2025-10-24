@@ -212,6 +212,41 @@ export type Database = {
           },
         ]
       }
+      wishlist: {
+        Row: {
+          created_at: string
+          estimated_price: number
+          id: string
+          tags: string[] | null
+          updated_at: string
+          wine_id: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_price?: number
+          id?: string
+          tags?: string[] | null
+          updated_at?: string
+          wine_id: string
+        }
+        Update: {
+          created_at?: string
+          estimated_price?: number
+          id?: string
+          tags?: string[] | null
+          updated_at?: string
+          wine_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_wine_id_fkey"
+            columns: ["wine_id"]
+            isOneToOne: false
+            referencedRelation: "wine"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
