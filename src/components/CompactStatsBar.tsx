@@ -53,18 +53,21 @@ export function CompactStatsBar({ onViewDetails }: CompactStatsBarProps) {
           </div>
 
           {/* Color Breakdown */}
-          <div className="flex items-center gap-2">
-            <div className="flex gap-2 flex-wrap">
-              {colorBreakdown.map((item) => (
-                <Badge
-                  key={item.colour}
-                  className={colourMap[item.colour] || colourMap.other}
-                  variant="outline"
-                >
-                  {item.colour}: {item.count}
-                </Badge>
-              ))}
-            </div>
+          <div className="flex items-center gap-3">
+            {colorBreakdown.map((item) => {
+              const colorClass = item.colour === 'red' ? 'bg-red-500' :
+                                item.colour === 'white' ? 'bg-yellow-500' :
+                                item.colour === 'rosé' ? 'bg-pink-500' :
+                                item.colour === 'sparkling' ? 'bg-blue-500' :
+                                'bg-gray-500';
+              
+              return (
+                <div key={item.colour} className="flex items-center gap-1.5">
+                  <div className={`w-3 h-3 rounded-full ${colorClass}`} />
+                  <span className="text-sm font-medium">{item.count}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 

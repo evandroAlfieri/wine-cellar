@@ -78,7 +78,6 @@ export function BottleList({ onViewStats }: BottleListProps) {
   if (isLoading) {
     return (
       <div>
-        <CompactStatsBar onViewDetails={onViewStats} />
         <Filters
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -91,6 +90,7 @@ export function BottleList({ onViewStats }: BottleListProps) {
           showConsumed={showConsumed}
           onShowConsumedChange={setShowConsumed}
         />
+        <CompactStatsBar onViewDetails={onViewStats} />
         <div className="bg-card rounded-lg border p-8 animate-pulse">
           <div className="h-96 bg-muted rounded" />
         </div>
@@ -110,7 +110,6 @@ export function BottleList({ onViewStats }: BottleListProps) {
 
   return (
     <div>
-      <CompactStatsBar onViewDetails={onViewStats} />
       <Filters
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -123,6 +122,7 @@ export function BottleList({ onViewStats }: BottleListProps) {
         showConsumed={showConsumed}
         onShowConsumedChange={setShowConsumed}
       />
+      <CompactStatsBar onViewDetails={onViewStats} />
 
       {filteredBottles.length === 0 ? (
         <div className="text-center py-12">
