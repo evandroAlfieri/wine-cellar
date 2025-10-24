@@ -284,6 +284,153 @@ export function AddWishlistDialog() {
               )}
             />
 
+            {/* Country Selection */}
+            <FormField
+              control={form.control}
+              name="country_id"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Country</FormLabel>
+                  <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? countries?.find((c) => c.id === field.value)?.name
+                            : "Select or add country"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0 z-50 bg-popover">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Search or type new country..." 
+                          value={countrySearch}
+                          onValueChange={setCountrySearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            <Button
+                              variant="ghost"
+                              className="w-full"
+                              onClick={() => handleCreateCountry(countrySearch)}
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Create "{countrySearch}"
+                            </Button>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {countries?.map((c) => (
+                              <CommandItem
+                                key={c.id}
+                                value={c.name}
+                                onSelect={() => {
+                                  field.onChange(c.id);
+                                  setCountryOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    c.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {c.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Region Selection */}
+            <FormField
+              control={form.control}
+              name="region_id"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Region (optional)</FormLabel>
+                  <Popover open={regionOpen} onOpenChange={setRegionOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          disabled={!selectedCountryId}
+                          className={cn(
+                            "justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? filteredRegions?.find((r) => r.id === field.value)?.name
+                            : "Select or add region"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0 z-50 bg-popover">
+                      <Command>
+                        <CommandInput 
+                          placeholder="Search or type new region..." 
+                          value={regionSearch}
+                          onValueChange={setRegionSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            <Button
+                              variant="ghost"
+                              className="w-full"
+                              onClick={() => handleCreateRegion(regionSearch)}
+                              disabled={!selectedCountryId}
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Create "{regionSearch}"
+                            </Button>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {filteredRegions?.map((r) => (
+                              <CommandItem
+                                key={r.id}
+                                value={r.name}
+                                onSelect={() => {
+                                  field.onChange(r.id);
+                                  setRegionOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    r.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {r.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+
             {/* Wine Selection with Color */}
             <FormField
               control={form.control}
