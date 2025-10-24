@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Check, ChevronsUpDown, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Check, ChevronsUpDown, Plus, Pencil, Trash2, Heart } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -58,6 +58,7 @@ import { useWines, useCreateWine } from '@/hooks/useWines';
 import { useVarietals, useCreateVarietal } from '@/hooks/useVarietals';
 import { useUpdateBottle, useDeleteBottle } from '@/hooks/useBottleMutations';
 import { useBulkUpdateWineVarietals, useCreateWineVarietal } from '@/hooks/useWineVarietals';
+import { useMoveToWishlist } from '@/hooks/useWishlistMutations';
 import { WineColourEnum } from '@/lib/schemas';
 import { BottleWithDetails } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -85,6 +86,7 @@ interface EditBottleDialogProps {
 export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
   const [open, setOpen] = useState(false);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [showMoveAlert, setShowMoveAlert] = useState(false);
   const [editWineOpen, setEditWineOpen] = useState(false);
   const [countryOpen, setCountryOpen] = useState(false);
   const [regionOpen, setRegionOpen] = useState(false);
@@ -110,6 +112,7 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
   const createWine = useCreateWine();
   const updateBottle = useUpdateBottle();
   const deleteBottle = useDeleteBottle();
+  const moveToWishlist = useMoveToWishlist();
   const bulkUpdateWineVarietals = useBulkUpdateWineVarietals();
   const createWineVarietal = useCreateWineVarietal();
 
@@ -754,14 +757,26 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
               />
 
               <div className="flex gap-2 justify-between pt-4">
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => setShowDeleteAlert(true)}
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => setShowDeleteAlert(true)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                  {form.watch('quantity') === 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowMoveAlert(true)}
+                    >
+                      <Heart className="w-4 h-4 mr-2" />
+                      Move to Wishlist
+                    </Button>
+                  )}
+                </div>
                 <div className="flex gap-2">
                   <Button
                     type="button"
@@ -804,6 +819,29 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
               }}
             >
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showMoveAlert} onOpenChange={setShowMoveAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Move to Wishlist?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Move "{bottle.wine.name}" to your wishlist? This will remove it from your collection and add it to wines you want to buy.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                moveToWishlist.mutate({ bottleId: bottle.id });
+                setShowMoveAlert(false);
+                setOpen(false);
+              }}
+            >
+              Move to Wishlist
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
