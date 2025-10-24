@@ -14,12 +14,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useConsumeBottle } from '@/hooks/useBottleMutations';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { MobileBottleCard } from './MobileBottleCard';
 
 export function BottleList() {
   const { data: bottles, isLoading } = useBottles();
   const [searchQuery, setSearchQuery] = useState('');
   const [colourFilter, setColourFilter] = useState('all');
   const consumeBottle = useConsumeBottle();
+  const isMobile = useIsMobile();
 
   const filteredBottles = useMemo(() => {
     if (!bottles) return [];
@@ -86,6 +89,12 @@ export function BottleList() {
           <Wine className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h3 className="text-lg font-semibold mb-2">No matches found</h3>
           <p className="text-muted-foreground">Try adjusting your filters</p>
+        </div>
+      ) : isMobile ? (
+        <div className="space-y-3">
+          {filteredBottles.map((bottle) => (
+            <MobileBottleCard key={bottle.id} bottle={bottle} />
+          ))}
         </div>
       ) : (
         <div className="bg-card rounded-lg border">

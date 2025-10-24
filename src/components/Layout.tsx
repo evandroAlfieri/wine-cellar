@@ -1,10 +1,18 @@
-import { Wine, LogOut, Download } from 'lucide-react';
+import { Wine, LogOut, Download, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { AddBottleDialog } from '@/components/AddBottleDialog';
 import { ManageDataDialog } from '@/components/ManageDataDialog';
 import { toast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,6 +21,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const handleSignOut = async () => {
     await signOut();
@@ -60,18 +69,43 @@ export function Layout({ children }: LayoutProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <AddBottleDialog />
-              <ManageDataDialog />
-              <Button variant="outline" size="sm" onClick={handleExportCSV}>
-                <Download className="w-4 h-4 mr-2" />
-                Export CSV
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
+            {isMobile ? (
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <AddBottleDialog />
+                    <ManageDataDialog />
+                    <DropdownMenuItem onClick={handleExportCSV}>
+                      <Download className="w-4 h-4 mr-2" />
+                      Export CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <AddBottleDialog />
+                <ManageDataDialog />
+                <Button variant="outline" size="sm" onClick={handleExportCSV}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Export CSV
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </header>
