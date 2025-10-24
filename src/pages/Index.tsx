@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Layout } from '@/components/Layout';
 import { StatsBar } from '@/components/StatsBar';
@@ -6,10 +7,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3, Layers } from 'lucide-react';
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState('collection');
+
   return (
     <ProtectedRoute>
       <Layout>
-        <Tabs defaultValue="collection" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto mb-6 grid-cols-2">
             <TabsTrigger value="collection" className="gap-2">
               <Layers className="w-4 h-4" />
@@ -22,7 +25,7 @@ const Index = () => {
           </TabsList>
           
           <TabsContent value="collection" className="mt-0">
-            <BottleList />
+            <BottleList onViewStats={() => setActiveTab('statistics')} />
           </TabsContent>
           
           <TabsContent value="statistics" className="mt-0">

@@ -16,8 +16,13 @@ import {
 import { useConsumeBottle } from '@/hooks/useBottleMutations';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileBottleCard } from './MobileBottleCard';
+import { CompactStatsBar } from './CompactStatsBar';
 
-export function BottleList() {
+interface BottleListProps {
+  onViewStats: () => void;
+}
+
+export function BottleList({ onViewStats }: BottleListProps) {
   const { data: bottles, isLoading } = useBottles();
   const [searchQuery, setSearchQuery] = useState('');
   const [colourFilter, setColourFilter] = useState<string[]>([]);
@@ -73,18 +78,19 @@ export function BottleList() {
   if (isLoading) {
     return (
       <div>
-      <Filters
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        colourFilter={colourFilter}
-        onColourFilterChange={setColourFilter}
-        countryFilter={countryFilter}
-        onCountryFilterChange={setCountryFilter}
-        tagFilter={tagFilter}
-        onTagFilterChange={setTagFilter}
-        showConsumed={showConsumed}
-        onShowConsumedChange={setShowConsumed}
-      />
+        <CompactStatsBar onViewDetails={onViewStats} />
+        <Filters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          colourFilter={colourFilter}
+          onColourFilterChange={setColourFilter}
+          countryFilter={countryFilter}
+          onCountryFilterChange={setCountryFilter}
+          tagFilter={tagFilter}
+          onTagFilterChange={setTagFilter}
+          showConsumed={showConsumed}
+          onShowConsumedChange={setShowConsumed}
+        />
         <div className="bg-card rounded-lg border p-8 animate-pulse">
           <div className="h-96 bg-muted rounded" />
         </div>
@@ -104,6 +110,7 @@ export function BottleList() {
 
   return (
     <div>
+      <CompactStatsBar onViewDetails={onViewStats} />
       <Filters
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
