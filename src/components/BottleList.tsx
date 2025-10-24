@@ -20,7 +20,8 @@ import { MobileBottleCard } from './MobileBottleCard';
 export function BottleList() {
   const { data: bottles, isLoading } = useBottles();
   const [searchQuery, setSearchQuery] = useState('');
-  const [colourFilter, setColourFilter] = useState('all');
+  const [colourFilter, setColourFilter] = useState<string[]>([]);
+  const [showConsumed, setShowConsumed] = useState(false);
   const consumeBottle = useConsumeBottle();
   const isMobile = useIsMobile();
 
@@ -32,14 +33,20 @@ export function BottleList() {
         searchQuery === '' ||
         bottle.wine.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         bottle.wine.producer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bottle.wine.producer.country?.name.toLowerCase().includes(searchQuery.toLowerCase());
+        bottle.wine.producer.country?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bottle.wine.wine_varietal?.some(wv => 
+          wv.varietal.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
       const matchesColour =
-        colourFilter === 'all' || bottle.wine.colour === colourFilter;
+        colourFilter.length === 0 || colourFilter.includes(bottle.wine.colour);
 
-      return matchesSearch && matchesColour;
+      const matchesConsumed = 
+        !showConsumed || bottle.quantity === 0;
+
+      return matchesSearch && matchesColour && matchesConsumed;
     });
-  }, [bottles, searchQuery, colourFilter]);
+  }, [bottles, searchQuery, colourFilter, showConsumed]);
 
   const colourMap: Record<string, string> = {
     red: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
@@ -52,12 +59,14 @@ export function BottleList() {
   if (isLoading) {
     return (
       <div>
-        <Filters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          colourFilter={colourFilter}
-          onColourChange={setColourFilter}
-        />
+      <Filters
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        colourFilter={colourFilter}
+        onColourFilterChange={setColourFilter}
+        showConsumed={showConsumed}
+        onShowConsumedChange={setShowConsumed}
+      />
         <div className="bg-card rounded-lg border p-8 animate-pulse">
           <div className="h-96 bg-muted rounded" />
         </div>
@@ -81,7 +90,9 @@ export function BottleList() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         colourFilter={colourFilter}
-        onColourChange={setColourFilter}
+        onColourFilterChange={setColourFilter}
+        showConsumed={showConsumed}
+        onShowConsumedChange={setShowConsumed}
       />
 
       {filteredBottles.length === 0 ? (

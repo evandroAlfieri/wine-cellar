@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       bottle: {
         Row: {
+          created_at: string
           id: string
           price: number
           quantity: number
@@ -25,6 +26,7 @@ export type Database = {
           wine_id: string | null
         }
         Insert: {
+          created_at?: string
           id?: string
           price: number
           quantity?: number
@@ -34,6 +36,7 @@ export type Database = {
           wine_id?: string | null
         }
         Update: {
+          created_at?: string
           id?: string
           price?: number
           quantity?: number

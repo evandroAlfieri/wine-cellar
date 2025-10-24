@@ -19,7 +19,8 @@ export function useBottles() {
             )
           )
         `)
-        .order('id');
+        .order('quantity', { ascending: true })
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
       
