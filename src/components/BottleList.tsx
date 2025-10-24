@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useBottles } from '@/hooks/useBottles';
 import { Filters } from './Filters';
-import { Wine, MapPin } from 'lucide-react';
+import { Wine, MapPin, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EditBottleDialog } from '@/components/EditBottleDialog';
@@ -29,13 +29,14 @@ export function BottleList({ onViewStats }: BottleListProps) {
   const [countryFilter, setCountryFilter] = useState<string[]>([]);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [showConsumed, setShowConsumed] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const consumeBottle = useConsumeBottle();
   const isMobile = useIsMobile();
 
   const filteredBottles = useMemo(() => {
     if (!bottles) return [];
 
-    return bottles.filter((bottle) => {
+    const filtered = bottles.filter((bottle) => {
       const matchesSearch =
         searchQuery === '' ||
         bottle.wine.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -65,7 +66,23 @@ export function BottleList({ onViewStats }: BottleListProps) {
 
       return matchesSearch && matchesColour && matchesCountry && matchesTags && matchesConsumed;
     });
-  }, [bottles, searchQuery, colourFilter, countryFilter, tagFilter, showConsumed]);
+
+    // Sort: consumed bottles always at bottom, then by created_at based on sortOrder
+    return filtered.sort((a, b) => {
+      // First, separate consumed vs available
+      const aConsumed = a.quantity === 0;
+      const bConsumed = b.quantity === 0;
+      
+      if (aConsumed && !bConsumed) return 1;
+      if (!aConsumed && bConsumed) return -1;
+      
+      // Both same consumed status, sort by created_at
+      const aDate = new Date(a.created_at).getTime();
+      const bDate = new Date(b.created_at).getTime();
+      
+      return sortOrder === 'newest' ? bDate - aDate : aDate - bDate;
+    });
+  }, [bottles, searchQuery, colourFilter, countryFilter, tagFilter, showConsumed, sortOrder]);
 
   const colourMap: Record<string, string> = {
     red: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
@@ -89,6 +106,8 @@ export function BottleList({ onViewStats }: BottleListProps) {
           onTagFilterChange={setTagFilter}
           showConsumed={showConsumed}
           onShowConsumedChange={setShowConsumed}
+          sortOrder={sortOrder}
+          onSortOrderChange={setSortOrder}
         />
         <CompactStatsBar onViewDetails={onViewStats} />
         <div className="bg-card rounded-lg border p-8 animate-pulse">
@@ -121,6 +140,8 @@ export function BottleList({ onViewStats }: BottleListProps) {
         onTagFilterChange={setTagFilter}
         showConsumed={showConsumed}
         onShowConsumedChange={setShowConsumed}
+        sortOrder={sortOrder}
+        onSortOrderChange={setSortOrder}
       />
       <CompactStatsBar onViewDetails={onViewStats} />
 
