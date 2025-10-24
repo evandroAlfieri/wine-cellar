@@ -82,25 +82,21 @@ export function WishlistList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <Filters
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            colourFilter={colourFilter}
-            onColourFilterChange={setColourFilter}
-            countryFilter={countryFilter}
-            onCountryFilterChange={setCountryFilter}
-            tagFilter={tagFilter}
-            onTagFilterChange={setTagFilter}
-            showConsumed={false}
-            onShowConsumedChange={() => {}}
-            sortOrder={sortOrder}
-            onSortOrderChange={setSortOrder}
-          />
-        </div>
-        <AddWishlistDialog />
-      </div>
+      <Filters
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        colourFilter={colourFilter}
+        onColourFilterChange={setColourFilter}
+        countryFilter={countryFilter}
+        onCountryFilterChange={setCountryFilter}
+        tagFilter={tagFilter}
+        onTagFilterChange={setTagFilter}
+        showConsumed={false}
+        onShowConsumedChange={() => {}}
+        sortOrder={sortOrder}
+        onSortOrderChange={setSortOrder}
+      />
+      <AddWishlistDialog />
 
       {filteredWishlist.length === 0 ? (
         <div className="text-center py-12">
