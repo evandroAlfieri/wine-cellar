@@ -22,6 +22,7 @@ export function BottleList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [colourFilter, setColourFilter] = useState<string[]>([]);
   const [countryFilter, setCountryFilter] = useState<string[]>([]);
+  const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [showConsumed, setShowConsumed] = useState(false);
   const consumeBottle = useConsumeBottle();
   const isMobile = useIsMobile();
@@ -38,6 +39,9 @@ export function BottleList() {
         bottle.wine.producer.region?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         bottle.wine.wine_varietal?.some(wv => 
           wv.varietal.name.toLowerCase().includes(searchQuery.toLowerCase())
+        ) ||
+        bottle.tags?.some(tag =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase())
         );
 
       const matchesColour =
@@ -47,12 +51,16 @@ export function BottleList() {
         countryFilter.length === 0 || 
         (bottle.wine.producer.country && countryFilter.includes(bottle.wine.producer.country.id));
 
+      const matchesTags =
+        tagFilter.length === 0 ||
+        (bottle.tags && tagFilter.some(tag => bottle.tags?.includes(tag)));
+
       const matchesConsumed = 
         !showConsumed || bottle.quantity === 0;
 
-      return matchesSearch && matchesColour && matchesCountry && matchesConsumed;
+      return matchesSearch && matchesColour && matchesCountry && matchesTags && matchesConsumed;
     });
-  }, [bottles, searchQuery, colourFilter, countryFilter, showConsumed]);
+  }, [bottles, searchQuery, colourFilter, countryFilter, tagFilter, showConsumed]);
 
   const colourMap: Record<string, string> = {
     red: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
@@ -72,6 +80,8 @@ export function BottleList() {
         onColourFilterChange={setColourFilter}
         countryFilter={countryFilter}
         onCountryFilterChange={setCountryFilter}
+        tagFilter={tagFilter}
+        onTagFilterChange={setTagFilter}
         showConsumed={showConsumed}
         onShowConsumedChange={setShowConsumed}
       />
@@ -101,6 +111,8 @@ export function BottleList() {
         onColourFilterChange={setColourFilter}
         countryFilter={countryFilter}
         onCountryFilterChange={setCountryFilter}
+        tagFilter={tagFilter}
+        onTagFilterChange={setTagFilter}
         showConsumed={showConsumed}
         onShowConsumedChange={setShowConsumed}
       />
@@ -127,6 +139,7 @@ export function BottleList() {
                 <TableHead>Varietal</TableHead>
                 <TableHead>Country/Region</TableHead>
                 <TableHead>Colour</TableHead>
+                <TableHead>Tags</TableHead>
                 <TableHead>Vintage</TableHead>
                 <TableHead>Size</TableHead>
                 <TableHead>Qty</TableHead>
@@ -166,6 +179,19 @@ export function BottleList() {
                       <Badge className={colourMap[bottle.wine.colour] || colourMap.other} variant="outline">
                         {bottle.wine.colour}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1 max-w-[150px]">
+                        {bottle.tags && bottle.tags.length > 0 ? (
+                          bottle.tags.map((tag, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>{bottle.vintage || '-'}</TableCell>
                     <TableCell>{bottle.size}ml</TableCell>

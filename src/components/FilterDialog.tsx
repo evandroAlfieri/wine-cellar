@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCountries } from '@/hooks/useCountries';
+import { useBottles } from '@/hooks/useBottles';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,8 @@ interface FilterDialogProps {
   onColourFilterChange: (colours: string[]) => void;
   countryFilter: string[];
   onCountryFilterChange: (countries: string[]) => void;
+  tagFilter: string[];
+  onTagFilterChange: (tags: string[]) => void;
   showConsumed: boolean;
   onShowConsumedChange: (show: boolean) => void;
   activeFilterCount: number;
@@ -42,6 +45,8 @@ export function FilterDialog({
   onColourFilterChange,
   countryFilter,
   onCountryFilterChange,
+  tagFilter,
+  onTagFilterChange,
   showConsumed,
   onShowConsumedChange,
   activeFilterCount,
@@ -49,6 +54,17 @@ export function FilterDialog({
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const { data: countries } = useCountries();
+  const { data: bottles } = useBottles();
+
+  // Get all unique tags from all bottles
+  const allTags = useMemo(() => {
+    if (!bottles) return [];
+    const tagsSet = new Set<string>();
+    bottles.forEach(bottle => {
+      bottle.tags?.forEach(tag => tagsSet.add(tag));
+    });
+    return Array.from(tagsSet).sort();
+  }, [bottles]);
 
   const handleColourToggle = (colour: string) => {
     if (colourFilter.includes(colour)) {
@@ -66,9 +82,18 @@ export function FilterDialog({
     }
   };
 
+  const handleTagToggle = (tag: string) => {
+    if (tagFilter.includes(tag)) {
+      onTagFilterChange(tagFilter.filter((t) => t !== tag));
+    } else {
+      onTagFilterChange([...tagFilter, tag]);
+    }
+  };
+
   const handleClearAll = () => {
     onColourFilterChange([]);
     onCountryFilterChange([]);
+    onTagFilterChange([]);
     onShowConsumedChange(false);
   };
 
@@ -103,6 +128,26 @@ export function FilterDialog({
               {country.name}
             </Badge>
           ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">Tags</h3>
+        <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+          {allTags.length > 0 ? (
+            allTags.map((tag) => (
+              <Badge
+                key={tag}
+                variant={tagFilter.includes(tag) ? 'default' : 'outline'}
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => handleTagToggle(tag)}
+              >
+                {tag}
+              </Badge>
+            ))
+          ) : (
+            <span className="text-sm text-muted-foreground">No tags found</span>
+          )}
         </div>
       </div>
 

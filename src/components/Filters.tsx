@@ -9,6 +9,8 @@ interface FiltersProps {
   onColourFilterChange: (colours: string[]) => void;
   countryFilter: string[];
   onCountryFilterChange: (countries: string[]) => void;
+  tagFilter: string[];
+  onTagFilterChange: (tags: string[]) => void;
   showConsumed: boolean;
   onShowConsumedChange: (show: boolean) => void;
 }
@@ -20,10 +22,12 @@ export function Filters({
   onColourFilterChange,
   countryFilter,
   onCountryFilterChange,
+  tagFilter,
+  onTagFilterChange,
   showConsumed,
   onShowConsumedChange,
 }: FiltersProps) {
-  const activeFilterCount = colourFilter.length + countryFilter.length + (showConsumed ? 1 : 0);
+  const activeFilterCount = colourFilter.length + countryFilter.length + tagFilter.length + (showConsumed ? 1 : 0);
 
   return (
     <div className="bg-card rounded-lg border p-4 mb-6">
@@ -31,7 +35,7 @@ export function Filters({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search wines, producers, varietals, regions..."
+            placeholder="Search wines, producers, varietals, regions, tags..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10"
@@ -42,6 +46,8 @@ export function Filters({
           onColourFilterChange={onColourFilterChange}
           countryFilter={countryFilter}
           onCountryFilterChange={onCountryFilterChange}
+          tagFilter={tagFilter}
+          onTagFilterChange={onTagFilterChange}
           showConsumed={showConsumed}
           onShowConsumedChange={onShowConsumedChange}
           activeFilterCount={activeFilterCount}

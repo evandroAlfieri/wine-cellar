@@ -70,6 +70,17 @@ export function MobileBottleCard({ bottle }: MobileBottleCardProps) {
           )}
         </div>
 
+        {/* Tags */}
+        {bottle.tags && bottle.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pb-3 border-b">
+            {bottle.tags.map((tag, index) => (
+              <Badge key={index} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
+
         {/* Bottom Row: Price, Quantity, Size & Actions */}
         <div className="flex items-center justify-between pt-3 border-t">
           <div className="flex gap-4 text-sm">
