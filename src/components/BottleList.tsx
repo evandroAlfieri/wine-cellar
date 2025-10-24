@@ -35,6 +35,7 @@ export function BottleList() {
         bottle.wine.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         bottle.wine.producer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         bottle.wine.producer.country?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bottle.wine.producer.region?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         bottle.wine.wine_varietal?.some(wv => 
           wv.varietal.name.toLowerCase().includes(searchQuery.toLowerCase())
         );

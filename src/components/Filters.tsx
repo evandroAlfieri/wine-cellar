@@ -31,7 +31,7 @@ export function Filters({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search wines, producers, varietals..."
+            placeholder="Search wines, producers, varietals, regions..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10"
