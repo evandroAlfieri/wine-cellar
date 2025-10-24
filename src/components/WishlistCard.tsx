@@ -23,11 +23,11 @@ interface WishlistCardProps {
 }
 
 const colourMap: Record<string, string> = {
-  red: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  white: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-  rosé: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
-  sparkling: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  other: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+  red: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
+  white: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20',
+  rosé: 'bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-500/20',
+  sparkling: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
+  other: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20',
 };
 
 export function WishlistCard({ wishlistItem }: WishlistCardProps) {
@@ -54,7 +54,7 @@ export function WishlistCard({ wishlistItem }: WishlistCardProps) {
                 <h3 className="font-semibold text-lg">{wishlistItem.wine.name}</h3>
                 <p className="text-muted-foreground text-sm">{wishlistItem.wine.producer.name}</p>
               </div>
-              <Badge className={colourMap[wishlistItem.wine.colour]}>
+              <Badge className={colourMap[wishlistItem.wine.colour]} variant="outline">
                 {wishlistItem.wine.colour}
               </Badge>
             </div>
