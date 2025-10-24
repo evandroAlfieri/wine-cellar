@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useCountries } from '@/hooks/useCountries';
 import {
   Dialog,
@@ -17,8 +18,6 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 
 interface FilterDialogProps {
   colourFilter: string[];
@@ -77,60 +76,53 @@ export function FilterDialog({
     <div className="space-y-6">
       <div>
         <h3 className="font-semibold mb-3">Wine Colour</h3>
-        <div className="space-y-2">
+        <div className="flex flex-wrap gap-2">
           {colours.map((colour) => (
-            <div key={colour.value} className="flex items-center space-x-2">
-              <Checkbox
-                id={colour.value}
-                checked={colourFilter.includes(colour.value)}
-                onCheckedChange={() => handleColourToggle(colour.value)}
-              />
-              <Label htmlFor={colour.value} className="cursor-pointer">
-                {colour.label}
-              </Label>
-            </div>
+            <Badge
+              key={colour.value}
+              variant={colourFilter.includes(colour.value) ? 'default' : 'outline'}
+              className="cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => handleColourToggle(colour.value)}
+            >
+              {colour.label}
+            </Badge>
           ))}
         </div>
       </div>
 
       <div>
         <h3 className="font-semibold mb-3">Country</h3>
-        <div className="space-y-2 max-h-48 overflow-y-auto">
+        <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
           {countries?.map((country) => (
-            <div key={country.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={`country-${country.id}`}
-                checked={countryFilter.includes(country.id)}
-                onCheckedChange={() => handleCountryToggle(country.id)}
-              />
-              <Label htmlFor={`country-${country.id}`} className="cursor-pointer">
-                {country.name}
-              </Label>
-            </div>
+            <Badge
+              key={country.id}
+              variant={countryFilter.includes(country.id) ? 'default' : 'outline'}
+              className="cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => handleCountryToggle(country.id)}
+            >
+              {country.name}
+            </Badge>
           ))}
         </div>
       </div>
 
       <div>
         <h3 className="font-semibold mb-3">Stock Status</h3>
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="consumed"
-            checked={showConsumed}
-            onCheckedChange={(checked) => onShowConsumedChange(!!checked)}
-          />
-          <Label htmlFor="consumed" className="cursor-pointer">
-            Show only consumed bottles
-          </Label>
-        </div>
+        <Badge
+          variant={showConsumed ? 'default' : 'outline'}
+          className="cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => onShowConsumedChange(!showConsumed)}
+        >
+          Show only consumed bottles
+        </Badge>
       </div>
 
-      <div className="flex gap-2 pt-4">
+      <div className="flex gap-2 pt-4 border-t">
         <Button variant="outline" onClick={handleClearAll} className="flex-1">
           Clear All
         </Button>
         <Button onClick={() => setOpen(false)} className="flex-1">
-          Apply Filters
+          Apply
         </Button>
       </div>
     </div>
