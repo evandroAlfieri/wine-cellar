@@ -236,7 +236,8 @@ export function AddWishlistDialog() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[400px] p-0">
+                    <PopoverContent className="w-[400px] p-0 z-50 bg-popover">
+
                       <Command>
                         <CommandInput 
                           placeholder="Search or type new producer..." 
