@@ -1,13 +1,6 @@
-import { Search, ArrowUpDown } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { FilterDialog } from './FilterDialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 interface FiltersProps {
   searchQuery: string;
@@ -52,16 +45,6 @@ export function Filters({
             className="pl-10"
           />
         </div>
-        <Select value={sortOrder} onValueChange={onSortOrderChange}>
-          <SelectTrigger className="w-[160px]">
-            <ArrowUpDown className="w-4 h-4 mr-2" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">Newest first</SelectItem>
-            <SelectItem value="oldest">Oldest first</SelectItem>
-          </SelectContent>
-        </Select>
         <FilterDialog
           colourFilter={colourFilter}
           onColourFilterChange={onColourFilterChange}
@@ -71,6 +54,8 @@ export function Filters({
           onTagFilterChange={onTagFilterChange}
           showConsumed={showConsumed}
           onShowConsumedChange={onShowConsumedChange}
+          sortOrder={sortOrder}
+          onSortOrderChange={onSortOrderChange}
           activeFilterCount={activeFilterCount}
         />
       </div>

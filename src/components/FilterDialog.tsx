@@ -1,9 +1,16 @@
 import { useState, useMemo } from 'react';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCountries } from '@/hooks/useCountries';
 import { useBottles } from '@/hooks/useBottles';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +36,8 @@ interface FilterDialogProps {
   onTagFilterChange: (tags: string[]) => void;
   showConsumed: boolean;
   onShowConsumedChange: (show: boolean) => void;
+  sortOrder: 'newest' | 'oldest';
+  onSortOrderChange: (order: 'newest' | 'oldest') => void;
   activeFilterCount: number;
 }
 
@@ -49,6 +58,8 @@ export function FilterDialog({
   onTagFilterChange,
   showConsumed,
   onShowConsumedChange,
+  sortOrder,
+  onSortOrderChange,
   activeFilterCount,
 }: FilterDialogProps) {
   const isMobile = useIsMobile();
@@ -99,6 +110,20 @@ export function FilterDialog({
 
   const FilterContent = () => (
     <div className="space-y-6">
+      <div>
+        <h3 className="font-semibold mb-3">Sort Order</h3>
+        <Select value={sortOrder} onValueChange={onSortOrderChange}>
+          <SelectTrigger className="w-full">
+            <ArrowUpDown className="w-4 h-4 mr-2" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Newest first</SelectItem>
+            <SelectItem value="oldest">Oldest first</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <div>
         <h3 className="font-semibold mb-3">Wine Colour</h3>
         <div className="flex flex-wrap gap-2">
