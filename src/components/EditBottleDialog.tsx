@@ -666,6 +666,16 @@ export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
                                 );
                               })}
                             </CommandGroup>
+                            {varietalSearch && !varietals?.some(v => v.name.toLowerCase() === varietalSearch.toLowerCase()) && (
+                              <CommandGroup>
+                                <CommandItem
+                                  onSelect={() => handleCreateVarietal(varietalSearch)}
+                                >
+                                  <Plus className="mr-2 h-4 w-4" />
+                                  Create "{varietalSearch}"
+                                </CommandItem>
+                              </CommandGroup>
+                            )}
                           </CommandList>
                         </Command>
                       </PopoverContent>
