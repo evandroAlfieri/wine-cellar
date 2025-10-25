@@ -28,7 +28,7 @@ export default function GuestView() {
         </TabsList>
 
         <TabsContent value="collection" className="mt-0">
-          <BottleList isReadOnly={true} />
+          <BottleList isReadOnly={true} onViewStats={() => setActiveTab('statistics')} />
         </TabsContent>
 
         <TabsContent value="statistics" className="mt-0">
