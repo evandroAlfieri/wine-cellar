@@ -6,7 +6,11 @@ import { WishlistCard } from './WishlistCard';
 import { MobileWishlistCard } from './MobileWishlistCard';
 import { AddWishlistDialog } from './AddWishlistDialog';
 
-export function WishlistList() {
+interface WishlistListProps {
+  isReadOnly?: boolean;
+}
+
+export function WishlistList({ isReadOnly = false }: WishlistListProps = {}) {
   const { data: wishlistItems, isLoading } = useWishlist();
   const [searchQuery, setSearchQuery] = useState('');
   const [colourFilter, setColourFilter] = useState<string[]>([]);
@@ -96,7 +100,7 @@ export function WishlistList() {
         sortOrder={sortOrder}
         onSortOrderChange={setSortOrder}
       />
-      <AddWishlistDialog />
+      {!isReadOnly && <AddWishlistDialog />}
 
       {filteredWishlist.length === 0 ? (
         <div className="text-center py-12">
@@ -111,13 +115,13 @@ export function WishlistList() {
           {isMobile ? (
             <div className="space-y-4">
               {filteredWishlist.map((item) => (
-                <MobileWishlistCard key={item.id} wishlistItem={item} />
+                <MobileWishlistCard key={item.id} wishlistItem={item} isReadOnly={isReadOnly} />
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredWishlist.map((item) => (
-                <WishlistCard key={item.id} wishlistItem={item} />
+                <WishlistCard key={item.id} wishlistItem={item} isReadOnly={isReadOnly} />
               ))}
             </div>
           )}

@@ -19,10 +19,11 @@ import { MobileBottleCard } from './MobileBottleCard';
 import { CompactStatsBar } from './CompactStatsBar';
 
 interface BottleListProps {
-  onViewStats: () => void;
+  onViewStats?: () => void;
+  isReadOnly?: boolean;
 }
 
-export function BottleList({ onViewStats }: BottleListProps) {
+export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps) {
   const { data: bottles, isLoading } = useBottles();
   const [searchQuery, setSearchQuery] = useState('');
   const [colourFilter, setColourFilter] = useState<string[]>([]);
@@ -153,9 +154,9 @@ export function BottleList({ onViewStats }: BottleListProps) {
         </div>
       ) : isMobile ? (
         <div className="space-y-3">
-          {filteredBottles.map((bottle) => (
-            <MobileBottleCard key={bottle.id} bottle={bottle} />
-          ))}
+            {filteredBottles.map((bottle) => (
+              <MobileBottleCard key={bottle.id} bottle={bottle} isReadOnly={isReadOnly} />
+            ))}
         </div>
       ) : (
         <div className="bg-card rounded-lg border">
@@ -228,17 +229,19 @@ export function BottleList({ onViewStats }: BottleListProps) {
                       €{bottle.price.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex gap-1 justify-end">
-                        <EditBottleDialog bottle={bottle} />
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => consumeBottle.mutate(bottle.id)}
-                          disabled={isOutOfStock || consumeBottle.isPending}
-                        >
-                          <Wine className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      {!isReadOnly && (
+                        <div className="flex gap-1 justify-end">
+                          <EditBottleDialog bottle={bottle} />
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => consumeBottle.mutate(bottle.id)}
+                            disabled={isOutOfStock || consumeBottle.isPending}
+                          >
+                            <Wine className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 );

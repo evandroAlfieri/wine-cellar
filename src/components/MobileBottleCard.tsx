@@ -20,6 +20,7 @@ import { EditBottleDialog } from '@/components/EditBottleDialog';
 
 interface MobileBottleCardProps {
   bottle: BottleWithDetails;
+  isReadOnly?: boolean;
 }
 
 const colourMap: Record<string, string> = {
@@ -30,7 +31,7 @@ const colourMap: Record<string, string> = {
   other: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20',
 };
 
-export function MobileBottleCard({ bottle }: MobileBottleCardProps) {
+export function MobileBottleCard({ bottle, isReadOnly = false }: MobileBottleCardProps) {
   const [showMoveAlert, setShowMoveAlert] = useState(false);
   const consumeBottle = useConsumeBottle();
   const moveToWishlist = useMoveToWishlist();
@@ -113,27 +114,29 @@ export function MobileBottleCard({ bottle }: MobileBottleCardProps) {
             </div>
           </div>
 
-          <div className="flex gap-1">
-            <EditBottleDialog bottle={bottle} />
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => consumeBottle.mutate(bottle.id)}
-              disabled={isOutOfStock || consumeBottle.isPending}
-            >
-              <Wine className="w-4 h-4" />
-            </Button>
-            {isOutOfStock && (
+          {!isReadOnly && (
+            <div className="flex gap-1">
+              <EditBottleDialog bottle={bottle} />
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => setShowMoveAlert(true)}
-                disabled={moveToWishlist.isPending}
+                onClick={() => consumeBottle.mutate(bottle.id)}
+                disabled={isOutOfStock || consumeBottle.isPending}
               >
-                <Heart className="w-4 h-4" />
+                <Wine className="w-4 h-4" />
               </Button>
-            )}
-          </div>
+              {isOutOfStock && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowMoveAlert(true)}
+                  disabled={moveToWishlist.isPending}
+                >
+                  <Heart className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

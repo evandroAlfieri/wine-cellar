@@ -1,4 +1,4 @@
-import { Wine, LogOut, Download, MoreVertical } from 'lucide-react';
+import { Wine, LogOut, Download, MoreVertical, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -52,6 +52,15 @@ export function Layout({ children }: LayoutProps) {
     }
   };
 
+  const handleShareCollection = () => {
+    const guestUrl = `${window.location.origin}/guest`;
+    navigator.clipboard.writeText(guestUrl);
+    toast({ 
+      title: 'Guest link copied!',
+      description: 'Share this link to let others view your collection.'
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -78,6 +87,10 @@ export function Layout({ children }: LayoutProps) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <AddBottleDialog />
+                    <DropdownMenuItem onClick={handleShareCollection}>
+                      <Share2 className="w-4 h-4 mr-2" />
+                      Share Collection
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleExportCSV}>
                       <Download className="w-4 h-4 mr-2" />
                       Export CSV
@@ -93,6 +106,10 @@ export function Layout({ children }: LayoutProps) {
             ) : (
               <div className="flex items-center gap-2">
                 <AddBottleDialog />
+                <Button variant="outline" size="sm" onClick={handleShareCollection}>
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share
+                </Button>
                 <Button variant="outline" size="sm" onClick={handleExportCSV}>
                   <Download className="w-4 h-4 mr-2" />
                   Export CSV

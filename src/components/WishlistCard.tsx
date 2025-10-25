@@ -20,6 +20,7 @@ import { MoveToCollectionDialog } from './MoveToCollectionDialog';
 
 interface WishlistCardProps {
   wishlistItem: WishlistItemWithDetails;
+  isReadOnly?: boolean;
 }
 
 const colourMap: Record<string, string> = {
@@ -30,7 +31,7 @@ const colourMap: Record<string, string> = {
   other: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20',
 };
 
-export function WishlistCard({ wishlistItem }: WishlistCardProps) {
+export function WishlistCard({ wishlistItem, isReadOnly = false }: WishlistCardProps) {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const deleteWishlistItem = useDeleteWishlistItem();
 
@@ -87,18 +88,20 @@ export function WishlistCard({ wishlistItem }: WishlistCardProps) {
             )}
 
             {/* Actions */}
-            <div className="flex gap-2 pt-2">
-              <EditWishlistDialog wishlistItem={wishlistItem} />
-              <MoveToCollectionDialog wishlistItem={wishlistItem} />
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setShowDeleteAlert(true)}
-                className="ml-auto"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
+            {!isReadOnly && (
+              <div className="flex gap-2 pt-2">
+                <EditWishlistDialog wishlistItem={wishlistItem} />
+                <MoveToCollectionDialog wishlistItem={wishlistItem} />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowDeleteAlert(true)}
+                  className="ml-auto"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

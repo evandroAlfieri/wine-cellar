@@ -20,6 +20,7 @@ import { MoveToCollectionDialog } from './MoveToCollectionDialog';
 
 interface MobileWishlistCardProps {
   wishlistItem: WishlistItemWithDetails;
+  isReadOnly?: boolean;
 }
 
 const colourMap: Record<string, string> = {
@@ -30,7 +31,7 @@ const colourMap: Record<string, string> = {
   other: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20',
 };
 
-export function MobileWishlistCard({ wishlistItem }: MobileWishlistCardProps) {
+export function MobileWishlistCard({ wishlistItem, isReadOnly = false }: MobileWishlistCardProps) {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const deleteWishlistItem = useDeleteWishlistItem();
 
@@ -94,20 +95,22 @@ export function MobileWishlistCard({ wishlistItem }: MobileWishlistCardProps) {
             )}
 
             {/* Actions */}
-            <div className="flex flex-col gap-2 pt-2">
-              <MoveToCollectionDialog wishlistItem={wishlistItem} />
-              <div className="flex gap-2">
-                <EditWishlistDialog wishlistItem={wishlistItem} />
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setShowDeleteAlert(true)}
-                  className="ml-auto"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+            {!isReadOnly && (
+              <div className="flex flex-col gap-2 pt-2">
+                <MoveToCollectionDialog wishlistItem={wishlistItem} />
+                <div className="flex gap-2">
+                  <EditWishlistDialog wishlistItem={wishlistItem} />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowDeleteAlert(true)}
+                    className="ml-auto"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>
