@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Wine, MapPin, Calendar, Heart, ExternalLink, Pencil } from 'lucide-react';
+import { Wine, MapPin, Calendar, Heart, ExternalLink } from 'lucide-react';
 import { BottleWithDetails } from '@/lib/types';
 import { buildWineSearcherUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +23,6 @@ interface BottleCardProps {
 }
 
 export function BottleCard({ bottle }: BottleCardProps) {
-  const [showEditDialog, setShowEditDialog] = useState(false);
   const [showMoveAlert, setShowMoveAlert] = useState(false);
   const consumeBottle = useConsumeBottle();
   const moveToWishlist = useMoveToWishlist();
@@ -121,21 +120,10 @@ export function BottleCard({ bottle }: BottleCardProps) {
             <Heart className="w-4 h-4" />
           </Button>
         )}
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setShowEditDialog(true)}
-        >
-          <Pencil className="w-4 h-4" />
-        </Button>
+        <EditBottleDialog bottle={bottle} />
       </div>
     </div>
 
-    <EditBottleDialog
-      open={showEditDialog}
-      onOpenChange={setShowEditDialog}
-      bottle={bottle}
-    />
 
     <AlertDialog open={showMoveAlert} onOpenChange={setShowMoveAlert}>
       <AlertDialogContent>
