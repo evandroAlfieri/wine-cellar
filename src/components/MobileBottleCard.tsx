@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Wine, MapPin, Edit, Calendar, Heart } from 'lucide-react';
+import { Wine, MapPin, Edit, Calendar, Heart, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,6 +17,7 @@ import { BottleWithDetails } from '@/lib/types';
 import { useConsumeBottle } from '@/hooks/useBottleMutations';
 import { useMoveToWishlist } from '@/hooks/useWishlistMutations';
 import { EditBottleDialog } from '@/components/EditBottleDialog';
+import { buildWineSearcherUrl } from '@/lib/utils';
 
 interface MobileBottleCardProps {
   bottle: BottleWithDetails;
@@ -124,6 +125,13 @@ export function MobileBottleCard({ bottle, isReadOnly = false }: MobileBottleCar
                 disabled={isOutOfStock || consumeBottle.isPending}
               >
                 <Wine className="w-4 h-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => window.open(buildWineSearcherUrl(bottle), '_blank')}
+              >
+                <ExternalLink className="w-4 h-4" />
               </Button>
               {isOutOfStock && (
                 <Button
