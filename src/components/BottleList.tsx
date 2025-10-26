@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useBottles } from '@/hooks/useBottles';
 import { Filters } from './Filters';
-import { Wine, MapPin, ArrowUpDown } from 'lucide-react';
+import { Wine, MapPin, ArrowUpDown, ExternalLink, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EditBottleDialog } from '@/components/EditBottleDialog';
@@ -14,9 +14,21 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useConsumeBottle } from '@/hooks/useBottleMutations';
+import { useMoveToWishlist } from '@/hooks/useWishlistMutations';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileBottleCard } from './MobileBottleCard';
 import { CompactStatsBar } from './CompactStatsBar';
+import { buildWineSearcherUrl } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface BottleListProps {
   onViewStats?: () => void;
@@ -31,7 +43,9 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [showConsumed, setShowConsumed] = useState(false);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [moveBottleId, setMoveBottleId] = useState<string | null>(null);
   const consumeBottle = useConsumeBottle();
+  const moveToWishlist = useMoveToWishlist();
   const isMobile = useIsMobile();
 
   const filteredBottles = useMemo(() => {
@@ -240,6 +254,22 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
                           >
                             <Wine className="w-4 h-4" />
                           </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(buildWineSearcherUrl(bottle), '_blank')}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </Button>
+                          {isOutOfStock && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setMoveBottleId(bottle.id)}
+                            >
+                              <Heart className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       )}
                     </TableCell>
@@ -250,6 +280,30 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
           </Table>
         </div>
       )}
+
+      <AlertDialog open={!!moveBottleId} onOpenChange={() => setMoveBottleId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Move to Wishlist?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This bottle is out of stock. Would you like to move it to your wishlist?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (moveBottleId) {
+                  moveToWishlist.mutate({ bottleId: moveBottleId });
+                  setMoveBottleId(null);
+                }
+              }}
+            >
+              Move to Wishlist
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
