@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Wine, MapPin, Calendar, Trash2, Heart } from 'lucide-react';
+import { Wine, MapPin, Calendar, Trash2, Heart, ExternalLink } from 'lucide-react';
 import { BottleWithDetails } from '@/lib/types';
+import { buildWineSearcherUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -101,6 +102,14 @@ export function BottleCard({ bottle }: BottleCardProps) {
         >
           <Wine className="w-4 h-4 mr-2" />
           Consume
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => window.open(buildWineSearcherUrl(bottle), '_blank')}
+          title="Search on Wine-Searcher"
+        >
+          <ExternalLink className="w-4 h-4" />
         </Button>
         {bottle.quantity === 0 && (
           <Button
