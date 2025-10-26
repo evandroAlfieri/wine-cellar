@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Euro, MapPin, Wine } from 'lucide-react';
+import { Trash2, Euro, MapPin, Wine, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,7 @@ import { useDeleteWishlistItem } from '@/hooks/useWishlistMutations';
 import { WishlistItemWithDetails } from '@/lib/types';
 import { EditWishlistDialog } from './EditWishlistDialog';
 import { MoveToCollectionDialog } from './MoveToCollectionDialog';
+import { buildWineSearcherUrl } from '@/lib/utils';
 
 interface MobileWishlistCardProps {
   wishlistItem: WishlistItemWithDetails;
@@ -100,6 +101,13 @@ export function MobileWishlistCard({ wishlistItem, isReadOnly = false }: MobileW
                 <MoveToCollectionDialog wishlistItem={wishlistItem} />
                 <div className="flex gap-2">
                   <EditWishlistDialog wishlistItem={wishlistItem} />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(buildWineSearcherUrl(wishlistItem), '_blank')}
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </Button>
                   <Button
                     size="sm"
                     variant="outline"

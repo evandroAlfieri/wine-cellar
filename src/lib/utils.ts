@@ -1,16 +1,16 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { BottleWithDetails } from "./types";
+import { BottleWithDetails, WishlistItemWithDetails } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function buildWineSearcherUrl(bottle: BottleWithDetails): string {
+export function buildWineSearcherUrl(item: BottleWithDetails | WishlistItemWithDetails): string {
   const parts = [
-    bottle.wine.producer.name,
-    bottle.wine.name,
-    bottle.vintage?.toString()
+    item.wine.producer.name,
+    item.wine.name,
+    'vintage' in item ? item.vintage?.toString() : undefined
   ].filter(Boolean);
   
   const searchQuery = parts.join(' ');
