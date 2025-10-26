@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Wine, MapPin, Calendar, Trash2, Heart, ExternalLink } from 'lucide-react';
+import { Wine, MapPin, Calendar, Heart, ExternalLink, Pencil } from 'lucide-react';
 import { BottleWithDetails } from '@/lib/types';
 import { buildWineSearcherUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { EditBottleDialog } from '@/components/EditBottleDialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useConsumeBottle, useDeleteBottle } from '@/hooks/useBottleMutations';
+import { useConsumeBottle } from '@/hooks/useBottleMutations';
 import { useMoveToWishlist } from '@/hooks/useWishlistMutations';
 
 interface BottleCardProps {
@@ -22,10 +23,9 @@ interface BottleCardProps {
 }
 
 export function BottleCard({ bottle }: BottleCardProps) {
-  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [showMoveAlert, setShowMoveAlert] = useState(false);
   const consumeBottle = useConsumeBottle();
-  const deleteBottle = useDeleteBottle();
   const moveToWishlist = useMoveToWishlist();
   const price = bottle.price.toFixed(2);
   
@@ -124,35 +124,18 @@ export function BottleCard({ bottle }: BottleCardProps) {
         <Button
           size="sm"
           variant="outline"
-          onClick={() => setShowDeleteAlert(true)}
-          disabled={deleteBottle.isPending}
+          onClick={() => setShowEditDialog(true)}
         >
-          <Trash2 className="w-4 h-4 text-destructive" />
+          <Pencil className="w-4 h-4" />
         </Button>
       </div>
     </div>
 
-    <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete Bottle?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will permanently delete "{bottle.wine.name}" from your cellar.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => {
-              deleteBottle.mutate(bottle.id);
-              setShowDeleteAlert(false);
-            }}
-          >
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <EditBottleDialog
+      open={showEditDialog}
+      onOpenChange={setShowEditDialog}
+      bottle={bottle}
+    />
 
     <AlertDialog open={showMoveAlert} onOpenChange={setShowMoveAlert}>
       <AlertDialogContent>

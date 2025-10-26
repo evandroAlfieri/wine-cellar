@@ -81,10 +81,14 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface EditBottleDialogProps {
   bottle: BottleWithDetails;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function EditBottleDialog({ bottle }: EditBottleDialogProps) {
-  const [open, setOpen] = useState(false);
+export function EditBottleDialog({ bottle, open: externalOpen, onOpenChange: externalOnOpenChange }: EditBottleDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = externalOnOpenChange || setInternalOpen;
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [showMoveAlert, setShowMoveAlert] = useState(false);
   const [editWineOpen, setEditWineOpen] = useState(false);
