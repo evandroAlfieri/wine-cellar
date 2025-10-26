@@ -211,79 +211,6 @@ export function AddWishlistDialog() {
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Producer Selection - reusing same pattern from AddBottleDialog */}
-            <FormField
-              control={form.control}
-              name="producer_id"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Producer</FormLabel>
-                  <Popover open={producerOpen} onOpenChange={setProducerOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          className={cn(
-                            "justify-between",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value
-                            ? producers?.find((p) => p.id === field.value)?.name
-                            : "Select or add producer"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[400px] p-0 z-50 bg-popover">
-
-                      <Command>
-                        <CommandInput 
-                          placeholder="Search or type new producer..." 
-                          value={producerSearch}
-                          onValueChange={setProducerSearch}
-                        />
-                        <CommandList>
-                          <CommandEmpty>
-                            <Button
-                              variant="ghost"
-                              className="w-full"
-                              onClick={() => handleCreateProducer(producerSearch)}
-                            >
-                              <Plus className="mr-2 h-4 w-4" />
-                              Create "{producerSearch}"
-                            </Button>
-                          </CommandEmpty>
-                          <CommandGroup>
-                            {producers?.map((p) => (
-                              <CommandItem
-                                key={p.id}
-                                value={p.name}
-                                onSelect={() => {
-                                  field.onChange(p.id);
-                                  setProducerOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    p.id === field.value ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {p.name}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             {/* Country Selection */}
             <FormField
               control={form.control}
@@ -430,6 +357,78 @@ export function AddWishlistDialog() {
               )}
             />
 
+            {/* Producer Selection */}
+            <FormField
+              control={form.control}
+              name="producer_id"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Producer</FormLabel>
+                  <Popover open={producerOpen} onOpenChange={setProducerOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "justify-between",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? producers?.find((p) => p.id === field.value)?.name
+                            : "Select or add producer"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0 z-50 bg-popover">
+
+                      <Command>
+                        <CommandInput 
+                          placeholder="Search or type new producer..." 
+                          value={producerSearch}
+                          onValueChange={setProducerSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            <Button
+                              variant="ghost"
+                              className="w-full"
+                              onClick={() => handleCreateProducer(producerSearch)}
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Create "{producerSearch}"
+                            </Button>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {producers?.map((p) => (
+                              <CommandItem
+                                key={p.id}
+                                value={p.name}
+                                onSelect={() => {
+                                  field.onChange(p.id);
+                                  setProducerOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    p.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {p.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Wine Selection with Color */}
             <FormField
