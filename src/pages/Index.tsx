@@ -34,7 +34,7 @@ const Index = () => {
           </TabsContent>
           
           <TabsContent value="statistics" className="mt-0">
-            <StatsBar />
+            {activeTab === 'statistics' && <StatsBar />}
           </TabsContent>
           
           <TabsContent value="wishlist" className="mt-0">

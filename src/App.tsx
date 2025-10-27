@@ -8,7 +8,17 @@ import Auth from "./pages/Auth";
 import GuestView from "./pages/GuestView";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh
+      gcTime: 10 * 60 * 1000, // 10 minutes - keep in cache
+      refetchOnWindowFocus: false, // Don't refetch when tab focused
+      refetchOnReconnect: false, // Don't refetch on network reconnect
+      retry: 1, // Only retry once on failure
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
