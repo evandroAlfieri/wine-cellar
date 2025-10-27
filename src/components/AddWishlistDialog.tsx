@@ -50,6 +50,7 @@ import { useCreateWishlistItem } from '@/hooks/useWishlistMutations';
 import { useCreateWineVarietal } from '@/hooks/useWineVarietals';
 import { WineColourEnum } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
+import { TagInput } from '@/components/TagInput';
 
 const formSchema = z.object({
   country_id: z.string().min(1, 'Country is required'),
@@ -638,7 +639,11 @@ export function AddWishlistDialog() {
                 <FormItem>
                   <FormLabel>Tags (comma-separated, optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="gift idea, on sale, special occasion" {...field} />
+                    <TagInput 
+                      placeholder="gift idea, on sale, special occasion" 
+                      value={field.value || ''}
+                      onChange={field.onChange}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

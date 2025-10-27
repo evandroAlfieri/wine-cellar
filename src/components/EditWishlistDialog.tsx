@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/form';
 import { useUpdateWishlistItem } from '@/hooks/useWishlistMutations';
 import { WishlistItemWithDetails } from '@/lib/types';
+import { TagInput } from '@/components/TagInput';
 
 const formSchema = z.object({
   estimated_price: z.coerce.number().min(0, 'Price must be non-negative'),
@@ -93,7 +94,11 @@ export function EditWishlistDialog({ wishlistItem }: EditWishlistDialogProps) {
                 <FormItem>
                   <FormLabel>Tags (comma-separated, optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="gift idea, on sale, special occasion" {...field} />
+                    <TagInput 
+                      placeholder="gift idea, on sale, special occasion" 
+                      value={field.value || ''}
+                      onChange={field.onChange}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

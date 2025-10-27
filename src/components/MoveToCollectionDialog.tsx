@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/form';
 import { useMoveToCollection } from '@/hooks/useWishlistMutations';
 import { WishlistItemWithDetails } from '@/lib/types';
+import { TagInput } from '@/components/TagInput';
 
 const formSchema = z.object({
   vintage: z.coerce.number().int().min(1900).max(new Date().getFullYear() + 5).nullable(),
@@ -150,7 +151,11 @@ export function MoveToCollectionDialog({ wishlistItem }: MoveToCollectionDialogP
                 <FormItem>
                   <FormLabel>Tags (comma-separated, optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="gift, special occasion" {...field} />
+                    <TagInput 
+                      placeholder="gift, special occasion" 
+                      value={field.value || ''}
+                      onChange={field.onChange}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

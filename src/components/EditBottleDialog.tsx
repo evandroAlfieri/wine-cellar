@@ -63,6 +63,7 @@ import { WineColourEnum } from '@/lib/schemas';
 import { BottleWithDetails } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { EditWineDialog } from './EditWineDialog';
+import { TagInput } from '@/components/TagInput';
 
 const formSchema = z.object({
   country_id: z.string().min(1, 'Country is required'),
@@ -760,9 +761,10 @@ export function EditBottleDialog({ bottle, open: externalOpen, onOpenChange: ext
                   <FormItem>
                     <FormLabel>Tags (optional, comma-separated)</FormLabel>
                     <FormControl>
-                      <Input 
+                      <TagInput 
                         placeholder="e.g., organic, biodynamic, gift"
-                        {...field}
+                        value={field.value || ''}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />
