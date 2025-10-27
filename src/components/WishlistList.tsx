@@ -5,6 +5,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { WishlistCard } from './WishlistCard';
 import { MobileWishlistCard } from './MobileWishlistCard';
 import { AddWishlistDialog } from './AddWishlistDialog';
+import { normalizeString } from '@/lib/utils';
 
 interface WishlistListProps {
   isReadOnly?: boolean;
@@ -23,17 +24,18 @@ export function WishlistList({ isReadOnly = false }: WishlistListProps = {}) {
     if (!wishlistItems) return [];
 
     const filtered = wishlistItems.filter((item) => {
+      const normalizedQuery = normalizeString(searchQuery);
       const matchesSearch =
         searchQuery === '' ||
-        item.wine.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.wine.producer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.wine.producer.country?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.wine.producer.region?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        normalizeString(item.wine.name).includes(normalizedQuery) ||
+        normalizeString(item.wine.producer.name).includes(normalizedQuery) ||
+        (item.wine.producer.country && normalizeString(item.wine.producer.country.name).includes(normalizedQuery)) ||
+        (item.wine.producer.region && normalizeString(item.wine.producer.region.name).includes(normalizedQuery)) ||
         item.wine.wine_varietal?.some(wv => 
-          wv.varietal.name.toLowerCase().includes(searchQuery.toLowerCase())
+          normalizeString(wv.varietal.name).includes(normalizedQuery)
         ) ||
         item.tags?.some(tag =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase())
+          normalizeString(tag).includes(normalizedQuery)
         );
 
       const matchesColour =

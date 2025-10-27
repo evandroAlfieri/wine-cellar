@@ -18,7 +18,7 @@ import { useMoveToWishlist } from '@/hooks/useWishlistMutations';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileBottleCard } from './MobileBottleCard';
 import { CompactStatsBar } from './CompactStatsBar';
-import { buildWineSearcherUrl } from '@/lib/utils';
+import { buildWineSearcherUrl, normalizeString } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,17 +52,18 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
     if (!bottles) return [];
 
     const filtered = bottles.filter((bottle) => {
+      const normalizedQuery = normalizeString(searchQuery);
       const matchesSearch =
         searchQuery === '' ||
-        bottle.wine.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bottle.wine.producer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bottle.wine.producer.country?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bottle.wine.producer.region?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        normalizeString(bottle.wine.name).includes(normalizedQuery) ||
+        normalizeString(bottle.wine.producer.name).includes(normalizedQuery) ||
+        (bottle.wine.producer.country && normalizeString(bottle.wine.producer.country.name).includes(normalizedQuery)) ||
+        (bottle.wine.producer.region && normalizeString(bottle.wine.producer.region.name).includes(normalizedQuery)) ||
         bottle.wine.wine_varietal?.some(wv => 
-          wv.varietal.name.toLowerCase().includes(searchQuery.toLowerCase())
+          normalizeString(wv.varietal.name).includes(normalizedQuery)
         ) ||
         bottle.tags?.some(tag =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase())
+          normalizeString(tag).includes(normalizedQuery)
         );
 
       const matchesColour =
