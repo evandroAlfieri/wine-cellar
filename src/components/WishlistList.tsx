@@ -102,6 +102,12 @@ export function WishlistList({ isReadOnly = false }: WishlistListProps = {}) {
       />
       {!isReadOnly && <AddWishlistDialog />}
 
+      {(searchQuery || colourFilter.length > 0 || countryFilter.length > 0 || tagFilter.length > 0) && (
+        <div className="text-sm text-muted-foreground mb-3">
+          Showing {filteredWishlist.length} {filteredWishlist.length === 1 ? 'result' : 'results'}
+        </div>
+      )}
+
       {filteredWishlist.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground">

@@ -160,6 +160,12 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
       />
       <CompactStatsBar onViewDetails={onViewStats} />
 
+      {(searchQuery || colourFilter.length > 0 || countryFilter.length > 0 || tagFilter.length > 0) && (
+        <div className="text-sm text-muted-foreground mb-3">
+          Showing {filteredBottles.length} {filteredBottles.length === 1 ? 'result' : 'results'}
+        </div>
+      )}
+
       {filteredBottles.length === 0 ? (
         <div className="text-center py-12">
           <Wine className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
