@@ -13,8 +13,8 @@ interface FiltersProps {
   onTagFilterChange: (tags: string[]) => void;
   showConsumed: boolean;
   onShowConsumedChange: (show: boolean) => void;
-  sortOrder: 'newest' | 'oldest';
-  onSortOrderChange: (order: 'newest' | 'oldest') => void;
+  sortOrder: 'newest' | 'oldest' | 'price-low' | 'price-high';
+  onSortOrderChange: (order: 'newest' | 'oldest' | 'price-low' | 'price-high') => void;
 }
 
 export function Filters({

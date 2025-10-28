@@ -42,7 +42,7 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
   const [countryFilter, setCountryFilter] = useState<string[]>([]);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [showConsumed, setShowConsumed] = useState(false);
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'price-low' | 'price-high'>('newest');
   const [moveBottleId, setMoveBottleId] = useState<string | null>(null);
   const consumeBottle = useConsumeBottle();
   const moveToWishlist = useMoveToWishlist();
@@ -83,7 +83,7 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
       return matchesSearch && matchesColour && matchesCountry && matchesTags && matchesConsumed;
     });
 
-    // Sort: consumed bottles always at bottom, then by created_at based on sortOrder
+    // Sort: consumed bottles always at bottom, then by sortOrder
     return filtered.sort((a, b) => {
       // First, separate consumed vs available
       const aConsumed = a.quantity === 0;
@@ -92,11 +92,16 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
       if (aConsumed && !bConsumed) return 1;
       if (!aConsumed && bConsumed) return -1;
       
-      // Both same consumed status, sort by created_at
-      const aDate = new Date(a.created_at).getTime();
-      const bDate = new Date(b.created_at).getTime();
-      
-      return sortOrder === 'newest' ? bDate - aDate : aDate - bDate;
+      // Both same consumed status, sort by selected order
+      if (sortOrder === 'price-low') {
+        return Number(a.price) - Number(b.price);
+      } else if (sortOrder === 'price-high') {
+        return Number(b.price) - Number(a.price);
+      } else {
+        const aDate = new Date(a.created_at).getTime();
+        const bDate = new Date(b.created_at).getTime();
+        return sortOrder === 'newest' ? bDate - aDate : aDate - bDate;
+      }
     });
   }, [bottles, searchQuery, colourFilter, countryFilter, tagFilter, showConsumed, sortOrder]);
 

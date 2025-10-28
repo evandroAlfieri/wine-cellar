@@ -36,8 +36,8 @@ interface FilterDialogProps {
   onTagFilterChange: (tags: string[]) => void;
   showConsumed: boolean;
   onShowConsumedChange: (show: boolean) => void;
-  sortOrder: 'newest' | 'oldest';
-  onSortOrderChange: (order: 'newest' | 'oldest') => void;
+  sortOrder: 'newest' | 'oldest' | 'price-low' | 'price-high';
+  onSortOrderChange: (order: 'newest' | 'oldest' | 'price-low' | 'price-high') => void;
   activeFilterCount: number;
 }
 
@@ -120,6 +120,8 @@ export function FilterDialog({
           <SelectContent>
             <SelectItem value="newest">Newest first</SelectItem>
             <SelectItem value="oldest">Oldest first</SelectItem>
+            <SelectItem value="price-low">Price: Low to High</SelectItem>
+            <SelectItem value="price-high">Price: High to Low</SelectItem>
           </SelectContent>
         </Select>
       </div>

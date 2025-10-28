@@ -17,7 +17,7 @@ export function WishlistList({ isReadOnly = false }: WishlistListProps = {}) {
   const [colourFilter, setColourFilter] = useState<string[]>([]);
   const [countryFilter, setCountryFilter] = useState<string[]>([]);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'price-low' | 'price-high'>('newest');
   const isMobile = useIsMobile();
 
   const filteredWishlist = useMemo(() => {
@@ -53,9 +53,15 @@ export function WishlistList({ isReadOnly = false }: WishlistListProps = {}) {
     });
 
     return filtered.sort((a, b) => {
-      const aDate = new Date(a.created_at).getTime();
-      const bDate = new Date(b.created_at).getTime();
-      return sortOrder === 'newest' ? bDate - aDate : aDate - bDate;
+      if (sortOrder === 'price-low') {
+        return Number(a.estimated_price) - Number(b.estimated_price);
+      } else if (sortOrder === 'price-high') {
+        return Number(b.estimated_price) - Number(a.estimated_price);
+      } else {
+        const aDate = new Date(a.created_at).getTime();
+        const bDate = new Date(b.created_at).getTime();
+        return sortOrder === 'newest' ? bDate - aDate : aDate - bDate;
+      }
     });
   }, [wishlistItems, searchQuery, colourFilter, countryFilter, tagFilter, sortOrder]);
 
