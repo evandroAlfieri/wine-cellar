@@ -4,6 +4,7 @@ import { GuestLayout } from '@/components/GuestLayout';
 import { BottleList } from '@/components/BottleList';
 import { WishlistList } from '@/components/WishlistList';
 import { StatsBar } from '@/components/StatsBar';
+import { ScrollToTop } from '@/components/ScrollToTop';
 import { BarChart3, Layers, Heart } from 'lucide-react';
 
 export default function GuestView() {
@@ -39,6 +40,7 @@ export default function GuestView() {
           <WishlistList isReadOnly={true} />
         </TabsContent>
       </Tabs>
+      <ScrollToTop />
     </GuestLayout>
   );
 }
