@@ -3,6 +3,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Layout } from '@/components/Layout';
 import { StatsBar } from '@/components/StatsBar';
 import { BottleList } from '@/components/BottleList';
+import { ScrollToTop } from '@/components/ScrollToTop';
 import { WishlistList } from '@/components/WishlistList';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3, Layers, Heart } from 'lucide-react';
@@ -41,6 +42,7 @@ const Index = () => {
             <WishlistList />
           </TabsContent>
         </Tabs>
+        <ScrollToTop />
       </Layout>
     </ProtectedRoute>
   );
