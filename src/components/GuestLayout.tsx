@@ -1,4 +1,4 @@
-import { BottleWine } from 'lucide-react';
+import { PillBottle } from 'lucide-react';
 
 interface GuestLayoutProps {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ export function GuestLayout({ children }: GuestLayoutProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10">
-                <BottleWine className="w-6 h-6 text-primary" />
+                <PillBottle className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <h1 className="text-xl font-bold">Wine Cellar</h1>
