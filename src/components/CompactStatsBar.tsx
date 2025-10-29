@@ -1,5 +1,5 @@
 import { useStats, useColorBreakdown } from '@/hooks/useStats';
-import { FlaskConical, Euro, ArrowRight } from 'lucide-react';
+import { BottleWine, Euro, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -36,7 +36,7 @@ export function CompactStatsBar({ onViewDetails }: CompactStatsBarProps) {
         <div className="flex flex-wrap items-center gap-4 sm:gap-6">
           {/* Total Bottles */}
           <div className="flex items-center gap-2">
-            <FlaskConical className="w-5 h-5 text-muted-foreground" />
+            <BottleWine className="w-5 h-5 text-muted-foreground" />
             <div>
               <p className="text-sm text-muted-foreground">Total Bottles</p>
               <p className="text-lg font-semibold">{stats.total_bottles}</p>
