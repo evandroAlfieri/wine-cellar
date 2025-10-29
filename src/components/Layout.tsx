@@ -1,4 +1,4 @@
-import { PillBottle, LogOut, Download, MoreVertical, Share2 } from 'lucide-react';
+import { Wine, LogOut, Download, MoreVertical, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -69,7 +69,7 @@ export function Layout({ children }: LayoutProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/10">
-                <PillBottle className="w-6 h-6 text-primary" />
+                <Wine className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <h1 className="text-xl font-bold">Wine Cellar</h1>
