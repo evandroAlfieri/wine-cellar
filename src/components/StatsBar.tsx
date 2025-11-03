@@ -117,6 +117,10 @@ export function StatsBar() {
         
         <div className="space-y-2 text-sm">
           <div className="flex justify-between items-center">
+            <span className="text-muted-foreground">Consumed bottles value</span>
+            <span className="font-semibold text-red-600">€{(stats?.consumed_value || 0).toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Average per bottle</span>
             <span className="font-semibold">€{(stats?.avg_price || 0).toFixed(2)}</span>
           </div>

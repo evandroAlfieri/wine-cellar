@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface Stats {
   total_bottles: number;
   total_value: number;
+  consumed_value: number;
   avg_price: number;
   min_price: number;
   max_price: number;
@@ -26,6 +27,9 @@ export function useStats() {
       
       const total_bottles = bottles.reduce((sum, b) => sum + (b.quantity || 0), 0);
       const total_value = bottles.reduce((sum, b) => sum + (b.price * (b.quantity || 0)), 0);
+      const consumed_value = bottles
+        .filter(b => b.quantity === 0)
+        .reduce((sum, b) => sum + b.price, 0);
       const prices = bottles.map(b => b.price);
       const avg_price = prices.length > 0 ? prices.reduce((sum, p) => sum + p, 0) / prices.length : 0;
       const min_price = prices.length > 0 ? Math.min(...prices) : 0;
@@ -34,6 +38,7 @@ export function useStats() {
       return {
         total_bottles,
         total_value,
+        consumed_value,
         avg_price,
         min_price,
         max_price,
