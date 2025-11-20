@@ -71,6 +71,7 @@ export function useUpdateWine() {
       queryClient.invalidateQueries({ queryKey: ['bottles'] });
       queryClient.invalidateQueries({ queryKey: ['stats'] });
       queryClient.invalidateQueries({ queryKey: ['varietal-breakdown'] });
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
     },
     onError: () => {
       toast({ title: 'Failed to update wine', variant: 'destructive' });
