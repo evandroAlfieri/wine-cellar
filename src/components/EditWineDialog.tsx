@@ -10,12 +10,27 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useUpdateWine } from '@/hooks/useWines';
 import { useUpdateProducer } from '@/hooks/useProducers';
 import { useBulkUpdateWineVarietals } from '@/hooks/useWineVarietals';
-import { useCountries } from '@/hooks/useCountries';
-import { useRegions } from '@/hooks/useRegions';
-import { useVarietals } from '@/hooks/useVarietals';
+import { useCountries, useCreateCountry } from '@/hooks/useCountries';
+import { useRegions, useCreateRegion } from '@/hooks/useRegions';
+import { useVarietals, useCreateVarietal } from '@/hooks/useVarietals';
 import { WineColour, WineColourEnum } from '@/lib/schemas';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Check, ChevronsUpDown, Plus } from 'lucide-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Wine name is required'),
@@ -53,10 +68,19 @@ export function EditWineDialog({ open, onOpenChange, wine }: EditWineDialogProps
   const [selectedCountryId, setSelectedCountryId] = useState<string | undefined>(
     wine.producer.country_id || undefined
   );
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [regionOpen, setRegionOpen] = useState(false);
+  const [varietalOpen, setVarietalOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
+  const [regionSearch, setRegionSearch] = useState('');
+  const [varietalSearch, setVarietalSearch] = useState('');
   
   const updateWine = useUpdateWine();
   const updateProducer = useUpdateProducer();
   const updateWineVarietals = useBulkUpdateWineVarietals();
+  const createCountry = useCreateCountry();
+  const createRegion = useCreateRegion();
+  const createVarietal = useCreateVarietal();
   
   const { data: countries = [] } = useCountries();
   const { data: regions = [] } = useRegions(selectedCountryId);
@@ -168,22 +192,78 @@ export function EditWineDialog({ open, onOpenChange, wine }: EditWineDialogProps
               control={form.control}
               name="countryId"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Country</FormLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select country" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {countries.map((country) => (
-                        <SelectItem key={country.id} value={country.id}>
-                          {country.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            'justify-between',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {field.value
+                            ? countries.find((c) => c.id === field.value)?.name
+                            : 'Select country'}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search country..."
+                          value={countrySearch}
+                          onValueChange={setCountrySearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            <div className="flex flex-col items-center gap-2 py-2">
+                              <p className="text-sm text-muted-foreground">No country found</p>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={async () => {
+                                  if (countrySearch.trim()) {
+                                    const result = await createCountry.mutateAsync(countrySearch.trim());
+                                    field.onChange(result.country.id);
+                                    setCountrySearch('');
+                                    setCountryOpen(false);
+                                  }
+                                }}
+                              >
+                                <Plus className="mr-2 h-4 w-4" />
+                                Create "{countrySearch}"
+                              </Button>
+                            </div>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {countries.map((country) => (
+                              <CommandItem
+                                key={country.id}
+                                value={country.name}
+                                onSelect={() => {
+                                  field.onChange(country.id);
+                                  setCountryOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    'mr-2 h-4 w-4',
+                                    country.id === field.value ? 'opacity-100' : 'opacity-0'
+                                  )}
+                                />
+                                {country.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
@@ -193,26 +273,82 @@ export function EditWineDialog({ open, onOpenChange, wine }: EditWineDialogProps
               control={form.control}
               name="regionId"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Region (Optional)</FormLabel>
-                  <Select 
-                    value={field.value} 
-                    onValueChange={field.onChange}
-                    disabled={!selectedCountryId}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={selectedCountryId ? "Select region" : "Select country first"} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {regions.map((region) => (
-                        <SelectItem key={region.id} value={region.id}>
-                          {region.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={regionOpen} onOpenChange={setRegionOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          disabled={!selectedCountryId}
+                          className={cn(
+                            'justify-between',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {field.value
+                            ? regions.find((r) => r.id === field.value)?.name
+                            : selectedCountryId ? 'Select region' : 'Select country first'}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search region..."
+                          value={regionSearch}
+                          onValueChange={setRegionSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            <div className="flex flex-col items-center gap-2 py-2">
+                              <p className="text-sm text-muted-foreground">No region found</p>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={async () => {
+                                  if (regionSearch.trim() && selectedCountryId) {
+                                    const result = await createRegion.mutateAsync({
+                                      name: regionSearch.trim(),
+                                      country_id: selectedCountryId,
+                                    });
+                                    field.onChange(result.region.id);
+                                    setRegionSearch('');
+                                    setRegionOpen(false);
+                                  }
+                                }}
+                              >
+                                <Plus className="mr-2 h-4 w-4" />
+                                Create "{regionSearch}"
+                              </Button>
+                            </div>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {regions.map((region) => (
+                              <CommandItem
+                                key={region.id}
+                                value={region.name}
+                                onSelect={() => {
+                                  field.onChange(region.id);
+                                  setRegionOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    'mr-2 h-4 w-4',
+                                    region.id === field.value ? 'opacity-100' : 'opacity-0'
+                                  )}
+                                />
+                                {region.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
@@ -222,43 +358,85 @@ export function EditWineDialog({ open, onOpenChange, wine }: EditWineDialogProps
               control={form.control}
               name="varietalIds"
               render={() => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Varietals</FormLabel>
-                  <div className="space-y-2 max-h-48 overflow-y-auto border rounded-md p-3">
-                    {varietals.map((varietal) => (
-                      <FormField
-                        key={varietal.id}
-                        control={form.control}
-                        name="varietalIds"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={varietal.id}
-                              className="flex flex-row items-start space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(varietal.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([...field.value, varietal.id])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== varietal.id
-                                          )
-                                        );
+                  <Popover open={varietalOpen} onOpenChange={setVarietalOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className="justify-between"
+                        >
+                          {form.watch('varietalIds')?.length > 0
+                            ? `${form.watch('varietalIds').length} selected`
+                            : 'Select varietals'}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0">
+                      <Command>
+                        <CommandInput
+                          placeholder="Search varietal..."
+                          value={varietalSearch}
+                          onValueChange={setVarietalSearch}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            <div className="flex flex-col items-center gap-2 py-2">
+                              <p className="text-sm text-muted-foreground">No varietal found</p>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={async () => {
+                                  if (varietalSearch.trim()) {
+                                    const result = await createVarietal.mutateAsync(varietalSearch.trim());
+                                    const currentIds = form.getValues('varietalIds') || [];
+                                    form.setValue('varietalIds', [...currentIds, result.varietal.id]);
+                                    setVarietalSearch('');
+                                  }
+                                }}
+                              >
+                                <Plus className="mr-2 h-4 w-4" />
+                                Create "{varietalSearch}"
+                              </Button>
+                            </div>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {varietals.map((varietal) => {
+                              const isSelected = form.watch('varietalIds')?.includes(varietal.id);
+                              return (
+                                <CommandItem
+                                  key={varietal.id}
+                                  value={varietal.name}
+                                  onSelect={() => {
+                                    const currentIds = form.getValues('varietalIds') || [];
+                                    if (isSelected) {
+                                      form.setValue(
+                                        'varietalIds',
+                                        currentIds.filter((id) => id !== varietal.id)
+                                      );
+                                    } else {
+                                      form.setValue('varietalIds', [...currentIds, varietal.id]);
+                                    }
                                   }}
-                                />
-                              </FormControl>
-                              <Label className="font-normal cursor-pointer">
-                                {varietal.name}
-                              </Label>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
-                  </div>
+                                >
+                                  <Check
+                                    className={cn(
+                                      'mr-2 h-4 w-4',
+                                      isSelected ? 'opacity-100' : 'opacity-0'
+                                    )}
+                                  />
+                                  {varietal.name}
+                                </CommandItem>
+                              );
+                            })}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
