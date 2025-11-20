@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, Euro, MapPin, Wine, ExternalLink, FileEdit } from 'lucide-react';
+import { Trash2, Euro, MapPin, Wine, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +16,6 @@ import {
 import { useDeleteWishlistItem } from '@/hooks/useWishlistMutations';
 import { WishlistItemWithDetails } from '@/lib/types';
 import { EditWishlistDialog } from './EditWishlistDialog';
-import { EditWineDialog } from './EditWineDialog';
 import { MoveToCollectionDialog } from './MoveToCollectionDialog';
 import { buildWineSearcherUrl } from '@/lib/utils';
 
@@ -35,7 +34,6 @@ const colourMap: Record<string, string> = {
 
 export function WishlistCard({ wishlistItem, isReadOnly = false }: WishlistCardProps) {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-  const [showEditWineDialog, setShowEditWineDialog] = useState(false);
   const deleteWishlistItem = useDeleteWishlistItem();
 
   const handleDelete = async () => {
@@ -94,13 +92,6 @@ export function WishlistCard({ wishlistItem, isReadOnly = false }: WishlistCardP
             {!isReadOnly && (
               <div className="flex gap-2 pt-2">
                 <EditWishlistDialog wishlistItem={wishlistItem} />
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setShowEditWineDialog(true)}
-                >
-                  <FileEdit className="w-4 h-4" />
-                </Button>
                 <MoveToCollectionDialog wishlistItem={wishlistItem} />
                 <Button
                   size="sm"
@@ -122,12 +113,6 @@ export function WishlistCard({ wishlistItem, isReadOnly = false }: WishlistCardP
           </div>
         </CardContent>
       </Card>
-
-      <EditWineDialog
-        open={showEditWineDialog}
-        onOpenChange={setShowEditWineDialog}
-        wine={wishlistItem.wine}
-      />
 
       <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
         <AlertDialogContent>
