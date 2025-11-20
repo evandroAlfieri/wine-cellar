@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useDeleteWishlistItem } from '@/hooks/useWishlistMutations';
 import { WishlistItemWithDetails } from '@/lib/types';
-import { EditWishlistDialog } from './EditWishlistDialog';
+import { EditWishlistItemDialog } from './EditWishlistItemDialog';
 import { MoveToCollectionDialog } from './MoveToCollectionDialog';
 import { buildWineSearcherUrl } from '@/lib/utils';
 
@@ -100,7 +100,7 @@ export function MobileWishlistCard({ wishlistItem, isReadOnly = false }: MobileW
               <div className="flex flex-col gap-2 pt-2">
                 <MoveToCollectionDialog wishlistItem={wishlistItem} />
                 <div className="flex gap-2">
-                  <EditWishlistDialog wishlistItem={wishlistItem} />
+                  <EditWishlistItemDialog wishlistItem={wishlistItem} />
                   <Button
                     size="sm"
                     variant="outline"
