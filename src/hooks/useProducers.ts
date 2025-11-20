@@ -48,6 +48,33 @@ export function useCreateProducer() {
   });
 }
 
+export function useUpdateProducer() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<{ name: string; country_id: string | null; region_id: string | null }>) => {
+      const { data, error } = await supabase
+        .from('producer')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['producers'] });
+      queryClient.invalidateQueries({ queryKey: ['wines'] });
+      queryClient.invalidateQueries({ queryKey: ['bottles'] });
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+    },
+    onError: () => {
+      toast({ title: 'Failed to update producer', variant: 'destructive' });
+    },
+  });
+}
+
 export function useDeleteProducer() {
   const queryClient = useQueryClient();
   
