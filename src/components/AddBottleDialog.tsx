@@ -43,10 +43,12 @@ import {
 } from '@/components/ui/select';
 import { useCountries, useCreateCountry } from '@/hooks/useCountries';
 import { useRegions, useCreateRegion } from '@/hooks/useRegions';
-import { useProducers, useCreateProducer } from '@/hooks/useProducers';
+import { useProducers, useCreateProducer, useUpdateProducer } from '@/hooks/useProducers';
 import { useWines, useCreateWine } from '@/hooks/useWines';
 import { useVarietals, useCreateVarietal } from '@/hooks/useVarietals';
 import { useCreateBottle } from '@/hooks/useBottleMutations';
+import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 import { WineColourEnum } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
@@ -89,6 +91,7 @@ export function AddBottleDialog() {
   const createCountry = useCreateCountry();
   const createRegion = useCreateRegion();
   const createProducer = useCreateProducer();
+  const updateProducer = useUpdateProducer();
   const createVarietal = useCreateVarietal();
   const createWine = useCreateWine();
   const createBottle = useCreateBottle();
@@ -185,7 +188,49 @@ export function AddBottleDialog() {
 
   const onSubmit = async (values: FormValues) => {
     const tags = values.tags?.split(',').map(t => t.trim()).filter(Boolean);
-    
+
+    // Persist the selected country/region onto the producer record
+    const selectedProducer = producers?.find(p => p.id === values.producer_id);
+    const nextCountryId = values.country_id;
+    const nextRegionId = values.region_id ? values.region_id : null;
+    const currentCountryId = selectedProducer?.country_id ?? null;
+    const currentRegionId = selectedProducer?.region_id ?? null;
+
+    if (!selectedProducer || currentCountryId !== nextCountryId || currentRegionId !== nextRegionId) {
+      await updateProducer.mutateAsync({
+        id: values.producer_id,
+        country_id: nextCountryId,
+        region_id: nextRegionId,
+      });
+    }
+
+    // Persist selected varietals onto the wine (non-destructive: only adds missing links)
+    if (values.varietal_ids && values.varietal_ids.length > 0) {
+      const { data: existingLinks, error: existingError } = await supabase
+        .from('wine_varietal')
+        .select('varietal_id')
+        .eq('wine_id', values.wine_id);
+
+      if (existingError) {
+        toast({ title: 'Failed to load wine varietals', variant: 'destructive' });
+        throw existingError;
+      }
+
+      const existingIds = new Set((existingLinks ?? []).map((l) => l.varietal_id));
+      const missingVarietalIds = values.varietal_ids.filter((id) => !existingIds.has(id));
+
+      if (missingVarietalIds.length > 0) {
+        const { error: insertError } = await supabase
+          .from('wine_varietal')
+          .insert(missingVarietalIds.map((varietal_id) => ({ wine_id: values.wine_id, varietal_id })));
+
+        if (insertError) {
+          toast({ title: 'Failed to save varietals', variant: 'destructive' });
+          throw insertError;
+        }
+      }
+    }
+
     await createBottle.mutateAsync({
       wine_id: values.wine_id,
       vintage: values.vintage,
