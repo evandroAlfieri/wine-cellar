@@ -53,7 +53,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useCountries, useCreateCountry } from '@/hooks/useCountries';
 import { useRegions, useCreateRegion } from '@/hooks/useRegions';
-import { useProducers, useCreateProducer } from '@/hooks/useProducers';
+import { useProducers, useCreateProducer, useUpdateProducer } from '@/hooks/useProducers';
 import { useWines, useCreateWine } from '@/hooks/useWines';
 import { useVarietals, useCreateVarietal } from '@/hooks/useVarietals';
 import { useUpdateBottle, useDeleteBottle } from '@/hooks/useBottleMutations';
@@ -113,6 +113,7 @@ export function EditBottleDialog({ bottle, open: externalOpen, onOpenChange: ext
   const createCountry = useCreateCountry();
   const createRegion = useCreateRegion();
   const createProducer = useCreateProducer();
+  const updateProducer = useUpdateProducer();
   const createVarietal = useCreateVarietal();
   const createWine = useCreateWine();
   const updateBottle = useUpdateBottle();
@@ -220,6 +221,20 @@ export function EditBottleDialog({ bottle, open: externalOpen, onOpenChange: ext
 
   const onSubmit = async (values: FormValues) => {
     const tags = values.tags?.split(',').map(t => t.trim()).filter(Boolean);
+    
+    // Update producer's country and region if they changed
+    const currentCountryId = bottle.wine.producer.country?.id || null;
+    const currentRegionId = bottle.wine.producer.region?.id || null;
+    const newCountryId = values.country_id || null;
+    const newRegionId = values.region_id || null;
+    
+    if (currentCountryId !== newCountryId || currentRegionId !== newRegionId) {
+      await updateProducer.mutateAsync({
+        id: values.producer_id,
+        country_id: newCountryId,
+        region_id: newRegionId,
+      });
+    }
     
     // Update wine's varietals if they changed
     const currentVarietalIds = bottle.wine.wine_varietal?.map(wv => wv.varietal.id) || [];
