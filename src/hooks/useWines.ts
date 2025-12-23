@@ -31,7 +31,9 @@ export function useCreateWine() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (wine: { name: string; colour: WineColour; producer_id: string }) => {
+    mutationFn: async (input: { name: string; colour: WineColour; producer_id: string; varietal_ids?: string[] }) => {
+      const { varietal_ids, ...wine } = input;
+      
       const { data, error } = await supabase
         .from('wine')
         .insert(wine)
@@ -39,10 +41,22 @@ export function useCreateWine() {
         .single();
       
       if (error) throw error;
+      
+      // Create wine_varietal links if varietals were provided
+      if (varietal_ids && varietal_ids.length > 0) {
+        const { error: varietalError } = await supabase
+          .from('wine_varietal')
+          .insert(varietal_ids.map(varietal_id => ({ wine_id: data.id, varietal_id })));
+        
+        if (varietalError) throw varietalError;
+      }
+      
       return { wine: data };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wines'] });
+      queryClient.invalidateQueries({ queryKey: ['bottles'] });
+      queryClient.invalidateQueries({ queryKey: ['varietal-breakdown'] });
       toast({ title: 'Wine added successfully' });
     },
     onError: () => {
