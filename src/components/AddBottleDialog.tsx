@@ -47,7 +47,7 @@ import { useProducers, useCreateProducer } from '@/hooks/useProducers';
 import { useWines, useCreateWine } from '@/hooks/useWines';
 import { useVarietals, useCreateVarietal } from '@/hooks/useVarietals';
 import { useCreateBottle } from '@/hooks/useBottleMutations';
-import { useCreateWineVarietal } from '@/hooks/useWineVarietals';
+
 import { WineColourEnum } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 import { TagInput } from '@/components/TagInput';
@@ -92,7 +92,7 @@ export function AddBottleDialog() {
   const createVarietal = useCreateVarietal();
   const createWine = useCreateWine();
   const createBottle = useCreateBottle();
-  const createWineVarietal = useCreateWineVarietal();
+  
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -175,17 +175,8 @@ export function AddBottleDialog() {
       name,
       colour: newWineColour,
       producer_id: selectedProducerId,
+      varietal_ids: selectedVarietalIds || [],
     });
-    
-    // Link varietals to the new wine
-    if (selectedVarietalIds && selectedVarietalIds.length > 0) {
-      for (const varietalId of selectedVarietalIds) {
-        await createWineVarietal.mutateAsync({
-          wine_id: result.wine.id,
-          varietal_id: varietalId,
-        });
-      }
-    }
     
     form.setValue('wine_id', result.wine.id);
     setWineSearch('');
