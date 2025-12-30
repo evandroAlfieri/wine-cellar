@@ -55,6 +55,27 @@ export type Database = {
           },
         ]
       }
+      cellar_value_snapshot: {
+        Row: {
+          id: string
+          recorded_at: string
+          total_bottles: number
+          total_value: number
+        }
+        Insert: {
+          id?: string
+          recorded_at?: string
+          total_bottles: number
+          total_value: number
+        }
+        Update: {
+          id?: string
+          recorded_at?: string
+          total_bottles?: number
+          total_value?: number
+        }
+        Relationships: []
+      }
       country: {
         Row: {
           id: string

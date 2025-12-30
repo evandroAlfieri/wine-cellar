@@ -1,7 +1,8 @@
-import { BarChart3, Euro, Globe, Wine, MapPin } from 'lucide-react';
-import { useStats, useColorBreakdown, useCountryBreakdown, useRegionBreakdown, useVarietalBreakdown } from '@/hooks/useStats';
+import { Euro, Globe, Wine, MapPin, TrendingUp } from 'lucide-react';
+import { useStats, useColorBreakdown, useCountryBreakdown, useRegionBreakdown, useVarietalBreakdown, useCellarHistory } from '@/hooks/useStats';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { format } from 'date-fns';
 
 const COLOR_MAP: Record<string, string> = {
   red: 'hsl(0, 70%, 50%)',
@@ -31,8 +32,9 @@ export function StatsBar() {
   const { data: countryBreakdown, isLoading: countryLoading } = useCountryBreakdown();
   const { data: regionBreakdown, isLoading: regionLoading } = useRegionBreakdown();
   const { data: varietalBreakdown, isLoading: varietalLoading } = useVarietalBreakdown();
+  const { data: cellarHistory, isLoading: historyLoading } = useCellarHistory();
 
-  if (statsLoading || breakdownLoading || countryLoading || regionLoading || varietalLoading) {
+  if (statsLoading || breakdownLoading || countryLoading || regionLoading || varietalLoading || historyLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {[1, 2, 3, 4].map((i) => (
@@ -43,6 +45,13 @@ export function StatsBar() {
       </div>
     );
   }
+
+  // Format cellar history for chart
+  const historyChartData = cellarHistory?.map(item => ({
+    date: format(new Date(item.recorded_at), 'MMM d'),
+    bottles: item.total_bottles,
+    value: Number(item.total_value),
+  })) || [];
 
   const totalValue = stats?.total_value || 0;
   const chartData = colorBreakdown?.map(item => ({
@@ -211,6 +220,79 @@ export function StatsBar() {
           </div>
         )}
       </div>
+
+      {/* Cellar Value Over Time - Full Width */}
+      {historyChartData.length > 1 && (
+        <div className="bg-card rounded-lg border p-4 hover:shadow-md transition-shadow md:col-span-2">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-emerald-500/10">
+              <TrendingUp className="w-5 h-5 text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Cellar Value Over Time</p>
+              <p className="text-lg font-semibold">History</p>
+            </div>
+          </div>
+          
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={historyChartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="date" 
+                  tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                  stroke="hsl(var(--border))"
+                />
+                <YAxis 
+                  yAxisId="bottles"
+                  orientation="left"
+                  tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                  stroke="hsl(var(--border))"
+                  label={{ value: 'Bottles', angle: -90, position: 'insideLeft', fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                />
+                <YAxis 
+                  yAxisId="value"
+                  orientation="right"
+                  tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                  stroke="hsl(var(--border))"
+                  tickFormatter={(val) => `€${val}`}
+                  label={{ value: 'Value (€)', angle: 90, position: 'insideRight', fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                  }}
+                  formatter={(value: number, name: string) => [
+                    name === 'value' ? `€${value.toFixed(2)}` : value,
+                    name === 'value' ? 'Value' : 'Bottles'
+                  ]}
+                />
+                <Legend />
+                <Line 
+                  yAxisId="bottles"
+                  type="monotone" 
+                  dataKey="bottles" 
+                  stroke="hsl(200, 80%, 50%)" 
+                  strokeWidth={2}
+                  dot={{ fill: 'hsl(200, 80%, 50%)', strokeWidth: 0 }}
+                  name="Bottles"
+                />
+                <Line 
+                  yAxisId="value"
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke="hsl(140, 70%, 45%)" 
+                  strokeWidth={2}
+                  dot={{ fill: 'hsl(140, 70%, 45%)', strokeWidth: 0 }}
+                  name="Value"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

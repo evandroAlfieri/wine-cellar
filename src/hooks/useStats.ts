@@ -161,3 +161,25 @@ export function useVarietalBreakdown() {
     },
   });
 }
+
+interface CellarSnapshot {
+  recorded_at: string;
+  total_bottles: number;
+  total_value: number;
+}
+
+export function useCellarHistory() {
+  return useQuery({
+    queryKey: ['cellar-history'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('cellar_value_snapshot')
+        .select('recorded_at, total_bottles, total_value')
+        .order('recorded_at', { ascending: true });
+      
+      if (error) throw error;
+      
+      return data as CellarSnapshot[];
+    },
+  });
+}
