@@ -53,39 +53,25 @@ export function MobileBottleCard({ bottle, isReadOnly = false }: MobileBottleCar
           </Badge>
         </div>
 
-        {/* Wine Details */}
-        <div className="space-y-2 mb-4 text-sm">
-          {/* Varietal */}
+        {/* Wine Details - Inline */}
+        <p className="text-sm text-muted-foreground mb-3">
           {bottle.wine.wine_varietal && bottle.wine.wine_varietal.length > 0 && (
-            <div className="flex items-start gap-2">
-              <Wine className="w-4 h-4 mt-0.5 text-muted-foreground flex-shrink-0" />
-              <span className="italic text-muted-foreground">
-                {bottle.wine.wine_varietal.map(wv => wv.varietal.name).join(', ')}
-              </span>
-            </div>
+            <span className="italic">{bottle.wine.wine_varietal.map(wv => wv.varietal.name).join(', ')}</span>
           )}
-          
-          {/* Country/Region */}
           {bottle.wine.producer.country && (
-            <div className="flex items-start gap-2">
-              <MapPin className="w-4 h-4 mt-0.5 text-muted-foreground flex-shrink-0" />
-              <span>
-                {bottle.wine.producer.country.name}
-                {bottle.wine.producer.region && (
-                  <span className="text-muted-foreground"> • {bottle.wine.producer.region.name}</span>
-                )}
-              </span>
-            </div>
+            <>
+              {bottle.wine.wine_varietal && bottle.wine.wine_varietal.length > 0 && ' • '}
+              {bottle.wine.producer.country.name}
+              {bottle.wine.producer.region && `, ${bottle.wine.producer.region.name}`}
+            </>
           )}
-
-          {/* Vintage */}
           {bottle.vintage && (
-            <div className="flex items-start gap-2">
-              <Calendar className="w-4 h-4 mt-0.5 text-muted-foreground flex-shrink-0" />
-              <span>{bottle.vintage}</span>
-            </div>
+            <>
+              {(bottle.wine.wine_varietal?.length > 0 || bottle.wine.producer.country) && ' • '}
+              {bottle.vintage}
+            </>
           )}
-        </div>
+        </p>
 
         {/* Tags */}
         {bottle.tags && bottle.tags.length > 0 && (
