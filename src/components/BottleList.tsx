@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useBottles } from '@/hooks/useBottles';
 import { Filters } from './Filters';
-import { Wine, MapPin, ArrowUpDown, ExternalLink, Heart } from 'lucide-react';
+import { Wine, MapPin, ExternalLink, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EditBottleDialog } from '@/components/EditBottleDialog';
+import { BlurredPrice } from './BlurredPrice';
 import {
   Table,
   TableBody,
@@ -252,7 +253,7 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
                     <TableCell>{bottle.size}ml</TableCell>
                     <TableCell>{bottle.quantity}</TableCell>
                     <TableCell className="text-right font-semibold">
-                      €{bottle.price.toFixed(2)}
+                      <BlurredPrice price={bottle.price} isBlurred={isReadOnly} />
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex gap-1 justify-end">

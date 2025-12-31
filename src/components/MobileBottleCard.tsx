@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Wine, MapPin, Edit, Calendar, Heart, ExternalLink } from 'lucide-react';
+import { Wine, Heart, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { BlurredPrice } from './BlurredPrice';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -89,7 +90,7 @@ export function MobileBottleCard({ bottle, isReadOnly = false }: MobileBottleCar
           <div className="flex gap-4 text-sm">
             <div>
               <p className="text-muted-foreground text-xs">Price</p>
-              <p className="font-bold">€{bottle.price.toFixed(2)}</p>
+              <BlurredPrice price={bottle.price} isBlurred={isReadOnly} className="font-bold" />
             </div>
             <div>
               <p className="text-muted-foreground text-xs">Qty</p>

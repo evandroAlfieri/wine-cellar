@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Trash2, Euro, MapPin, Wine, ExternalLink } from 'lucide-react';
+import { Trash2, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { BlurredPrice } from './BlurredPrice';
 import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
@@ -67,7 +68,7 @@ export function MobileWishlistCard({ wishlistItem, isReadOnly = false }: MobileW
                 <span className="italic">{varietals}</span>
                 {country !== 'N/A' && ` • ${country}${region ? `, ${region}` : ''}`}
               </p>
-              <p className="font-semibold">€{wishlistItem.estimated_price.toFixed(2)}</p>
+              <BlurredPrice price={wishlistItem.estimated_price} isBlurred={isReadOnly} className="font-semibold" />
             </div>
 
             {/* Tags */}
