@@ -169,7 +169,7 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
 
       {(searchQuery || colourFilter.length > 0 || countryFilter.length > 0 || tagFilter.length > 0) && (
         <div className="text-sm text-muted-foreground mb-3">
-          Showing {filteredBottles.length} {filteredBottles.length === 1 ? 'result' : 'results'}
+          Showing {filteredBottles.filter(b => b.quantity > 0).length} {filteredBottles.filter(b => b.quantity > 0).length === 1 ? 'result' : 'results'}
         </div>
       )}
 
