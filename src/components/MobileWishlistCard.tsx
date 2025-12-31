@@ -60,28 +60,14 @@ export function MobileWishlistCard({ wishlistItem, isReadOnly = false }: MobileW
               </div>
             </div>
 
-            {/* Details Grid */}
-            <div className="space-y-2 text-sm">
-              <div>
-                <p className="text-muted-foreground">Producer</p>
-                <p className="font-medium">{wishlistItem.wine.producer.name}</p>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <p className="text-muted-foreground">Varietal</p>
-                  <p>{varietals}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Origin</p>
-                  <p>{country}{region ? `, ${region}` : ''}</p>
-                </div>
-              </div>
-
-              <div>
-                <p className="text-muted-foreground">Estimated Price</p>
-                <p className="font-semibold text-lg">€{wishlistItem.estimated_price.toFixed(2)}</p>
-              </div>
+            {/* Details - Inline */}
+            <div className="text-sm space-y-1">
+              <p className="font-medium">{wishlistItem.wine.producer.name}</p>
+              <p className="text-muted-foreground">
+                <span className="italic">{varietals}</span>
+                {country !== 'N/A' && ` • ${country}${region ? `, ${region}` : ''}`}
+              </p>
+              <p className="font-semibold">€{wishlistItem.estimated_price.toFixed(2)}</p>
             </div>
 
             {/* Tags */}
