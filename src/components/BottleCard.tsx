@@ -20,9 +20,10 @@ import { useMoveToWishlist } from '@/hooks/useWishlistMutations';
 
 interface BottleCardProps {
   bottle: BottleWithDetails;
+  isReadOnly?: boolean;
 }
 
-export function BottleCard({ bottle }: BottleCardProps) {
+export function BottleCard({ bottle, isReadOnly = false }: BottleCardProps) {
   const [showMoveAlert, setShowMoveAlert] = useState(false);
   const consumeBottle = useConsumeBottle();
   const moveToWishlist = useMoveToWishlist();
@@ -93,15 +94,17 @@ export function BottleCard({ bottle }: BottleCardProps) {
       )}
 
       <div className="flex gap-2 mt-4 pt-4 border-t">
-        <Button
-          size="sm"
-          onClick={() => consumeBottle.mutate(bottle.id)}
-          disabled={bottle.quantity === 0 || consumeBottle.isPending}
-          className="flex-1"
-        >
-          <Wine className="w-4 h-4 mr-2" />
-          Consume
-        </Button>
+        {!isReadOnly && (
+          <Button
+            size="sm"
+            onClick={() => consumeBottle.mutate(bottle.id)}
+            disabled={bottle.quantity === 0 || consumeBottle.isPending}
+            className="flex-1"
+          >
+            <Wine className="w-4 h-4 mr-2" />
+            Consume
+          </Button>
+        )}
         <Button
           size="sm"
           variant="outline"
@@ -110,7 +113,7 @@ export function BottleCard({ bottle }: BottleCardProps) {
         >
           <ExternalLink className="w-4 h-4" />
         </Button>
-        {bottle.quantity === 0 && (
+        {!isReadOnly && bottle.quantity === 0 && (
           <Button
             size="sm"
             variant="outline"
@@ -120,7 +123,7 @@ export function BottleCard({ bottle }: BottleCardProps) {
             <Heart className="w-4 h-4" />
           </Button>
         )}
-        <EditBottleDialog bottle={bottle} />
+        {!isReadOnly && <EditBottleDialog bottle={bottle} />}
       </div>
     </div>
 

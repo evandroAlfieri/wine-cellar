@@ -115,36 +115,38 @@ export function MobileBottleCard({ bottle, isReadOnly = false }: MobileBottleCar
             </div>
           </div>
 
-          {!isReadOnly && (
-            <div className="flex gap-1">
-              <EditBottleDialog bottle={bottle} />
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => consumeBottle.mutate(bottle.id)}
-                disabled={isOutOfStock || consumeBottle.isPending}
-              >
-                <Wine className="w-4 h-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => window.open(buildWineSearcherUrl(bottle), '_blank')}
-              >
-                <ExternalLink className="w-4 h-4" />
-              </Button>
-              {isOutOfStock && (
+          <div className="flex gap-1">
+            {!isReadOnly && (
+              <>
+                <EditBottleDialog bottle={bottle} />
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setShowMoveAlert(true)}
-                  disabled={moveToWishlist.isPending}
+                  onClick={() => consumeBottle.mutate(bottle.id)}
+                  disabled={isOutOfStock || consumeBottle.isPending}
                 >
-                  <Heart className="w-4 h-4" />
+                  <Wine className="w-4 h-4" />
                 </Button>
-              )}
-            </div>
-          )}
+              </>
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => window.open(buildWineSearcherUrl(bottle), '_blank')}
+            >
+              <ExternalLink className="w-4 h-4" />
+            </Button>
+            {!isReadOnly && isOutOfStock && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowMoveAlert(true)}
+                disabled={moveToWishlist.isPending}
+              >
+                <Heart className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
