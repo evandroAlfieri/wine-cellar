@@ -43,7 +43,7 @@ export function BottleCard({ bottle, isReadOnly = false }: BottleCardProps) {
       <div className="bg-card rounded-lg border p-4 hover:shadow-lg transition-all hover:border-primary/50">
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="font-semibold text-lg mb-1">{bottle.wine.name}</h3>
+          <h3 className="font-semibold text-base mb-1">{bottle.wine.name}</h3>
           <p className="text-sm text-muted-foreground">{bottle.wine.producer.name}</p>
           {bottle.wine.wine_varietal && bottle.wine.wine_varietal.length > 0 && (
             <p className="text-sm text-muted-foreground/70 italic">

@@ -46,7 +46,7 @@ export function MobileBottleCard({ bottle, isReadOnly = false }: MobileBottleCar
         {/* Header: Wine Name & Badge */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-lg truncate">{bottle.wine.name}</h3>
+            <h3 className="font-semibold text-base truncate">{bottle.wine.name}</h3>
             <p className="text-sm text-muted-foreground truncate">{bottle.wine.producer.name}</p>
           </div>
           <Badge className={colourMap[bottle.wine.colour] || colourMap.other} variant="outline">
