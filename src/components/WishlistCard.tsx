@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Trash2, Euro, MapPin, Wine, ExternalLink, FileEdit } from 'lucide-react';
+import { Trash2, Euro, MapPin, Wine, ExternalLink } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { BlurredPrice } from './BlurredPrice';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -73,7 +74,7 @@ export function WishlistCard({ wishlistItem, isReadOnly = false }: WishlistCardP
               </div>
               <div className="flex items-center gap-2">
                 <Euro className="w-4 h-4 text-muted-foreground" />
-                <span className="font-medium">€{wishlistItem.estimated_price.toFixed(2)}</span>
+                <BlurredPrice price={wishlistItem.estimated_price} isBlurred={isReadOnly} className="font-medium" />
               </div>
             </div>
 

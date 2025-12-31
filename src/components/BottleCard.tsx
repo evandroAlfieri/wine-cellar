@@ -5,6 +5,7 @@ import { buildWineSearcherUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EditBottleDialog } from '@/components/EditBottleDialog';
+import { BlurredPrice } from './BlurredPrice';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -80,7 +81,7 @@ export function BottleCard({ bottle, isReadOnly = false }: BottleCardProps) {
             {bottle.size}ml • Qty: {bottle.quantity}
           </span>
         </div>
-        <span className="font-semibold text-primary">€{price}</span>
+        <BlurredPrice price={bottle.price} isBlurred={isReadOnly} className="font-semibold text-primary" />
       </div>
 
       {bottle.tags && bottle.tags.length > 0 && (
