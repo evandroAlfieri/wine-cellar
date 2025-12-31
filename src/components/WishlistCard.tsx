@@ -89,17 +89,21 @@ export function WishlistCard({ wishlistItem, isReadOnly = false }: WishlistCardP
             )}
 
             {/* Actions */}
-            {!isReadOnly && (
-              <div className="flex gap-2 pt-2">
-                <EditWishlistItemDialog wishlistItem={wishlistItem} />
-                <MoveToCollectionDialog wishlistItem={wishlistItem} />
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => window.open(buildWineSearcherUrl(wishlistItem), '_blank')}
-                >
-                  <ExternalLink className="w-4 h-4" />
-                </Button>
+            <div className="flex gap-2 pt-2">
+              {!isReadOnly && (
+                <>
+                  <EditWishlistItemDialog wishlistItem={wishlistItem} />
+                  <MoveToCollectionDialog wishlistItem={wishlistItem} />
+                </>
+              )}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => window.open(buildWineSearcherUrl(wishlistItem), '_blank')}
+              >
+                <ExternalLink className="w-4 h-4" />
+              </Button>
+              {!isReadOnly && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -108,8 +112,8 @@ export function WishlistCard({ wishlistItem, isReadOnly = false }: WishlistCardP
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

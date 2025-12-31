@@ -255,35 +255,37 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
                       €{bottle.price.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {!isReadOnly && (
-                        <div className="flex gap-1 justify-end">
-                          <EditBottleDialog bottle={bottle} />
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => consumeBottle.mutate(bottle.id)}
-                            disabled={isOutOfStock || consumeBottle.isPending}
-                          >
-                            <Wine className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => window.open(buildWineSearcherUrl(bottle), '_blank')}
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </Button>
-                          {isOutOfStock && (
+                      <div className="flex gap-1 justify-end">
+                        {!isReadOnly && (
+                          <>
+                            <EditBottleDialog bottle={bottle} />
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => setMoveBottleId(bottle.id)}
+                              onClick={() => consumeBottle.mutate(bottle.id)}
+                              disabled={isOutOfStock || consumeBottle.isPending}
                             >
-                              <Heart className="w-4 h-4" />
+                              <Wine className="w-4 h-4" />
                             </Button>
-                          )}
-                        </div>
-                      )}
+                          </>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => window.open(buildWineSearcherUrl(bottle), '_blank')}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </Button>
+                        {!isReadOnly && isOutOfStock && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setMoveBottleId(bottle.id)}
+                          >
+                            <Heart className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

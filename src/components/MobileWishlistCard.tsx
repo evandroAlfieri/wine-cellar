@@ -96,18 +96,18 @@ export function MobileWishlistCard({ wishlistItem, isReadOnly = false }: MobileW
             )}
 
             {/* Actions */}
-            {!isReadOnly && (
-              <div className="flex flex-col gap-2 pt-2">
-                <MoveToCollectionDialog wishlistItem={wishlistItem} />
-                <div className="flex gap-2">
-                  <EditWishlistItemDialog wishlistItem={wishlistItem} />
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => window.open(buildWineSearcherUrl(wishlistItem), '_blank')}
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                  </Button>
+            <div className="flex flex-col gap-2 pt-2">
+              {!isReadOnly && <MoveToCollectionDialog wishlistItem={wishlistItem} />}
+              <div className="flex gap-2">
+                {!isReadOnly && <EditWishlistItemDialog wishlistItem={wishlistItem} />}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.open(buildWineSearcherUrl(wishlistItem), '_blank')}
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </Button>
+                {!isReadOnly && (
                   <Button
                     size="sm"
                     variant="outline"
@@ -116,9 +116,9 @@ export function MobileWishlistCard({ wishlistItem, isReadOnly = false }: MobileW
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
-                </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </CardContent>
       </Card>
