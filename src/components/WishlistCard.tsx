@@ -54,7 +54,7 @@ export function WishlistCard({ wishlistItem, isReadOnly = false }: WishlistCardP
             {/* Header */}
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="font-semibold text-lg">{wishlistItem.wine.name}</h3>
+                <h3 className="font-semibold text-base">{wishlistItem.wine.name}</h3>
                 <p className="text-muted-foreground text-sm">{wishlistItem.wine.producer.name}</p>
               </div>
               <Badge className={colourMap[wishlistItem.wine.colour]} variant="outline">
