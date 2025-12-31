@@ -87,20 +87,10 @@ export function MobileBottleCard({ bottle, isReadOnly = false }: MobileBottleCar
 
         {/* Bottom Row: Price, Quantity, Size & Actions */}
         <div className="flex items-center justify-between pt-3 border-t">
-          <div className="flex gap-4 text-sm">
-            <div>
-              <p className="text-muted-foreground text-xs">Price</p>
-              <BlurredPrice price={bottle.price} isBlurred={isReadOnly} className="font-bold" />
-            </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Qty</p>
-              <p className="font-semibold">{bottle.quantity}</p>
-            </div>
-            <div>
-              <p className="text-muted-foreground text-xs">Size</p>
-              <p className="font-semibold">{bottle.size}ml</p>
-            </div>
-          </div>
+          <p className="text-sm">
+            <BlurredPrice price={bottle.price} isBlurred={isReadOnly} className="font-semibold" />
+            <span className="text-muted-foreground"> • {bottle.quantity} btl • {bottle.size}ml</span>
+          </p>
 
           <div className="flex gap-1">
             {!isReadOnly && (
