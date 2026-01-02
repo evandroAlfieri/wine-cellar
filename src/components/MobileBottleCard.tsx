@@ -18,6 +18,7 @@ import { BottleWithDetails } from '@/lib/types';
 import { useConsumeBottle } from '@/hooks/useBottleMutations';
 import { useMoveToWishlist } from '@/hooks/useWishlistMutations';
 import { EditBottleDialog } from '@/components/EditBottleDialog';
+import { GeneratePairingButton } from '@/components/GeneratePairingButton';
 import { buildWineSearcherUrl } from '@/lib/utils';
 
 interface MobileBottleCardProps {
@@ -96,6 +97,7 @@ export function MobileBottleCard({ bottle, isReadOnly = false }: MobileBottleCar
             {!isReadOnly && (
               <>
                 <EditBottleDialog bottle={bottle} />
+                <GeneratePairingButton bottle={bottle} />
                 <Button
                   size="sm"
                   variant="outline"

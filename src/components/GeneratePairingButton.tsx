@@ -1,0 +1,157 @@
+import { useState } from 'react';
+import { Utensils, Loader2, Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { BottleWithDetails } from '@/lib/types';
+import { usePairingProfile, useGeneratePairingProfile, BottlePairingProfile } from '@/hooks/usePairingProfile';
+
+interface GeneratePairingButtonProps {
+  bottle: BottleWithDetails;
+  size?: 'sm' | 'default';
+}
+
+function ProfileContent({ profile }: { profile: BottlePairingProfile }) {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">{profile.summary}</p>
+      
+      {profile.food_categories.length > 0 && (
+        <div>
+          <h4 className="text-sm font-medium mb-2">Pairs well with</h4>
+          <div className="flex flex-wrap gap-1.5">
+            {profile.food_categories.map((cat) => (
+              <Badge key={cat} variant="secondary" className="text-xs">
+                {cat.replace(/_/g, ' ')}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {profile.specific_dishes && profile.specific_dishes.length > 0 && (
+        <div>
+          <h4 className="text-sm font-medium mb-2">Recommended dishes</h4>
+          <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
+            {profile.specific_dishes.slice(0, 5).map((dish) => (
+              <li key={dish}>{dish}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {profile.flavor_notes && profile.flavor_notes.length > 0 && (
+        <div>
+          <h4 className="text-sm font-medium mb-2">Flavor notes</h4>
+          <div className="flex flex-wrap gap-1.5">
+            {profile.flavor_notes.map((note) => (
+              <Badge key={note} variant="outline" className="text-xs">
+                {note}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {profile.avoid_pairings && profile.avoid_pairings.length > 0 && (
+        <div>
+          <h4 className="text-sm font-medium mb-2 text-destructive">Avoid</h4>
+          <p className="text-sm text-muted-foreground">
+            {profile.avoid_pairings.join(', ')}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function GeneratePairingButton({ bottle, size = 'sm' }: GeneratePairingButtonProps) {
+  const [showProfile, setShowProfile] = useState(false);
+  const { data: profile, isLoading: isLoadingProfile } = usePairingProfile(bottle.id);
+  const generateProfile = useGeneratePairingProfile();
+
+  const handleClick = () => {
+    if (profile) {
+      setShowProfile(true);
+    } else {
+      generateProfile.mutate(bottle);
+    }
+  };
+
+  const isGenerating = generateProfile.isPending;
+  const hasProfile = !!profile;
+
+  return (
+    <>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size={size}
+              variant="outline"
+              onClick={handleClick}
+              disabled={isGenerating || isLoadingProfile}
+            >
+              {isGenerating ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : hasProfile ? (
+                <div className="relative">
+                  <Utensils className="w-4 h-4" />
+                  <Check className="w-2.5 h-2.5 absolute -top-1 -right-1 text-primary" />
+                </div>
+              ) : (
+                <Utensils className="w-4 h-4" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {isGenerating 
+              ? 'Generating pairing profile...' 
+              : hasProfile 
+                ? 'View food pairings' 
+                : 'Generate food pairings'
+            }
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
+      <Dialog open={showProfile} onOpenChange={setShowProfile}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Food Pairings</DialogTitle>
+            <DialogDescription>
+              {bottle.wine.name} by {bottle.wine.producer.name}
+            </DialogDescription>
+          </DialogHeader>
+          {profile && <ProfileContent profile={profile} />}
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                generateProfile.mutate(bottle);
+                setShowProfile(false);
+              }}
+              disabled={isGenerating}
+            >
+              {isGenerating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Regenerate
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}

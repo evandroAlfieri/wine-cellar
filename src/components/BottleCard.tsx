@@ -5,6 +5,7 @@ import { buildWineSearcherUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EditBottleDialog } from '@/components/EditBottleDialog';
+import { GeneratePairingButton } from '@/components/GeneratePairingButton';
 import { BlurredPrice } from './BlurredPrice';
 import {
   AlertDialog,
@@ -106,6 +107,7 @@ export function BottleCard({ bottle, isReadOnly = false }: BottleCardProps) {
             Consume
           </Button>
         )}
+        {!isReadOnly && <GeneratePairingButton bottle={bottle} />}
         <Button
           size="sm"
           variant="outline"

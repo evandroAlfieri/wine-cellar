@@ -55,6 +55,56 @@ export type Database = {
           },
         ]
       }
+      bottle_pairing_profile: {
+        Row: {
+          avoid_pairings: string[] | null
+          bottle_id: string
+          cooking_methods: string[] | null
+          created_at: string
+          flavor_notes: string[] | null
+          food_categories: string[]
+          id: string
+          regional_cuisines: string[] | null
+          specific_dishes: string[] | null
+          summary: string
+          updated_at: string
+        }
+        Insert: {
+          avoid_pairings?: string[] | null
+          bottle_id: string
+          cooking_methods?: string[] | null
+          created_at?: string
+          flavor_notes?: string[] | null
+          food_categories: string[]
+          id?: string
+          regional_cuisines?: string[] | null
+          specific_dishes?: string[] | null
+          summary: string
+          updated_at?: string
+        }
+        Update: {
+          avoid_pairings?: string[] | null
+          bottle_id?: string
+          cooking_methods?: string[] | null
+          created_at?: string
+          flavor_notes?: string[] | null
+          food_categories?: string[]
+          id?: string
+          regional_cuisines?: string[] | null
+          specific_dishes?: string[] | null
+          summary?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bottle_pairing_profile_bottle_id_fkey"
+            columns: ["bottle_id"]
+            isOneToOne: true
+            referencedRelation: "bottle"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cellar_value_snapshot: {
         Row: {
           id: string
