@@ -143,7 +143,7 @@ export function GeneratePairingButton({ bottle, size = 'sm' }: GeneratePairingBu
       </TooltipProvider>
 
       <Dialog open={showProfile} onOpenChange={setShowProfile}>
-        <DialogContent className="max-w-md max-h-[85vh] flex flex-col">
+        <DialogContent className="max-w-md h-[85vh] flex flex-col min-h-0">
           <DialogHeader className="flex-shrink-0">
             <DialogTitle>Food Pairings</DialogTitle>
             <DialogDescription>
@@ -151,7 +151,7 @@ export function GeneratePairingButton({ bottle, size = 'sm' }: GeneratePairingBu
             </DialogDescription>
           </DialogHeader>
           
-          <ScrollArea className="flex-1 -mx-6 px-6">
+          <ScrollArea className="flex-1 min-h-0 -mx-6 px-6">
             {profile && <ProfileContent profile={profile} />}
           </ScrollArea>
           
