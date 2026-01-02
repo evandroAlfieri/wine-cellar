@@ -19,6 +19,7 @@ interface FiltersProps {
   onSortOrderChange: (order: 'newest' | 'oldest' | 'price-low' | 'price-high') => void;
   isSommelierMode?: boolean;
   isSearchingFood?: boolean;
+  isClassifying?: boolean;
 }
 
 export function Filters({
@@ -36,6 +37,7 @@ export function Filters({
   onSortOrderChange,
   isSommelierMode = false,
   isSearchingFood = false,
+  isClassifying = false,
 }: FiltersProps) {
   const activeFilterCount = colourFilter.length + countryFilter.length + tagFilter.length + (showConsumed ? 1 : 0);
 
@@ -43,7 +45,7 @@ export function Filters({
     <div className="bg-card rounded-lg border p-4 mb-6">
       <div className="flex gap-2">
         <div className="relative flex-1">
-          {isSearchingFood ? (
+          {isSearchingFood || isClassifying ? (
             <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary animate-spin" />
           ) : isSommelierMode ? (
             <ChefHat className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
