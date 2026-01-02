@@ -93,12 +93,26 @@ serve(async (req) => {
       throw bottlesError;
     }
 
+    console.log(`Fetched ${bottles?.length || 0} bottles total`);
+
     // Filter to only bottles with pairing profiles
-    const bottlesWithProfiles = (bottles || []).filter(
-      (b: any) => b.bottle_pairing_profile && b.bottle_pairing_profile.length > 0
-    );
+    // Handle both array format (from join) and object format (one-to-one)
+    const bottlesWithProfiles = (bottles || []).filter((b: any) => {
+      const profile = b.bottle_pairing_profile;
+      // Could be array with items, or a single object
+      if (Array.isArray(profile)) {
+        return profile.length > 0;
+      }
+      // Single object (one-to-one relation)
+      return profile && typeof profile === 'object' && profile.food_categories;
+    });
 
     console.log(`Found ${bottlesWithProfiles.length} bottles with pairing profiles`);
+    
+    // Log first bottle for debugging
+    if (bottles && bottles.length > 0) {
+      console.log('Sample bottle pairing_profile structure:', JSON.stringify(bottles[0]?.bottle_pairing_profile));
+    }
 
     if (bottlesWithProfiles.length === 0) {
       return new Response(
@@ -113,20 +127,24 @@ serve(async (req) => {
 
     // Prepare context for AI
     const bottleDescriptions = bottlesWithProfiles.map((b: any) => {
-      const profile = b.bottle_pairing_profile[0];
+      // Handle both array and object formats for the profile
+      const profileData = Array.isArray(b.bottle_pairing_profile) 
+        ? b.bottle_pairing_profile[0] 
+        : b.bottle_pairing_profile;
+      
       const varietals = b.wine?.wine_varietal?.map((wv: any) => wv.varietal?.name).filter(Boolean).join(', ') || 'Unknown';
       
       return {
         id: b.id,
         description: `${b.wine?.name} (${b.wine?.colour}, ${varietals}) from ${b.wine?.producer?.name}${b.wine?.producer?.region ? `, ${b.wine?.producer?.region.name}` : ''}${b.wine?.producer?.country ? `, ${b.wine?.producer?.country.name}` : ''}${b.vintage ? ` ${b.vintage}` : ''}`,
         pairingProfile: {
-          categories: profile.food_categories,
-          dishes: profile.specific_dishes,
-          flavors: profile.flavor_notes,
-          methods: profile.cooking_methods,
-          cuisines: profile.regional_cuisines,
-          avoid: profile.avoid_pairings,
-          summary: profile.summary
+          categories: profileData.food_categories,
+          dishes: profileData.specific_dishes,
+          flavors: profileData.flavor_notes,
+          methods: profileData.cooking_methods,
+          cuisines: profileData.regional_cuisines,
+          avoid: profileData.avoid_pairings,
+          summary: profileData.summary
         }
       };
     });
