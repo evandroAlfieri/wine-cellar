@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.match-bottles-to-food]
 verify_jwt = false
+
+[functions.classify-food-query]
+verify_jwt = false

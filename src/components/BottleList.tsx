@@ -21,7 +21,12 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileBottleCard } from './MobileBottleCard';
 import { CompactStatsBar } from './CompactStatsBar';
 import { buildWineSearcherUrl, normalizeString } from '@/lib/utils';
-import { useFoodSearch } from '@/hooks/useFoodSearch';
+import { useFoodSearch, WineTermsData } from '@/hooks/useFoodSearch';
+import { useProducers } from '@/hooks/useProducers';
+import { useVarietals } from '@/hooks/useVarietals';
+import { useRegions } from '@/hooks/useRegions';
+import { useCountries } from '@/hooks/useCountries';
+import { useTags } from '@/hooks/useTags';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,8 +56,24 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
   const moveToWishlist = useMoveToWishlist();
   const isMobile = useIsMobile();
 
-  // Food search hook
-  const { result: foodResult, isSearching: isSearchingFood, isFoodQuery, error: foodError } = useFoodSearch(searchQuery);
+  // Fetch wine-related data for exclusion matching
+  const { data: producers } = useProducers();
+  const { data: varietals } = useVarietals();
+  const { data: regions } = useRegions();
+  const { data: countries } = useCountries();
+  const { data: tags } = useTags();
+
+  // Build wine terms data for food search exclusion
+  const wineTermsData: WineTermsData = useMemo(() => ({
+    producers: (producers || []).map(p => p.name.toLowerCase()),
+    varietals: (varietals || []).map(v => v.name.toLowerCase()),
+    regions: (regions || []).map(r => r.name.toLowerCase()),
+    countries: (countries || []).map(c => c.name.toLowerCase()),
+    tags: (tags || []).map(t => t.toLowerCase()),
+  }), [producers, varietals, regions, countries, tags]);
+
+  // Food search hook with wine terms for exclusion
+  const { result: foodResult, isSearching: isSearchingFood, isClassifying, isFoodQuery, error: foodError } = useFoodSearch(searchQuery, wineTermsData);
 
   // Create a map of bottle IDs to their match info
   const matchMap = useMemo(() => {
@@ -157,6 +178,7 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
           onSortOrderChange={setSortOrder}
           isSommelierMode={isFoodQuery}
           isSearchingFood={isSearchingFood}
+          isClassifying={isClassifying}
         />
         <CompactStatsBar onViewDetails={onViewStats} />
         <div className="bg-card rounded-lg border p-8 animate-pulse">
@@ -193,6 +215,7 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         onSortOrderChange={setSortOrder}
         isSommelierMode={isFoodQuery}
         isSearchingFood={isSearchingFood}
+        isClassifying={isClassifying}
       />
       <CompactStatsBar onViewDetails={onViewStats} />
 
