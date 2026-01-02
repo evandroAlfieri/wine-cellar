@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Utensils, Loader2, Check } from 'lucide-react';
+import { Utensils, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -13,8 +13,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { BottleWithDetails } from '@/lib/types';
 import { usePairingProfile, useGeneratePairingProfile, BottlePairingProfile } from '@/hooks/usePairingProfile';
 
@@ -65,6 +67,24 @@ function ProfileContent({ profile }: { profile: BottlePairingProfile }) {
         </div>
       )}
 
+      {profile.regional_cuisines && profile.regional_cuisines.length > 0 && (
+        <div>
+          <h4 className="text-sm font-medium mb-2">Regional cuisines</h4>
+          <p className="text-sm text-muted-foreground">
+            {profile.regional_cuisines.join(', ')}
+          </p>
+        </div>
+      )}
+
+      {profile.cooking_methods && profile.cooking_methods.length > 0 && (
+        <div>
+          <h4 className="text-sm font-medium mb-2">Cooking methods</h4>
+          <p className="text-sm text-muted-foreground">
+            {profile.cooking_methods.join(', ')}
+          </p>
+        </div>
+      )}
+
       {profile.avoid_pairings && profile.avoid_pairings.length > 0 && (
         <div>
           <h4 className="text-sm font-medium mb-2 text-destructive">Avoid</h4>
@@ -100,17 +120,13 @@ export function GeneratePairingButton({ bottle, size = 'sm' }: GeneratePairingBu
           <TooltipTrigger asChild>
             <Button
               size={size}
-              variant="outline"
+              variant={hasProfile ? 'default' : 'outline'}
               onClick={handleClick}
               disabled={isGenerating || isLoadingProfile}
+              className={hasProfile ? 'bg-primary/90 hover:bg-primary' : ''}
             >
               {isGenerating ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
-              ) : hasProfile ? (
-                <div className="relative">
-                  <Utensils className="w-4 h-4" />
-                  <Check className="w-2.5 h-2.5 absolute -top-1 -right-1 text-primary" />
-                </div>
               ) : (
                 <Utensils className="w-4 h-4" />
               )}
@@ -128,17 +144,38 @@ export function GeneratePairingButton({ bottle, size = 'sm' }: GeneratePairingBu
       </TooltipProvider>
 
       <Dialog open={showProfile} onOpenChange={setShowProfile}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Food Pairings</DialogTitle>
-            <DialogDescription>
-              {bottle.wine.name} by {bottle.wine.producer.name}
-            </DialogDescription>
+        <DialogContent className="max-w-md max-h-[85vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <div className="flex items-start justify-between">
+              <div>
+                <DialogTitle>Food Pairings</DialogTitle>
+                <DialogDescription>
+                  {bottle.wine.name} by {bottle.wine.producer.name}
+                </DialogDescription>
+              </div>
+              <DialogClose asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <X className="h-4 w-4" />
+                  <span className="sr-only">Close</span>
+                </Button>
+              </DialogClose>
+            </div>
           </DialogHeader>
-          {profile && <ProfileContent profile={profile} />}
-          <div className="flex justify-end gap-2 pt-4 border-t">
+          
+          <ScrollArea className="flex-1 -mx-6 px-6">
+            {profile && <ProfileContent profile={profile} />}
+          </ScrollArea>
+          
+          <div className="flex justify-end gap-2 pt-4 border-t flex-shrink-0">
             <Button
               variant="outline"
+              size="sm"
+              onClick={() => setShowProfile(false)}
+            >
+              Close
+            </Button>
+            <Button
+              variant="secondary"
               size="sm"
               onClick={() => {
                 generateProfile.mutate(bottle);

@@ -5,6 +5,7 @@ import { Wine, MapPin, ExternalLink, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EditBottleDialog } from '@/components/EditBottleDialog';
+import { GeneratePairingButton } from '@/components/GeneratePairingButton';
 import { BlurredPrice } from './BlurredPrice';
 import {
   Table,
@@ -260,6 +261,7 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
                         {!isReadOnly && (
                           <>
                             <EditBottleDialog bottle={bottle} />
+                            <GeneratePairingButton bottle={bottle} />
                             <Button
                               size="sm"
                               variant="outline"
