@@ -20,10 +20,12 @@ import { useMoveToWishlist } from '@/hooks/useWishlistMutations';
 import { EditBottleDialog } from '@/components/EditBottleDialog';
 import { GeneratePairingButton } from '@/components/GeneratePairingButton';
 import { buildWineSearcherUrl } from '@/lib/utils';
+import { FoodMatch } from '@/hooks/useFoodSearch';
 
-interface MobileBottleCardProps {
+export interface MobileBottleCardProps {
   bottle: BottleWithDetails;
   isReadOnly?: boolean;
+  matchInfo?: FoodMatch;
 }
 
 const colourMap: Record<string, string> = {
@@ -34,7 +36,7 @@ const colourMap: Record<string, string> = {
   other: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20',
 };
 
-export function MobileBottleCard({ bottle, isReadOnly = false }: MobileBottleCardProps) {
+export function MobileBottleCard({ bottle, isReadOnly = false, matchInfo }: MobileBottleCardProps) {
   const [showMoveAlert, setShowMoveAlert] = useState(false);
   const consumeBottle = useConsumeBottle();
   const moveToWishlist = useMoveToWishlist();
@@ -42,8 +44,27 @@ export function MobileBottleCard({ bottle, isReadOnly = false }: MobileBottleCar
 
   return (
     <>
-    <Card className={`overflow-hidden ${isOutOfStock ? 'opacity-50' : ''}`}>
+    <Card className={`overflow-hidden ${isOutOfStock ? 'opacity-50' : ''} ${matchInfo ? 'border-primary/30' : ''}`}>
       <CardContent className="p-4">
+        {/* Match Score Badge */}
+        {matchInfo && (
+          <div className="flex items-center gap-2 mb-3 pb-3 border-b border-primary/20">
+            <Badge 
+              variant="secondary" 
+              className={`text-xs ${
+                matchInfo.score >= 90 
+                  ? 'bg-green-500/10 text-green-700 dark:text-green-400' 
+                  : matchInfo.score >= 75
+                    ? 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400'
+                    : 'bg-muted'
+              }`}
+            >
+              {matchInfo.score}% match
+            </Badge>
+            <span className="text-xs text-muted-foreground flex-1">{matchInfo.reason}</span>
+          </div>
+        )}
+
         {/* Header: Wine Name & Badge */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex-1 min-w-0">

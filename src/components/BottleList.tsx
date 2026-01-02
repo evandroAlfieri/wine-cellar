@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useBottles } from '@/hooks/useBottles';
 import { Filters } from './Filters';
-import { Wine, MapPin, ExternalLink, Heart } from 'lucide-react';
+import { Wine, MapPin, ExternalLink, Heart, ChefHat, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EditBottleDialog } from '@/components/EditBottleDialog';
@@ -21,6 +21,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { MobileBottleCard } from './MobileBottleCard';
 import { CompactStatsBar } from './CompactStatsBar';
 import { buildWineSearcherUrl, normalizeString } from '@/lib/utils';
+import { useFoodSearch } from '@/hooks/useFoodSearch';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,13 +51,35 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
   const moveToWishlist = useMoveToWishlist();
   const isMobile = useIsMobile();
 
+  // Food search hook
+  const { result: foodResult, isSearching: isSearchingFood, isFoodQuery, error: foodError } = useFoodSearch(searchQuery);
+
+  // Create a map of bottle IDs to their match info
+  const matchMap = useMemo(() => {
+    if (!foodResult?.matches) return new Map();
+    return new Map(foodResult.matches.map(m => [m.bottle_id, m]));
+  }, [foodResult]);
+
   const filteredBottles = useMemo(() => {
     if (!bottles) return [];
 
+    // If we have food matches, show only matched bottles sorted by score
+    if (foodResult?.matches && foodResult.matches.length > 0) {
+      const matchedIds = new Set(foodResult.matches.map(m => m.bottle_id));
+      return bottles
+        .filter(bottle => matchedIds.has(bottle.id))
+        .sort((a, b) => {
+          const scoreA = matchMap.get(a.id)?.score ?? 0;
+          const scoreB = matchMap.get(b.id)?.score ?? 0;
+          return scoreB - scoreA;
+        });
+    }
+
+    // Regular filtering when not in food search mode or no matches
     const filtered = bottles.filter((bottle) => {
       const normalizedQuery = normalizeString(searchQuery);
       const matchesSearch =
-        searchQuery === '' ||
+        searchQuery === '' || isFoodQuery ||
         normalizeString(bottle.wine.name).includes(normalizedQuery) ||
         normalizeString(bottle.wine.producer.name).includes(normalizedQuery) ||
         (bottle.wine.producer.country && normalizeString(bottle.wine.producer.country.name).includes(normalizedQuery)) ||
@@ -87,14 +110,12 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
 
     // Sort: consumed bottles always at bottom, then by sortOrder
     return filtered.sort((a, b) => {
-      // First, separate consumed vs available
       const aConsumed = a.quantity === 0;
       const bConsumed = b.quantity === 0;
       
       if (aConsumed && !bConsumed) return 1;
       if (!aConsumed && bConsumed) return -1;
       
-      // Both same consumed status, sort by selected order
       if (sortOrder === 'price-low') {
         return Number(a.price) - Number(b.price);
       } else if (sortOrder === 'price-high') {
@@ -105,7 +126,7 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         return sortOrder === 'newest' ? bDate - aDate : aDate - bDate;
       }
     });
-  }, [bottles, searchQuery, colourFilter, countryFilter, tagFilter, showConsumed, sortOrder]);
+  }, [bottles, searchQuery, colourFilter, countryFilter, tagFilter, showConsumed, sortOrder, foodResult, matchMap, isFoodQuery]);
 
   const colourMap: Record<string, string> = {
     red: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
@@ -114,6 +135,9 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
     sparkling: 'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20',
     other: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20',
   };
+
+  const showFoodResults = isFoodQuery && foodResult && !isSearchingFood;
+  const hasMatches = foodResult?.matches && foodResult.matches.length > 0;
 
   if (isLoading) {
     return (
@@ -131,6 +155,8 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
           onShowConsumedChange={setShowConsumed}
           sortOrder={sortOrder}
           onSortOrderChange={setSortOrder}
+          isSommelierMode={isFoodQuery}
+          isSearchingFood={isSearchingFood}
         />
         <CompactStatsBar onViewDetails={onViewStats} />
         <div className="bg-card rounded-lg border p-8 animate-pulse">
@@ -165,16 +191,60 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         onShowConsumedChange={setShowConsumed}
         sortOrder={sortOrder}
         onSortOrderChange={setSortOrder}
+        isSommelierMode={isFoodQuery}
+        isSearchingFood={isSearchingFood}
       />
       <CompactStatsBar onViewDetails={onViewStats} />
 
-      {(searchQuery || colourFilter.length > 0 || countryFilter.length > 0 || tagFilter.length > 0) && (
+      {/* Food search results header */}
+      {showFoodResults && hasMatches && (
+        <div className="mb-4 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+          <div className="flex items-center gap-2 mb-1">
+            <ChefHat className="w-5 h-5 text-primary" />
+            <span className="font-medium text-primary">Sommelier Recommendations</span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {foodResult.matches.length} wine{foodResult.matches.length !== 1 ? 's' : ''} recommended for "{searchQuery}"
+          </p>
+        </div>
+      )}
+
+      {/* No profiles message */}
+      {showFoodResults && !foodResult.hasProfiles && (
+        <div className="mb-4 p-4 bg-muted/50 border rounded-lg text-center">
+          <Sparkles className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+          <p className="font-medium mb-1">No pairing profiles yet</p>
+          <p className="text-sm text-muted-foreground">
+            Generate pairing profiles for your bottles to enable AI-powered food matching.
+          </p>
+        </div>
+      )}
+
+      {/* No matches found */}
+      {showFoodResults && foodResult.hasProfiles && !hasMatches && (
+        <div className="mb-4 p-4 bg-muted/50 border rounded-lg text-center">
+          <ChefHat className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+          <p className="font-medium mb-1">No perfect matches found</p>
+          <p className="text-sm text-muted-foreground">
+            Try a different food description or browse your collection below.
+          </p>
+        </div>
+      )}
+
+      {/* Food search error */}
+      {foodError && (
+        <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+          <p className="text-sm text-destructive">{foodError}</p>
+        </div>
+      )}
+
+      {(searchQuery || colourFilter.length > 0 || countryFilter.length > 0 || tagFilter.length > 0) && !showFoodResults && (
         <div className="text-sm text-muted-foreground mb-3">
           Showing {filteredBottles.filter(b => b.quantity > 0).length} {filteredBottles.filter(b => b.quantity > 0).length === 1 ? 'result' : 'results'}
         </div>
       )}
 
-      {filteredBottles.length === 0 ? (
+      {filteredBottles.length === 0 && !showFoodResults ? (
         <div className="text-center py-12">
           <Wine className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
           <h3 className="text-lg font-semibold mb-2">No matches found</h3>
@@ -182,15 +252,21 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         </div>
       ) : isMobile ? (
         <div className="space-y-3">
-            {filteredBottles.map((bottle) => (
-              <MobileBottleCard key={bottle.id} bottle={bottle} isReadOnly={isReadOnly} />
-            ))}
+          {filteredBottles.map((bottle) => (
+            <MobileBottleCard 
+              key={bottle.id} 
+              bottle={bottle} 
+              isReadOnly={isReadOnly}
+              matchInfo={matchMap.get(bottle.id)}
+            />
+          ))}
         </div>
       ) : (
         <div className="bg-card rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
+                {showFoodResults && hasMatches && <TableHead className="w-[100px]">Match</TableHead>}
                 <TableHead>Wine</TableHead>
                 <TableHead>Producer</TableHead>
                 <TableHead>Varietal</TableHead>
@@ -207,12 +283,40 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
             <TableBody>
               {filteredBottles.map((bottle) => {
                 const isOutOfStock = bottle.quantity === 0;
+                const matchInfo = matchMap.get(bottle.id);
                 return (
                   <TableRow 
                     key={bottle.id}
                     className={isOutOfStock ? 'opacity-50' : ''}
                   >
-                    <TableCell className="font-medium">{bottle.wine.name}</TableCell>
+                    {showFoodResults && hasMatches && (
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <Badge 
+                            variant="secondary" 
+                            className={`text-xs ${
+                              matchInfo && matchInfo.score >= 90 
+                                ? 'bg-green-500/10 text-green-700 dark:text-green-400' 
+                                : matchInfo && matchInfo.score >= 75
+                                  ? 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400'
+                                  : 'bg-muted'
+                            }`}
+                          >
+                            {matchInfo?.score}%
+                          </Badge>
+                        </div>
+                      </TableCell>
+                    )}
+                    <TableCell className="font-medium">
+                      <div>
+                        {bottle.wine.name}
+                        {matchInfo && (
+                          <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">
+                            {matchInfo.reason}
+                          </p>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>{bottle.wine.producer.name}</TableCell>
                     <TableCell className="text-sm italic text-muted-foreground">
                       {bottle.wine.wine_varietal && bottle.wine.wine_varietal.length > 0
