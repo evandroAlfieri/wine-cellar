@@ -1,6 +1,8 @@
-import { Search } from 'lucide-react';
+import { Search, ChefHat, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { FilterDialog } from './FilterDialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface FiltersProps {
   searchQuery: string;
@@ -15,6 +17,8 @@ interface FiltersProps {
   onShowConsumedChange: (show: boolean) => void;
   sortOrder: 'newest' | 'oldest' | 'price-low' | 'price-high';
   onSortOrderChange: (order: 'newest' | 'oldest' | 'price-low' | 'price-high') => void;
+  isSommelierMode?: boolean;
+  isSearchingFood?: boolean;
 }
 
 export function Filters({
@@ -30,6 +34,8 @@ export function Filters({
   onShowConsumedChange,
   sortOrder,
   onSortOrderChange,
+  isSommelierMode = false,
+  isSearchingFood = false,
 }: FiltersProps) {
   const activeFilterCount = colourFilter.length + countryFilter.length + tagFilter.length + (showConsumed ? 1 : 0);
 
@@ -37,13 +43,40 @@ export function Filters({
     <div className="bg-card rounded-lg border p-4 mb-6">
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          {isSearchingFood ? (
+            <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary animate-spin" />
+          ) : isSommelierMode ? (
+            <ChefHat className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary" />
+          ) : (
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          )}
           <Input
-            placeholder="Search wines, producers, varietals, regions, tags..."
+            placeholder={isSommelierMode 
+              ? "Describe your meal for wine suggestions..." 
+              : "Search wines or describe your meal (e.g., grilled steak)..."
+            }
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10"
+            className={`pl-10 ${isSommelierMode ? 'pr-20 border-primary/50 bg-primary/5' : 'pr-10'}`}
           />
+          {isSommelierMode && (
+            <Badge 
+              variant="secondary" 
+              className="absolute right-10 top-1/2 -translate-y-1/2 bg-primary/10 text-primary text-xs"
+            >
+              Sommelier
+            </Badge>
+          )}
+          {searchQuery && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+              onClick={() => onSearchChange('')}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          )}
         </div>
         <FilterDialog
           colourFilter={colourFilter}
