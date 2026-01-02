@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Utensils, Loader2, X } from 'lucide-react';
+import { Utensils, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -13,7 +13,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -146,20 +145,10 @@ export function GeneratePairingButton({ bottle, size = 'sm' }: GeneratePairingBu
       <Dialog open={showProfile} onOpenChange={setShowProfile}>
         <DialogContent className="max-w-md max-h-[85vh] flex flex-col">
           <DialogHeader className="flex-shrink-0">
-            <div className="flex items-start justify-between">
-              <div>
-                <DialogTitle>Food Pairings</DialogTitle>
-                <DialogDescription>
-                  {bottle.wine.name} by {bottle.wine.producer.name}
-                </DialogDescription>
-              </div>
-              <DialogClose asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Close</span>
-                </Button>
-              </DialogClose>
-            </div>
+            <DialogTitle>Food Pairings</DialogTitle>
+            <DialogDescription>
+              {bottle.wine.name} by {bottle.wine.producer.name}
+            </DialogDescription>
           </DialogHeader>
           
           <ScrollArea className="flex-1 -mx-6 px-6">
