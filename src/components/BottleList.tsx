@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useBottles } from '@/hooks/useBottles';
 import { Filters } from './Filters';
-import { Wine, MapPin, ExternalLink, Heart, ChefHat, Sparkles } from 'lucide-react';
+import { Wine, MapPin, ExternalLink, Heart, ChefHat, Sparkles, Utensils } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EditBottleDialog } from '@/components/EditBottleDialog';
 import { GeneratePairingButton } from '@/components/GeneratePairingButton';
+import { BatchGenerateButton } from '@/components/BatchGenerateButton';
 import { BlurredPrice } from './BlurredPrice';
 import {
   Table,
@@ -27,6 +28,7 @@ import { useVarietals } from '@/hooks/useVarietals';
 import { useRegions } from '@/hooks/useRegions';
 import { useCountries } from '@/hooks/useCountries';
 import { useTags } from '@/hooks/useTags';
+import { usePairingProfileIds } from '@/hooks/useBatchPairingProfiles';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,6 +64,9 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
   const { data: regions } = useRegions();
   const { data: countries } = useCountries();
   const { data: tags } = useTags();
+  
+  // Fetch pairing profile IDs to show badges
+  const { data: profileIds } = usePairingProfileIds();
 
   // Build wine terms data for food search exclusion
   const wineTermsData: WineTermsData = useMemo(() => ({
@@ -217,7 +222,10 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         isSearchingFood={isSearchingFood}
         isClassifying={isClassifying}
       />
-      <CompactStatsBar onViewDetails={onViewStats} />
+      <div className="flex items-center justify-between mb-4">
+        <CompactStatsBar onViewDetails={onViewStats} />
+        {!isReadOnly && bottles && <BatchGenerateButton bottles={bottles} />}
+      </div>
 
       {/* Food search results header */}
       {showFoodResults && hasMatches && (
@@ -281,6 +289,7 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
               bottle={bottle} 
               isReadOnly={isReadOnly}
               matchInfo={matchMap.get(bottle.id)}
+              hasProfile={profileIds?.has(bottle.id)}
             />
           ))}
         </div>
@@ -332,7 +341,17 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
                     )}
                     <TableCell className="font-medium">
                       <div>
-                        {bottle.wine.name}
+                        <div className="flex items-center gap-2">
+                          {bottle.wine.name}
+                          {profileIds?.has(bottle.id) && (
+                            <Badge 
+                              variant="secondary" 
+                              className="bg-primary/10 text-primary border-primary/20 gap-1 text-xs"
+                            >
+                              <Utensils className="w-3 h-3" />
+                            </Badge>
+                          )}
+                        </div>
                         {matchInfo && (
                           <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">
                             {matchInfo.reason}
