@@ -107,7 +107,7 @@ export function BottleCard({ bottle, isReadOnly = false }: BottleCardProps) {
             Consume
           </Button>
         )}
-        {!isReadOnly && <GeneratePairingButton bottle={bottle} />}
+        <GeneratePairingButton bottle={bottle} isReadOnly={isReadOnly} />
         <Button
           size="sm"
           variant="outline"

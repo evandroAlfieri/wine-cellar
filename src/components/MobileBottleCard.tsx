@@ -118,7 +118,6 @@ export function MobileBottleCard({ bottle, isReadOnly = false, matchInfo }: Mobi
             {!isReadOnly && (
               <>
                 <EditBottleDialog bottle={bottle} />
-                <GeneratePairingButton bottle={bottle} />
                 <Button
                   size="sm"
                   variant="outline"
@@ -129,6 +128,7 @@ export function MobileBottleCard({ bottle, isReadOnly = false, matchInfo }: Mobi
                 </Button>
               </>
             )}
+            <GeneratePairingButton bottle={bottle} isReadOnly={isReadOnly} />
             <Button
               size="sm"
               variant="outline"
