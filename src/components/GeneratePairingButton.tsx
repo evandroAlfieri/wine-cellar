@@ -22,6 +22,7 @@ import { usePairingProfile, useGeneratePairingProfile, BottlePairingProfile } fr
 interface GeneratePairingButtonProps {
   bottle: BottleWithDetails;
   size?: 'sm' | 'default';
+  isReadOnly?: boolean;
 }
 
 function ProfileContent({ profile }: { profile: BottlePairingProfile }) {
@@ -96,21 +97,26 @@ function ProfileContent({ profile }: { profile: BottlePairingProfile }) {
   );
 }
 
-export function GeneratePairingButton({ bottle, size = 'sm' }: GeneratePairingButtonProps) {
+export function GeneratePairingButton({ bottle, size = 'sm', isReadOnly = false }: GeneratePairingButtonProps) {
   const [showProfile, setShowProfile] = useState(false);
   const { data: profile, isLoading: isLoadingProfile } = usePairingProfile(bottle.id);
   const generateProfile = useGeneratePairingProfile();
 
+  const isGenerating = generateProfile.isPending;
+  const hasProfile = !!profile;
+
+  // Don't render if read-only and no profile exists
+  if (isReadOnly && !hasProfile && !isLoadingProfile) {
+    return null;
+  }
+
   const handleClick = () => {
     if (profile) {
       setShowProfile(true);
-    } else {
+    } else if (!isReadOnly) {
       generateProfile.mutate(bottle);
     }
   };
-
-  const isGenerating = generateProfile.isPending;
-  const hasProfile = !!profile;
 
   return (
     <>
@@ -163,18 +169,20 @@ export function GeneratePairingButton({ bottle, size = 'sm' }: GeneratePairingBu
             >
               Close
             </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                generateProfile.mutate(bottle);
-                setShowProfile(false);
-              }}
-              disabled={isGenerating}
-            >
-              {isGenerating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Regenerate
-            </Button>
+            {!isReadOnly && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  generateProfile.mutate(bottle);
+                  setShowProfile(false);
+                }}
+                disabled={isGenerating}
+              >
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                Regenerate
+              </Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>
