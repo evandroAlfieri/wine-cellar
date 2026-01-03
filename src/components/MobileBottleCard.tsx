@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Wine, Heart, ExternalLink, Utensils } from 'lucide-react';
+import { Wine, Heart, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,7 +26,6 @@ export interface MobileBottleCardProps {
   bottle: BottleWithDetails;
   isReadOnly?: boolean;
   matchInfo?: FoodMatch;
-  hasProfile?: boolean;
 }
 
 const colourMap: Record<string, string> = {
@@ -37,7 +36,7 @@ const colourMap: Record<string, string> = {
   other: 'bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20',
 };
 
-export function MobileBottleCard({ bottle, isReadOnly = false, matchInfo, hasProfile }: MobileBottleCardProps) {
+export function MobileBottleCard({ bottle, isReadOnly = false, matchInfo }: MobileBottleCardProps) {
   const [showMoveAlert, setShowMoveAlert] = useState(false);
   const consumeBottle = useConsumeBottle();
   const moveToWishlist = useMoveToWishlist();
@@ -69,17 +68,7 @@ export function MobileBottleCard({ bottle, isReadOnly = false, matchInfo, hasPro
         {/* Header: Wine Name & Badge */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-base truncate">{bottle.wine.name}</h3>
-              {hasProfile && (
-                <Badge 
-                  variant="secondary" 
-                  className="bg-primary/10 text-primary border-primary/20 gap-1 text-xs flex-shrink-0"
-                >
-                  <Utensils className="w-3 h-3" />
-                </Badge>
-              )}
-            </div>
+            <h3 className="font-semibold text-base truncate">{bottle.wine.name}</h3>
             <p className="text-sm text-muted-foreground truncate">{bottle.wine.producer.name}</p>
           </div>
           <Badge className={colourMap[bottle.wine.colour] || colourMap.other} variant="outline">
