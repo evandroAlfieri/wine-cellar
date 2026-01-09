@@ -49,6 +49,9 @@ import { useVarietals, useCreateVarietal } from '@/hooks/useVarietals';
 import { useCreateBottle } from '@/hooks/useBottleMutations';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { WineLabelScanner } from '@/components/WineLabelScanner';
+import { WineLabelData } from '@/hooks/useWineLabelScanner';
 
 import { WineColourEnum } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
@@ -82,6 +85,9 @@ export function AddBottleDialog() {
   const [varietalSearch, setVarietalSearch] = useState('');
   const [wineSearch, setWineSearch] = useState('');
   const [newWineColour, setNewWineColour] = useState<z.infer<typeof WineColourEnum>>('red');
+  const [isScanning, setIsScanning] = useState(false);
+  
+  const isMobile = useIsMobile();
   
   const { data: countries } = useCountries();
   const { data: allRegions } = useRegions();
@@ -186,6 +192,123 @@ export function AddBottleDialog() {
     setWineOpen(false);
   };
 
+  const handleScanResult = async (result: WineLabelData) => {
+    setIsScanning(true);
+    const detectedParts: string[] = [];
+    
+    try {
+      // 1. Match or create producer
+      let producerId: string | undefined;
+      if (result.producer_name) {
+        const existingProducer = producers?.find(
+          p => p.name.toLowerCase() === result.producer_name!.toLowerCase()
+        );
+        if (existingProducer) {
+          producerId = existingProducer.id;
+          detectedParts.push(result.producer_name);
+        } else {
+          const created = await createProducer.mutateAsync({ name: result.producer_name });
+          producerId = created.producer.id;
+          detectedParts.push(`${result.producer_name} (new)`);
+        }
+        form.setValue('producer_id', producerId);
+      }
+
+      // 2. Match country
+      if (result.country) {
+        const matchedCountry = countries?.find(
+          c => c.name.toLowerCase() === result.country!.toLowerCase()
+        );
+        if (matchedCountry) {
+          form.setValue('country_id', matchedCountry.id);
+          detectedParts.push(result.country);
+        }
+      }
+
+      // 3. Match region (must match country first)
+      if (result.region && form.getValues('country_id')) {
+        const countryId = form.getValues('country_id');
+        const matchedRegion = allRegions?.find(
+          r => r.country_id === countryId && r.name.toLowerCase() === result.region!.toLowerCase()
+        );
+        if (matchedRegion) {
+          form.setValue('region_id', matchedRegion.id);
+        }
+      }
+
+      // 4. Match or create wine (if producer was set)
+      if (result.wine_name && producerId) {
+        const existingWine = wines?.find(
+          w => w.producer_id === producerId && w.name.toLowerCase() === result.wine_name!.toLowerCase()
+        );
+        if (existingWine) {
+          form.setValue('wine_id', existingWine.id);
+          detectedParts.push(result.wine_name);
+        } else if (result.colour) {
+          // Create new wine with detected colour
+          const created = await createWine.mutateAsync({
+            name: result.wine_name,
+            colour: result.colour,
+            producer_id: producerId,
+            varietal_ids: [],
+          });
+          form.setValue('wine_id', created.wine.id);
+          setNewWineColour(result.colour);
+          detectedParts.push(`${result.wine_name} (new)`);
+        }
+      }
+
+      // 5. Set colour for new wine creation
+      if (result.colour) {
+        setNewWineColour(result.colour);
+      }
+
+      // 6. Match varietals
+      if (result.varietals && result.varietals.length > 0) {
+        const matchedVarietalIds: string[] = [];
+        for (const varietalName of result.varietals) {
+          const matched = varietals?.find(
+            v => v.name.toLowerCase() === varietalName.toLowerCase()
+          );
+          if (matched) {
+            matchedVarietalIds.push(matched.id);
+          }
+        }
+        if (matchedVarietalIds.length > 0) {
+          form.setValue('varietal_ids', matchedVarietalIds);
+        }
+      }
+
+      // 7. Set vintage
+      if (result.vintage) {
+        form.setValue('vintage', result.vintage);
+        detectedParts.push(String(result.vintage));
+      }
+
+      // Show success toast
+      if (detectedParts.length > 0) {
+        toast({
+          title: 'Label scanned',
+          description: `Detected: ${detectedParts.join(' • ')}`,
+        });
+      } else {
+        toast({
+          title: 'No details detected',
+          description: 'Please enter the wine details manually.',
+        });
+      }
+    } catch (error) {
+      console.error('Error processing scan result:', error);
+      toast({
+        title: 'Error processing scan',
+        description: 'Some fields may not have been filled.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
   const onSubmit = async (values: FormValues) => {
     const tags = values.tags?.split(',').map(t => t.trim()).filter(Boolean);
 
@@ -253,8 +376,14 @@ export function AddBottleDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center justify-between space-y-0">
           <DialogTitle>Add Bottle to Cellar</DialogTitle>
+          {isMobile && (
+            <WineLabelScanner
+              onScanResult={handleScanResult}
+              disabled={isScanning}
+            />
+          )}
         </DialogHeader>
         
         <Form {...form}>
