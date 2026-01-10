@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useBottles } from '@/hooks/useBottles';
 import { Filters } from './Filters';
+import { ExportCollectionButton } from './ExportCollectionButton';
 import { Wine, MapPin, ExternalLink, Heart, ChefHat, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -180,7 +181,9 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
           isSearchingFood={isSearchingFood}
           isClassifying={isClassifying}
         />
-        <CompactStatsBar onViewDetails={onViewStats} />
+        <div className="flex items-center justify-between mb-4">
+          <CompactStatsBar onViewDetails={onViewStats} />
+        </div>
         <div className="bg-card rounded-lg border p-8 animate-pulse">
           <div className="h-96 bg-muted rounded" />
         </div>
@@ -217,7 +220,10 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         isSearchingFood={isSearchingFood}
         isClassifying={isClassifying}
       />
-      <CompactStatsBar onViewDetails={onViewStats} />
+      <div className="flex items-center justify-between mb-4">
+        <CompactStatsBar onViewDetails={onViewStats} />
+        {!isReadOnly && <ExportCollectionButton />}
+      </div>
 
       {/* Food search results header */}
       {showFoodResults && hasMatches && (
