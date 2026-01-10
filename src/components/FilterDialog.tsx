@@ -34,6 +34,8 @@ interface FilterDialogProps {
   onCountryFilterChange: (countries: string[]) => void;
   tagFilter: string[];
   onTagFilterChange: (tags: string[]) => void;
+  locationFilter: string[];
+  onLocationFilterChange: (locations: string[]) => void;
   showConsumed: boolean;
   onShowConsumedChange: (show: boolean) => void;
   sortOrder: 'newest' | 'oldest' | 'price-low' | 'price-high';
@@ -56,6 +58,8 @@ export function FilterDialog({
   onCountryFilterChange,
   tagFilter,
   onTagFilterChange,
+  locationFilter,
+  onLocationFilterChange,
   showConsumed,
   onShowConsumedChange,
   sortOrder,
@@ -75,6 +79,16 @@ export function FilterDialog({
       bottle.tags?.forEach(tag => tagsSet.add(tag));
     });
     return Array.from(tagsSet).sort();
+  }, [bottles]);
+
+  // Get all unique locations from all bottles
+  const allLocations = useMemo(() => {
+    if (!bottles) return [];
+    const locationsSet = new Set<string>();
+    bottles.forEach(bottle => {
+      if (bottle.location) locationsSet.add(bottle.location);
+    });
+    return Array.from(locationsSet).sort();
   }, [bottles]);
 
   const handleColourToggle = (colour: string) => {
@@ -101,10 +115,19 @@ export function FilterDialog({
     }
   };
 
+  const handleLocationToggle = (location: string) => {
+    if (locationFilter.includes(location)) {
+      onLocationFilterChange(locationFilter.filter((l) => l !== location));
+    } else {
+      onLocationFilterChange([...locationFilter, location]);
+    }
+  };
+
   const handleClearAll = () => {
     onColourFilterChange([]);
     onCountryFilterChange([]);
     onTagFilterChange([]);
+    onLocationFilterChange([]);
     onShowConsumedChange(false);
   };
 
@@ -174,6 +197,26 @@ export function FilterDialog({
             ))
           ) : (
             <span className="text-sm text-muted-foreground">No tags found</span>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="font-semibold mb-3">Location</h3>
+        <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+          {allLocations.length > 0 ? (
+            allLocations.map((location) => (
+              <Badge
+                key={location}
+                variant={locationFilter.includes(location) ? 'default' : 'outline'}
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => handleLocationToggle(location)}
+              >
+                {location}
+              </Badge>
+            ))
+          ) : (
+            <span className="text-sm text-muted-foreground">No locations found</span>
           )}
         </div>
       </div>

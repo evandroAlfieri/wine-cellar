@@ -82,6 +82,8 @@ export function WishlistList({ isReadOnly = false }: WishlistListProps = {}) {
           onCountryFilterChange={setCountryFilter}
           tagFilter={tagFilter}
           onTagFilterChange={setTagFilter}
+          locationFilter={[]}
+          onLocationFilterChange={() => {}}
           showConsumed={false}
           onShowConsumedChange={() => {}}
           sortOrder={sortOrder}
@@ -103,6 +105,8 @@ export function WishlistList({ isReadOnly = false }: WishlistListProps = {}) {
         onCountryFilterChange={setCountryFilter}
         tagFilter={tagFilter}
         onTagFilterChange={setTagFilter}
+        locationFilter={[]}
+        onLocationFilterChange={() => {}}
         showConsumed={false}
         onShowConsumedChange={() => {}}
         sortOrder={sortOrder}
