@@ -76,6 +76,7 @@ const formSchema = z.object({
   price: z.coerce.number().min(0, 'Price must be non-negative'),
   quantity: z.coerce.number().int().min(0, 'Quantity must be non-negative'),
   tags: z.string().optional(),
+  location: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -135,6 +136,7 @@ export function EditBottleDialog({ bottle, open: externalOpen, onOpenChange: ext
       price: bottle.price,
       quantity: bottle.quantity,
       tags: bottle.tags?.join(', ') || '',
+      location: bottle.location || '',
     },
   });
 
@@ -260,6 +262,7 @@ export function EditBottleDialog({ bottle, open: externalOpen, onOpenChange: ext
       price: values.price,
       quantity: values.quantity,
       tags: tags?.length ? tags : undefined,
+      location: values.location || null,
     });
     
     setOpen(false);
@@ -769,23 +772,47 @@ export function EditBottleDialog({ bottle, open: externalOpen, onOpenChange: ext
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="tags"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tags (optional, comma-separated)</FormLabel>
-                    <FormControl>
-                      <TagInput 
-                        placeholder="e.g., organic, biodynamic, gift"
-                        value={field.value || ''}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tags (optional)</FormLabel>
+                      <FormControl>
+                        <TagInput 
+                          placeholder="e.g., organic, gift"
+                          value={field.value || ''}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location (optional)</FormLabel>
+                      <Select value={field.value || ''} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select location" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="Cabinet">Cabinet</SelectItem>
+                          <SelectItem value="Basement">Basement</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="flex gap-2 justify-between pt-4">
                 <div className="flex gap-2">

@@ -22,6 +22,7 @@ interface ExcelRow {
   Cuvee: string;
   Reference: string;
   Tags: string;
+  Location: string;
   Comments: string;
   'Entry date': string;
   'Purchase price': number;
@@ -66,6 +67,7 @@ function transformBottleToRow(bottle: BottleWithDetails): ExcelRow {
     Cuvee: '',
     Reference: '',
     Tags: tags,
+    Location: bottle.location || '',
     Comments: '',
     'Entry date': formatDate(bottle.created_at),
     'Purchase price': bottle.price,
@@ -102,6 +104,7 @@ export function exportCollectionToExcel(bottles: BottleWithDetails[]): void {
     { wch: 15 }, // Cuvee
     { wch: 12 }, // Reference
     { wch: 20 }, // Tags
+    { wch: 12 }, // Location
     { wch: 30 }, // Comments
     { wch: 12 }, // Entry date
     { wch: 14 }, // Purchase price

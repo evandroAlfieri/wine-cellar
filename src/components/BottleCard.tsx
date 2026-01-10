@@ -63,6 +63,9 @@ export function BottleCard({ bottle, isReadOnly = false }: BottleCardProps) {
             {bottle.wine.producer.region && (
               <span className="text-muted-foreground/70">• {bottle.wine.producer.region.name}</span>
             )}
+            {bottle.location && (
+              <span className="text-muted-foreground/60">• {bottle.location}</span>
+            )}
           </div>
         )}
         {bottle.vintage && (
