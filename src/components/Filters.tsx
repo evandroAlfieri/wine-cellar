@@ -13,6 +13,8 @@ interface FiltersProps {
   onCountryFilterChange: (countries: string[]) => void;
   tagFilter: string[];
   onTagFilterChange: (tags: string[]) => void;
+  locationFilter: string[];
+  onLocationFilterChange: (locations: string[]) => void;
   showConsumed: boolean;
   onShowConsumedChange: (show: boolean) => void;
   sortOrder: 'newest' | 'oldest' | 'price-low' | 'price-high';
@@ -31,6 +33,8 @@ export function Filters({
   onCountryFilterChange,
   tagFilter,
   onTagFilterChange,
+  locationFilter,
+  onLocationFilterChange,
   showConsumed,
   onShowConsumedChange,
   sortOrder,
@@ -39,7 +43,7 @@ export function Filters({
   isSearchingFood = false,
   isClassifying = false,
 }: FiltersProps) {
-  const activeFilterCount = colourFilter.length + countryFilter.length + tagFilter.length + (showConsumed ? 1 : 0);
+  const activeFilterCount = colourFilter.length + countryFilter.length + tagFilter.length + locationFilter.length + (showConsumed ? 1 : 0);
 
   return (
     <div className="bg-card rounded-lg border p-4 mb-6">
@@ -87,6 +91,8 @@ export function Filters({
           onCountryFilterChange={onCountryFilterChange}
           tagFilter={tagFilter}
           onTagFilterChange={onTagFilterChange}
+          locationFilter={locationFilter}
+          onLocationFilterChange={onLocationFilterChange}
           showConsumed={showConsumed}
           onShowConsumedChange={onShowConsumedChange}
           sortOrder={sortOrder}

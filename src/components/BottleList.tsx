@@ -49,6 +49,7 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
   const [colourFilter, setColourFilter] = useState<string[]>([]);
   const [countryFilter, setCountryFilter] = useState<string[]>([]);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
+  const [locationFilter, setLocationFilter] = useState<string[]>([]);
   const [showConsumed, setShowConsumed] = useState(false);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'price-low' | 'price-high'>('newest');
   const [moveBottleId, setMoveBottleId] = useState<string | null>(null);
@@ -123,10 +124,14 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         tagFilter.length === 0 ||
         (bottle.tags && tagFilter.some(tag => bottle.tags?.includes(tag)));
 
+      const matchesLocation =
+        locationFilter.length === 0 ||
+        (bottle.location && locationFilter.includes(bottle.location));
+
       const matchesConsumed = 
         !showConsumed || bottle.quantity === 0;
 
-      return matchesSearch && matchesColour && matchesCountry && matchesTags && matchesConsumed;
+      return matchesSearch && matchesColour && matchesCountry && matchesTags && matchesLocation && matchesConsumed;
     });
 
     // Sort: consumed bottles always at bottom, then by sortOrder
@@ -146,8 +151,8 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         const bDate = new Date(b.created_at).getTime();
         return sortOrder === 'newest' ? bDate - aDate : aDate - bDate;
       }
-    });
-  }, [bottles, searchQuery, colourFilter, countryFilter, tagFilter, showConsumed, sortOrder, foodResult, matchMap, isFoodQuery]);
+      });
+  }, [bottles, searchQuery, colourFilter, countryFilter, tagFilter, locationFilter, showConsumed, sortOrder, foodResult, matchMap, isFoodQuery]);
 
   const colourMap: Record<string, string> = {
     red: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
@@ -172,6 +177,8 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
           onCountryFilterChange={setCountryFilter}
           tagFilter={tagFilter}
           onTagFilterChange={setTagFilter}
+          locationFilter={locationFilter}
+          onLocationFilterChange={setLocationFilter}
           showConsumed={showConsumed}
           onShowConsumedChange={setShowConsumed}
           sortOrder={sortOrder}
@@ -209,6 +216,8 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         onCountryFilterChange={setCountryFilter}
         tagFilter={tagFilter}
         onTagFilterChange={setTagFilter}
+        locationFilter={locationFilter}
+        onLocationFilterChange={setLocationFilter}
         showConsumed={showConsumed}
         onShowConsumedChange={setShowConsumed}
         sortOrder={sortOrder}
@@ -261,7 +270,7 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         </div>
       )}
 
-      {(searchQuery || colourFilter.length > 0 || countryFilter.length > 0 || tagFilter.length > 0) && !showFoodResults && (
+      {(searchQuery || colourFilter.length > 0 || countryFilter.length > 0 || tagFilter.length > 0 || locationFilter.length > 0) && !showFoodResults && (
         <div className="text-sm text-muted-foreground mb-3">
           Showing {filteredBottles.filter(b => b.quantity > 0).length} {filteredBottles.filter(b => b.quantity > 0).length === 1 ? 'result' : 'results'}
         </div>
