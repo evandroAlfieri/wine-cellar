@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Wine, LogOut, Download, MoreVertical, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -5,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { AddBottleDialog } from '@/components/AddBottleDialog';
 import { toast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useBottles } from '@/hooks/useBottles';
+import { exportCollectionToExcel } from '@/lib/exportToExcel';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,34 +24,28 @@ export function Layout({ children }: LayoutProps) {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { data: bottles } = useBottles();
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth');
   };
 
-  const handleExportCSV = async () => {
+  const handleExport = async () => {
+    if (!bottles || bottles.length === 0) {
+      toast({ title: 'Nothing to export', description: 'Your collection is empty.', variant: 'destructive' });
+      return;
+    }
+    setIsExporting(true);
     try {
-      const projectUrl = import.meta.env.VITE_SUPABASE_URL;
-      const url = `${projectUrl}/functions/v1/winecellar-api?path=export.csv`;
-      
-      const res = await fetch(url, { credentials: 'include' });
-      if (!res.ok) throw new Error('Failed to export');
-      
-      const csv = await res.text();
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = `wine-cellar-${new Date().toISOString().split('T')[0]}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
-      
-      toast({ title: 'CSV exported successfully' });
+      exportCollectionToExcel(bottles);
+      toast({ title: 'Export complete', description: `Exported ${bottles.length} bottles to Excel.` });
     } catch (error) {
-      toast({ title: 'Failed to export CSV', variant: 'destructive' });
+      console.error('Export failed:', error);
+      toast({ title: 'Export failed', variant: 'destructive' });
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -91,9 +88,9 @@ export function Layout({ children }: LayoutProps) {
                       <Share2 className="w-4 h-4 mr-2" />
                       Share Collection
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleExportCSV}>
+                    <DropdownMenuItem onClick={handleExport} disabled={isExporting}>
                       <Download className="w-4 h-4 mr-2" />
-                      Export CSV
+                      {isExporting ? 'Exporting...' : 'Export'}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>
@@ -110,9 +107,9 @@ export function Layout({ children }: LayoutProps) {
                   <Share2 className="w-4 h-4 mr-2" />
                   Share
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleExportCSV}>
+                <Button variant="outline" size="sm" onClick={handleExport} disabled={isExporting}>
                   <Download className="w-4 h-4 mr-2" />
-                  Export CSV
+                  {isExporting ? 'Exporting...' : 'Export'}
                 </Button>
                 <Button variant="outline" size="sm" onClick={handleSignOut}>
                   <LogOut className="w-4 h-4 mr-2" />
