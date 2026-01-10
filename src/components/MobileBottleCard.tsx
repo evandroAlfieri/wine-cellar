@@ -94,6 +94,9 @@ export function MobileBottleCard({ bottle, isReadOnly = false, matchInfo }: Mobi
               {bottle.vintage}
             </>
           )}
+          {bottle.location && (
+            <span className="text-muted-foreground/60"> • {bottle.location}</span>
+          )}
         </p>
 
         {/* Tags */}

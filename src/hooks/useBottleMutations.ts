@@ -17,6 +17,7 @@ export function useCreateBottle() {
           price: bottle.price,
           quantity: bottle.quantity ?? 1,
           tags: bottle.tags ?? null,
+          location: bottle.location ?? null,
         })
         .select()
         .single();

@@ -75,6 +75,7 @@ export const BottleSchema = z.object({
   price: z.number().min(0, "Price must be non-negative"),
   quantity: z.number().int().min(0, "Quantity must be non-negative"),
   tags: z.array(z.string()).nullable(),
+  location: z.string().max(100).nullable().optional(),
 });
 
 export const CreateBottleSchema = z.object({
@@ -84,6 +85,7 @@ export const CreateBottleSchema = z.object({
   price: z.number().min(0, "Price must be non-negative"),
   quantity: z.number().int().min(0, "Quantity must be non-negative").default(1),
   tags: z.array(z.string()).optional(),
+  location: z.string().max(100).nullable().optional(),
 });
 
 // Wishlist schemas
