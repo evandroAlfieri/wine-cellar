@@ -71,9 +71,14 @@ export function MobileBottleCard({ bottle, isReadOnly = false, matchInfo }: Mobi
             <h3 className="font-semibold text-base truncate">{bottle.wine.name}</h3>
             <p className="text-sm text-muted-foreground truncate">{bottle.wine.producer.name}</p>
           </div>
-          <Badge className={colourMap[bottle.wine.colour] || colourMap.other} variant="outline">
-            {bottle.wine.colour}
-          </Badge>
+          <div className="flex flex-col items-end gap-1">
+            <Badge className={colourMap[bottle.wine.colour] || colourMap.other} variant="outline">
+              {bottle.wine.colour}
+            </Badge>
+            {bottle.location && (
+              <span className="text-xs text-muted-foreground/60">{bottle.location}</span>
+            )}
+          </div>
         </div>
 
         {/* Wine Details - Inline */}
@@ -93,9 +98,6 @@ export function MobileBottleCard({ bottle, isReadOnly = false, matchInfo }: Mobi
               {(bottle.wine.wine_varietal?.length > 0 || bottle.wine.producer.country) && ' • '}
               {bottle.vintage}
             </>
-          )}
-          {bottle.location && (
-            <span className="text-muted-foreground/60"> • {bottle.location}</span>
           )}
         </p>
 

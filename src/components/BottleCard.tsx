@@ -63,9 +63,6 @@ export function BottleCard({ bottle, isReadOnly = false }: BottleCardProps) {
             {bottle.wine.producer.region && (
               <span className="text-muted-foreground/70">• {bottle.wine.producer.region.name}</span>
             )}
-            {bottle.location && (
-              <span className="text-muted-foreground/60">• {bottle.location}</span>
-            )}
           </div>
         )}
         {bottle.vintage && (
@@ -78,9 +75,14 @@ export function BottleCard({ bottle, isReadOnly = false }: BottleCardProps) {
 
       <div className="flex items-center justify-between pt-3 border-t">
         <div className="flex items-center gap-2">
-          <Badge className={colourMap[bottle.wine.colour] || colourMap.other}>
-            {bottle.wine.colour}
-          </Badge>
+          <div className="flex flex-col items-start">
+            <Badge className={colourMap[bottle.wine.colour] || colourMap.other}>
+              {bottle.wine.colour}
+            </Badge>
+            {bottle.location && (
+              <span className="text-xs text-muted-foreground/60 mt-1">{bottle.location}</span>
+            )}
+          </div>
           <span className="text-sm text-muted-foreground">
             {bottle.size}ml • Qty: {bottle.quantity}
           </span>
