@@ -796,14 +796,17 @@ export function EditBottleDialog({ bottle, open: externalOpen, onOpenChange: ext
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Location (optional)</FormLabel>
-                      <Select value={field.value || ''} onValueChange={field.onChange}>
+                      <Select 
+                        value={field.value || 'none'} 
+                        onValueChange={(v) => field.onChange(v === 'none' ? '' : v)}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select location" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                           <SelectItem value="Cabinet">Cabinet</SelectItem>
                           <SelectItem value="Basement">Basement</SelectItem>
                         </SelectContent>
