@@ -261,7 +261,7 @@ export function EditBottleDialog({ bottle, open: externalOpen, onOpenChange: ext
       size: values.size,
       price: values.price,
       quantity: values.quantity,
-      tags: tags?.length ? tags : undefined,
+      tags: tags?.length ? tags : [],
       location: values.location || null,
     });
     
