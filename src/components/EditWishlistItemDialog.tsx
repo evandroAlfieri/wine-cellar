@@ -213,7 +213,7 @@ export function EditWishlistItemDialog({ wishlistItem }: EditWishlistItemDialogP
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[300px] p-0">
+                    <PopoverContent className="w-[300px] max-w-[var(--radix-popover-content-available-width)] p-0">
                       <Command>
                         <CommandInput
                           placeholder="Search country..."
@@ -295,7 +295,7 @@ export function EditWishlistItemDialog({ wishlistItem }: EditWishlistItemDialogP
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[300px] p-0">
+                    <PopoverContent className="w-[300px] max-w-[var(--radix-popover-content-available-width)] p-0">
                       <Command>
                         <CommandInput
                           placeholder="Search region..."
@@ -376,7 +376,7 @@ export function EditWishlistItemDialog({ wishlistItem }: EditWishlistItemDialogP
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[300px] p-0">
+                    <PopoverContent className="w-[300px] max-w-[var(--radix-popover-content-available-width)] p-0">
                       <Command>
                         <CommandInput
                           placeholder="Search varietal..."
