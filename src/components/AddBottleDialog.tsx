@@ -378,7 +378,7 @@ export function AddBottleDialog() {
           Add Bottle
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="flex flex-row items-center justify-between space-y-0">
           <DialogTitle>Add Bottle to Cellar</DialogTitle>
           {isMobile && (
@@ -416,7 +416,7 @@ export function AddBottleDialog() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[400px] p-0">
+                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[400px] p-0">
                       <Command>
                         <CommandInput 
                           placeholder="Search or type new producer..." 
@@ -490,7 +490,7 @@ export function AddBottleDialog() {
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[400px] p-0">
+                      <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[400px] p-0">
                         <Command>
                           <CommandInput 
                             placeholder="Search or type new wine..." 
@@ -579,7 +579,7 @@ export function AddBottleDialog() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[300px] p-0">
+                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[300px] p-0">
                       <Command>
                         <CommandInput 
                           placeholder="Search or type new country..." 
@@ -652,7 +652,7 @@ export function AddBottleDialog() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[300px] p-0">
+                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[300px] p-0">
                       <Command>
                         <CommandInput 
                           placeholder="Search or type new region..." 
@@ -740,7 +740,7 @@ export function AddBottleDialog() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[300px] p-0">
+                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[300px] p-0">
                       <Command>
                         <CommandInput 
                           placeholder="Search or type new varietal..." 

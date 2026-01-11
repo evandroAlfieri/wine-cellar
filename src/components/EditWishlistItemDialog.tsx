@@ -140,7 +140,7 @@ export function EditWishlistItemDialog({ wishlistItem }: EditWishlistItemDialogP
           <Pencil className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Wishlist Item</DialogTitle>
           <p className="text-sm text-muted-foreground">
@@ -213,7 +213,7 @@ export function EditWishlistItemDialog({ wishlistItem }: EditWishlistItemDialogP
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[300px] p-0">
+                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[300px] p-0">
                       <Command>
                         <CommandInput
                           placeholder="Search country..."
@@ -295,7 +295,7 @@ export function EditWishlistItemDialog({ wishlistItem }: EditWishlistItemDialogP
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[300px] p-0">
+                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[300px] p-0">
                       <Command>
                         <CommandInput
                           placeholder="Search region..."
@@ -376,7 +376,7 @@ export function EditWishlistItemDialog({ wishlistItem }: EditWishlistItemDialogP
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[300px] p-0">
+                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[300px] p-0">
                       <Command>
                         <CommandInput
                           placeholder="Search varietal..."
