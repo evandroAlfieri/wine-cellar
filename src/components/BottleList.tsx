@@ -52,6 +52,10 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
   const [locationFilter, setLocationFilter] = useState<string[]>([]);
   const [showConsumed, setShowConsumed] = useState(false);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'price-low' | 'price-high'>('newest');
+  const [colourFilterMode, setColourFilterMode] = useState<'include' | 'exclude'>('include');
+  const [countryFilterMode, setCountryFilterMode] = useState<'include' | 'exclude'>('include');
+  const [tagFilterMode, setTagFilterMode] = useState<'include' | 'exclude'>('include');
+  const [locationFilterMode, setLocationFilterMode] = useState<'include' | 'exclude'>('include');
   const [moveBottleId, setMoveBottleId] = useState<string | null>(null);
   const consumeBottle = useConsumeBottle();
   const moveToWishlist = useMoveToWishlist();
@@ -114,19 +118,28 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         );
 
       const matchesColour =
-        colourFilter.length === 0 || colourFilter.includes(bottle.wine.colour);
+        colourFilter.length === 0 ||
+        (colourFilterMode === 'include'
+          ? colourFilter.includes(bottle.wine.colour)
+          : !colourFilter.includes(bottle.wine.colour));
 
       const matchesCountry =
-        countryFilter.length === 0 || 
-        (bottle.wine.producer.country && countryFilter.includes(bottle.wine.producer.country.id));
+        countryFilter.length === 0 ||
+        (countryFilterMode === 'include'
+          ? bottle.wine.producer.country && countryFilter.includes(bottle.wine.producer.country.id)
+          : !bottle.wine.producer.country || !countryFilter.includes(bottle.wine.producer.country.id));
 
       const matchesTags =
         tagFilter.length === 0 ||
-        (bottle.tags && tagFilter.some(tag => bottle.tags?.includes(tag)));
+        (tagFilterMode === 'include'
+          ? bottle.tags && tagFilter.some(tag => bottle.tags?.includes(tag))
+          : !bottle.tags || !tagFilter.some(tag => bottle.tags?.includes(tag)));
 
       const matchesLocation =
         locationFilter.length === 0 ||
-        (bottle.location && locationFilter.includes(bottle.location));
+        (locationFilterMode === 'include'
+          ? bottle.location && locationFilter.includes(bottle.location)
+          : !bottle.location || !locationFilter.includes(bottle.location));
 
       const matchesConsumed = 
         !showConsumed || bottle.quantity === 0;
@@ -152,7 +165,7 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         return sortOrder === 'newest' ? bDate - aDate : aDate - bDate;
       }
       });
-  }, [bottles, searchQuery, colourFilter, countryFilter, tagFilter, locationFilter, showConsumed, sortOrder, foodResult, matchMap, isFoodQuery]);
+  }, [bottles, searchQuery, colourFilter, countryFilter, tagFilter, locationFilter, showConsumed, sortOrder, foodResult, matchMap, isFoodQuery, colourFilterMode, countryFilterMode, tagFilterMode, locationFilterMode]);
 
   const colourMap: Record<string, string> = {
     red: 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20',
@@ -186,6 +199,14 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
           isSommelierMode={isFoodQuery}
           isSearchingFood={isSearchingFood}
           isClassifying={isClassifying}
+          colourFilterMode={colourFilterMode}
+          onColourFilterModeChange={setColourFilterMode}
+          countryFilterMode={countryFilterMode}
+          onCountryFilterModeChange={setCountryFilterMode}
+          tagFilterMode={tagFilterMode}
+          onTagFilterModeChange={setTagFilterMode}
+          locationFilterMode={locationFilterMode}
+          onLocationFilterModeChange={setLocationFilterMode}
         />
         <CompactStatsBar onViewDetails={onViewStats} />
         <div className="bg-card rounded-lg border p-8 animate-pulse">
@@ -225,6 +246,14 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         isSommelierMode={isFoodQuery}
         isSearchingFood={isSearchingFood}
         isClassifying={isClassifying}
+        colourFilterMode={colourFilterMode}
+        onColourFilterModeChange={setColourFilterMode}
+        countryFilterMode={countryFilterMode}
+        onCountryFilterModeChange={setCountryFilterMode}
+        tagFilterMode={tagFilterMode}
+        onTagFilterModeChange={setTagFilterMode}
+        locationFilterMode={locationFilterMode}
+        onLocationFilterModeChange={setLocationFilterMode}
       />
       <CompactStatsBar onViewDetails={onViewStats} />
 

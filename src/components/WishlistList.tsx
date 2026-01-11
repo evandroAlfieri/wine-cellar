@@ -18,6 +18,9 @@ export function WishlistList({ isReadOnly = false }: WishlistListProps = {}) {
   const [countryFilter, setCountryFilter] = useState<string[]>([]);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'price-low' | 'price-high'>('newest');
+  const [colourFilterMode, setColourFilterMode] = useState<'include' | 'exclude'>('include');
+  const [countryFilterMode, setCountryFilterMode] = useState<'include' | 'exclude'>('include');
+  const [tagFilterMode, setTagFilterMode] = useState<'include' | 'exclude'>('include');
   const isMobile = useIsMobile();
 
   const filteredWishlist = useMemo(() => {
@@ -39,15 +42,22 @@ export function WishlistList({ isReadOnly = false }: WishlistListProps = {}) {
         );
 
       const matchesColour =
-        colourFilter.length === 0 || colourFilter.includes(item.wine.colour);
+        colourFilter.length === 0 ||
+        (colourFilterMode === 'include'
+          ? colourFilter.includes(item.wine.colour)
+          : !colourFilter.includes(item.wine.colour));
 
       const matchesCountry =
-        countryFilter.length === 0 || 
-        (item.wine.producer.country && countryFilter.includes(item.wine.producer.country.id));
+        countryFilter.length === 0 ||
+        (countryFilterMode === 'include'
+          ? item.wine.producer.country && countryFilter.includes(item.wine.producer.country.id)
+          : !item.wine.producer.country || !countryFilter.includes(item.wine.producer.country.id));
 
       const matchesTags =
         tagFilter.length === 0 ||
-        (item.tags && tagFilter.some(tag => item.tags?.includes(tag)));
+        (tagFilterMode === 'include'
+          ? item.tags && tagFilter.some(tag => item.tags?.includes(tag))
+          : !item.tags || !tagFilter.some(tag => item.tags?.includes(tag)));
 
       return matchesSearch && matchesColour && matchesCountry && matchesTags;
     });
@@ -63,7 +73,7 @@ export function WishlistList({ isReadOnly = false }: WishlistListProps = {}) {
         return sortOrder === 'newest' ? bDate - aDate : aDate - bDate;
       }
     });
-  }, [wishlistItems, searchQuery, colourFilter, countryFilter, tagFilter, sortOrder]);
+  }, [wishlistItems, searchQuery, colourFilter, countryFilter, tagFilter, sortOrder, colourFilterMode, countryFilterMode, tagFilterMode]);
 
   const activeFilterCount = 
     colourFilter.length + 
@@ -88,6 +98,12 @@ export function WishlistList({ isReadOnly = false }: WishlistListProps = {}) {
           onShowConsumedChange={() => {}}
           sortOrder={sortOrder}
           onSortOrderChange={setSortOrder}
+          colourFilterMode={colourFilterMode}
+          onColourFilterModeChange={setColourFilterMode}
+          countryFilterMode={countryFilterMode}
+          onCountryFilterModeChange={setCountryFilterMode}
+          tagFilterMode={tagFilterMode}
+          onTagFilterModeChange={setTagFilterMode}
         />
         <div className="text-center py-8">Loading wishlist...</div>
       </div>
@@ -111,6 +127,12 @@ export function WishlistList({ isReadOnly = false }: WishlistListProps = {}) {
         onShowConsumedChange={() => {}}
         sortOrder={sortOrder}
         onSortOrderChange={setSortOrder}
+        colourFilterMode={colourFilterMode}
+        onColourFilterModeChange={setColourFilterMode}
+        countryFilterMode={countryFilterMode}
+        onCountryFilterModeChange={setCountryFilterMode}
+        tagFilterMode={tagFilterMode}
+        onTagFilterModeChange={setTagFilterMode}
       />
       {!isReadOnly && <AddWishlistDialog />}
 
