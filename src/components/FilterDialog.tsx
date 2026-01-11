@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCountries } from '@/hooks/useCountries';
 import { useBottles } from '@/hooks/useBottles';
+import { cn } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -41,6 +42,14 @@ interface FilterDialogProps {
   sortOrder: 'newest' | 'oldest' | 'price-low' | 'price-high';
   onSortOrderChange: (order: 'newest' | 'oldest' | 'price-low' | 'price-high') => void;
   activeFilterCount: number;
+  colourFilterMode: 'include' | 'exclude';
+  onColourFilterModeChange: (mode: 'include' | 'exclude') => void;
+  countryFilterMode: 'include' | 'exclude';
+  onCountryFilterModeChange: (mode: 'include' | 'exclude') => void;
+  tagFilterMode: 'include' | 'exclude';
+  onTagFilterModeChange: (mode: 'include' | 'exclude') => void;
+  locationFilterMode: 'include' | 'exclude';
+  onLocationFilterModeChange: (mode: 'include' | 'exclude') => void;
 }
 
 const colours = [
@@ -65,6 +74,14 @@ export function FilterDialog({
   sortOrder,
   onSortOrderChange,
   activeFilterCount,
+  colourFilterMode,
+  onColourFilterModeChange,
+  countryFilterMode,
+  onCountryFilterModeChange,
+  tagFilterMode,
+  onTagFilterModeChange,
+  locationFilterMode,
+  onLocationFilterModeChange,
 }: FilterDialogProps) {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
@@ -129,6 +146,11 @@ export function FilterDialog({
     onTagFilterChange([]);
     onLocationFilterChange([]);
     onShowConsumedChange(false);
+    // Reset modes to include
+    onColourFilterModeChange('include');
+    onCountryFilterModeChange('include');
+    onTagFilterModeChange('include');
+    onLocationFilterModeChange('include');
   };
 
   const FilterContent = () => (
@@ -150,13 +172,31 @@ export function FilterDialog({
       </div>
 
       <div>
-        <h3 className="font-semibold mb-3">Wine Colour</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold">Wine Colour</h3>
+          <Select 
+            value={colourFilterMode} 
+            onValueChange={(value: 'include' | 'exclude') => onColourFilterModeChange(value)}
+          >
+            <SelectTrigger className="w-24 h-7 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="include">Include</SelectItem>
+              <SelectItem value="exclude">Exclude</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex flex-wrap gap-2">
           {colours.map((colour) => (
             <Badge
               key={colour.value}
               variant={colourFilter.includes(colour.value) ? 'default' : 'outline'}
-              className="cursor-pointer hover:opacity-80 transition-opacity"
+              className={cn(
+                "cursor-pointer hover:opacity-80 transition-opacity",
+                colourFilterMode === 'exclude' && colourFilter.includes(colour.value) && 
+                  "bg-destructive hover:bg-destructive/80 line-through"
+              )}
               onClick={() => handleColourToggle(colour.value)}
             >
               {colour.label}
@@ -166,13 +206,31 @@ export function FilterDialog({
       </div>
 
       <div>
-        <h3 className="font-semibold mb-3">Country</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold">Country</h3>
+          <Select 
+            value={countryFilterMode} 
+            onValueChange={(value: 'include' | 'exclude') => onCountryFilterModeChange(value)}
+          >
+            <SelectTrigger className="w-24 h-7 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="include">Include</SelectItem>
+              <SelectItem value="exclude">Exclude</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
           {countries?.map((country) => (
             <Badge
               key={country.id}
               variant={countryFilter.includes(country.id) ? 'default' : 'outline'}
-              className="cursor-pointer hover:opacity-80 transition-opacity"
+              className={cn(
+                "cursor-pointer hover:opacity-80 transition-opacity",
+                countryFilterMode === 'exclude' && countryFilter.includes(country.id) && 
+                  "bg-destructive hover:bg-destructive/80 line-through"
+              )}
               onClick={() => handleCountryToggle(country.id)}
             >
               {country.name}
@@ -182,14 +240,32 @@ export function FilterDialog({
       </div>
 
       <div>
-        <h3 className="font-semibold mb-3">Tags</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold">Tags</h3>
+          <Select 
+            value={tagFilterMode} 
+            onValueChange={(value: 'include' | 'exclude') => onTagFilterModeChange(value)}
+          >
+            <SelectTrigger className="w-24 h-7 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="include">Include</SelectItem>
+              <SelectItem value="exclude">Exclude</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
           {allTags.length > 0 ? (
             allTags.map((tag) => (
               <Badge
                 key={tag}
                 variant={tagFilter.includes(tag) ? 'default' : 'outline'}
-                className="cursor-pointer hover:opacity-80 transition-opacity"
+                className={cn(
+                  "cursor-pointer hover:opacity-80 transition-opacity",
+                  tagFilterMode === 'exclude' && tagFilter.includes(tag) && 
+                    "bg-destructive hover:bg-destructive/80 line-through"
+                )}
                 onClick={() => handleTagToggle(tag)}
               >
                 {tag}
@@ -202,14 +278,32 @@ export function FilterDialog({
       </div>
 
       <div>
-        <h3 className="font-semibold mb-3">Location</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold">Location</h3>
+          <Select 
+            value={locationFilterMode} 
+            onValueChange={(value: 'include' | 'exclude') => onLocationFilterModeChange(value)}
+          >
+            <SelectTrigger className="w-24 h-7 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="include">Include</SelectItem>
+              <SelectItem value="exclude">Exclude</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
           {allLocations.length > 0 ? (
             allLocations.map((location) => (
               <Badge
                 key={location}
                 variant={locationFilter.includes(location) ? 'default' : 'outline'}
-                className="cursor-pointer hover:opacity-80 transition-opacity"
+                className={cn(
+                  "cursor-pointer hover:opacity-80 transition-opacity",
+                  locationFilterMode === 'exclude' && locationFilter.includes(location) && 
+                    "bg-destructive hover:bg-destructive/80 line-through"
+                )}
                 onClick={() => handleLocationToggle(location)}
               >
                 {location}

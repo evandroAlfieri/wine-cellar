@@ -22,6 +22,14 @@ interface FiltersProps {
   isSommelierMode?: boolean;
   isSearchingFood?: boolean;
   isClassifying?: boolean;
+  colourFilterMode?: 'include' | 'exclude';
+  onColourFilterModeChange?: (mode: 'include' | 'exclude') => void;
+  countryFilterMode?: 'include' | 'exclude';
+  onCountryFilterModeChange?: (mode: 'include' | 'exclude') => void;
+  tagFilterMode?: 'include' | 'exclude';
+  onTagFilterModeChange?: (mode: 'include' | 'exclude') => void;
+  locationFilterMode?: 'include' | 'exclude';
+  onLocationFilterModeChange?: (mode: 'include' | 'exclude') => void;
 }
 
 export function Filters({
@@ -42,6 +50,14 @@ export function Filters({
   isSommelierMode = false,
   isSearchingFood = false,
   isClassifying = false,
+  colourFilterMode = 'include',
+  onColourFilterModeChange = () => {},
+  countryFilterMode = 'include',
+  onCountryFilterModeChange = () => {},
+  tagFilterMode = 'include',
+  onTagFilterModeChange = () => {},
+  locationFilterMode = 'include',
+  onLocationFilterModeChange = () => {},
 }: FiltersProps) {
   const activeFilterCount = colourFilter.length + countryFilter.length + tagFilter.length + locationFilter.length + (showConsumed ? 1 : 0);
 
@@ -98,6 +114,14 @@ export function Filters({
           sortOrder={sortOrder}
           onSortOrderChange={onSortOrderChange}
           activeFilterCount={activeFilterCount}
+          colourFilterMode={colourFilterMode}
+          onColourFilterModeChange={onColourFilterModeChange}
+          countryFilterMode={countryFilterMode}
+          onCountryFilterModeChange={onCountryFilterModeChange}
+          tagFilterMode={tagFilterMode}
+          onTagFilterModeChange={onTagFilterModeChange}
+          locationFilterMode={locationFilterMode}
+          onLocationFilterModeChange={onLocationFilterModeChange}
         />
       </div>
     </div>
