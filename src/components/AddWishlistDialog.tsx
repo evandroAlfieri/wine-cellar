@@ -237,7 +237,7 @@ export function AddWishlistDialog() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[400px] p-0 z-50 bg-popover">
+                    <PopoverContent className="w-[400px] max-w-[var(--radix-popover-content-available-width)] p-0 z-50 bg-popover">
 
                       <Command>
                         <CommandInput 
@@ -312,7 +312,7 @@ export function AddWishlistDialog() {
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[400px] p-0">
+                      <PopoverContent className="w-[400px] max-w-[var(--radix-popover-content-available-width)] p-0">
                         <Command>
                           <CommandInput 
                             placeholder="Search or type new wine..." 
@@ -398,7 +398,7 @@ export function AddWishlistDialog() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[300px] p-0">
+                    <PopoverContent className="w-[300px] max-w-[var(--radix-popover-content-available-width)] p-0">
                       <Command>
                         <CommandInput 
                           placeholder="Search or type new varietal..." 
@@ -495,7 +495,7 @@ export function AddWishlistDialog() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[400px] p-0 z-50 bg-popover">
+                    <PopoverContent className="w-[400px] max-w-[var(--radix-popover-content-available-width)] p-0 z-50 bg-popover">
                       <Command>
                         <CommandInput 
                           placeholder="Search or type new country..." 
@@ -568,7 +568,7 @@ export function AddWishlistDialog() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[calc(100vw-3rem)] sm:w-[400px] p-0 z-50 bg-popover">
+                    <PopoverContent className="w-[400px] max-w-[var(--radix-popover-content-available-width)] p-0 z-50 bg-popover">
                       <Command>
                         <CommandInput 
                           placeholder="Search or type new region..." 
