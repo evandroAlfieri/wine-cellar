@@ -299,11 +299,16 @@ export function BottleList({ onViewStats, isReadOnly = false }: BottleListProps)
         </div>
       )}
 
-      {(searchQuery || colourFilter.length > 0 || countryFilter.length > 0 || tagFilter.length > 0 || locationFilter.length > 0) && !showFoodResults && (
-        <div className="text-sm text-muted-foreground mb-3">
-          Showing {filteredBottles.filter(b => b.quantity > 0).length} {filteredBottles.filter(b => b.quantity > 0).length === 1 ? 'result' : 'results'}
-        </div>
-      )}
+      {(searchQuery || colourFilter.length > 0 || countryFilter.length > 0 || tagFilter.length > 0 || locationFilter.length > 0) && !showFoodResults && (() => {
+        const visibleBottles = filteredBottles.filter(b => b.quantity > 0);
+        const resultCount = visibleBottles.length;
+        const totalBottles = visibleBottles.reduce((sum, b) => sum + b.quantity, 0);
+        return (
+          <div className="text-sm text-muted-foreground mb-3">
+            Showing {resultCount} {resultCount === 1 ? 'result' : 'results'} ({totalBottles} {totalBottles === 1 ? 'bottle' : 'bottles'})
+          </div>
+        );
+      })()}
 
       {filteredBottles.length === 0 && !showFoodResults ? (
         <div className="text-center py-12">
