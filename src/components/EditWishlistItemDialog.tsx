@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogTrigger,
+} from '@/components/ui/responsive-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -134,19 +140,19 @@ export function EditWishlistItemDialog({ wishlistItem }: EditWishlistItemDialogP
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
+      <ResponsiveDialogTrigger asChild>
         <Button size="sm" variant="outline">
           <Pencil className="w-4 h-4" />
         </Button>
-      </DialogTrigger>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Edit Wishlist Item</DialogTitle>
+      </ResponsiveDialogTrigger>
+      <ResponsiveDialogContent className="max-w-lg">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>Edit Wishlist Item</ResponsiveDialogTitle>
           <p className="text-sm text-muted-foreground">
             ⚠️ Wine changes will affect all bottles and wishlist items of this wine
           </p>
-        </DialogHeader>
+        </ResponsiveDialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -490,7 +496,7 @@ export function EditWishlistItemDialog({ wishlistItem }: EditWishlistItemDialogP
             </div>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 }
